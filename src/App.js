@@ -250,13 +250,13 @@ export const App = () => {
   useEffect(() => {
     const hex = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
 
-    if (hex.id) {
+    if (hex && hex.id) {
       setCurrentHex(hex);
     }
   }, []);
 
   useEffect(() => {
-    if (currentHex.id) {
+    if (currentHex && currentHex.id) {
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(currentHex));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
