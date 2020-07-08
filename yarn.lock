@@ -1096,10 +1096,10 @@
   resolved "https://registry.yarnpkg.com/@csstools/normalize.css/-/normalize.css-10.1.0.tgz#f0950bba18819512d42f7197e56c518aa491cf18"
   integrity sha512-ij4wRiunFfaJxjB0BdrYHIH8FxBJpOwNPhhAcunlmPdXudL1WQV1qoP9un6JsEBAgQH+7UXyyjh0g7jTxXK6tg==
 
-"@dvdagames/js-die-roller@^0.2.2":
-  version "0.2.2"
-  resolved "https://registry.yarnpkg.com/@dvdagames/js-die-roller/-/js-die-roller-0.2.2.tgz#a7209ccb681b0960f9cd14f3c04bb9252c87d249"
-  integrity sha512-fi9RV1iKW61eckZSJXhS5nw+/scZU9uHSj3BY9XfXk/iB2QST3HacQ2ePaP9eZAmZvvcPenPuRDPueNG3Gazzg==
+"@dvdagames/js-die-roller@0.3.0":
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/@dvdagames/js-die-roller/-/js-die-roller-0.3.0.tgz#e9f7c572d7bab6c1bb940db343b6ecf28090d726"
+  integrity sha512-RIGi2VTFKqAL2CYG4Kl5tYcONYVt1y98VhP2YMqCLhS4W7uUd6rfVGlIU5fIiLSq4OEW/eX+p3PHfmZ+zITnBA==
   dependencies:
     jest "^23.6.0"
 

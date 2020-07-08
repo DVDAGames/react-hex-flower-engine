@@ -4,7 +4,7 @@
   "private": true,
   "homepage": "http://dvdagames.github.io/react-hex-flower-engine",
   "dependencies": {
-    "@dvdagames/js-die-roller": "^0.2.2",
+    "@dvdagames/js-die-roller": "0.3.0",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
