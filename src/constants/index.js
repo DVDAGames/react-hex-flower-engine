@@ -1,0 +1,28 @@
+export const LOCAL_STORAGE_NAMESPACE = "HEX_FLOWER_ENGINE";
+
+export const LOCAL_STORAGE_BASE = {
+  ENGINE_STORE: "ENGINE_STORE",
+  ENGINE: "ENGINE",
+  CURRENT_ENGINE: "CURRENT_ENGINE",
+};
+
+export const LOCAL_STORAGE_ENGINE_KEY = `${LOCAL_STORAGE_NAMESPACE}__${LOCAL_STORAGE_BASE.ENGINE}`;
+
+export const LOCAL_STORAGE_CURRENT_ENGINE_KEY = `${LOCAL_STORAGE_NAMESPACE}__${LOCAL_STORAGE_BASE.CURRENT_ENGINE}`;
+
+export const LOCAL_STORAGE_ENGINE_STORE_KEY = `${LOCAL_STORAGE_NAMESPACE}__${LOCAL_STORAGE_BASE.ENGINE_STORE}`;
+
+export const ACTIONS = {
+  RUN: "RUN_ENGINE",
+  RANDOM: "RANDOM_HEX",
+};
+
+export const RUN_ENGINE_ROLL = "sum(2d6)";
+
+export const RANDOM_HEX_ROLL = "1d19";
+
+export const ROLL_DELAY = 1000;
+
+export { default as DEFAULT_ENGINE } from "./engines/default";
+
+export { default as STANDARD_ENGINE } from "./engines/standard";

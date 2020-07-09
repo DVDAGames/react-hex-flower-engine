@@ -4,9 +4,14 @@ This is a simple application for managing a
 [Hex Flower Engine](https://goblinshenchman.wordpress.com/2018/10/25/2d6-hex-power-flower/)
 for any tabletop game in the browser.
 
-The default Hex Flower Engine follows the rules described
-[here](https://github.com/chrisman/skookums-and-dragons/wiki/House-rules#weather)
-as it was built as a companion for this D&D Campaign.
+It currently supports two engines:
+
+- `Standard Hex Flower Engine`: basic hex flower engine with standard movement rules
+  as described in the
+  [article linked above](https://goblinshenchman.wordpress.com/2018/10/25/2d6-hex-power-flower/)
+- `SKT Weather Engine`: modified hex flower engine built for a specific weather
+  generator for a D&D campaign; rules are described
+  [here](https://github.com/chrisman/skookums-and-dragons/wiki/House-rules#weather)
 
 **Demo**: [https://dvdagames.github.io/react-hex-flower-engine/](https://dvdagames.github.io/react-hex-flower-engine/)
 
@@ -20,8 +25,9 @@ generating the next move.
 It currenty allows you to roll `2d6` and move the appropriate direction on the
 grid or roll `1d19` and move directly to the corresponding hex.
 
-The current hex is stored in `localStorage` so that users can come back to the
-application and resume their engine where they left off.
+Each engine's current state is stored in `localStorage` so that users can come back
+to the application and resume their engine where they left off and even swap engines
+mid-session and not lose their current state.
 
 ## Resources
 

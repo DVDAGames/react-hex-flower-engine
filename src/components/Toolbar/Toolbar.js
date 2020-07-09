@@ -2,13 +2,21 @@ import React from "react";
 
 import Roller from "@dvdagames/js-die-roller";
 
+import {
+  RUN_ENGINE_ROLL,
+  RANDOM_HEX_ROLL,
+  ACTIONS,
+  LOCAL_STORAGE_ENGINE_KEY,
+} from "../../constants";
+
 import styles from "./Toolbar.module.scss";
 
-const RUN_ENGINE_ROLL = "sum(2d6)";
-
-const RANDOM_HEX_ROLL = "1d19";
-
-export const Toolbar = ({ setRoll, currentRoll }) => {
+export const Toolbar = ({
+  setRoll,
+  currentRoll,
+  engines,
+  setCurrentEngine,
+}) => {
   const runEngine = () => {
     if (typeof setRoll === "function") {
       try {
@@ -16,7 +24,9 @@ export const Toolbar = ({ setRoll, currentRoll }) => {
           result: { total },
         } = new Roller(RUN_ENGINE_ROLL);
 
-        setRoll({ type: "RUN_ENGINE", total });
+        const type = ACTIONS.RUN;
+
+        setRoll({ type, total });
       } catch (e) {
         console.error(e);
       }
@@ -32,10 +42,36 @@ export const Toolbar = ({ setRoll, currentRoll }) => {
           },
         } = new Roller(RANDOM_HEX_ROLL);
 
-        setRoll({ type: "RANDOM_HEX", total });
+        const type = ACTIONS.RANDOM;
+
+        setRoll({ type, total });
       } catch (e) {
         console.error(e);
       }
+    }
+  };
+
+  const renderEngineOptions = () => {
+    return engines.map(({ id, name }) => {
+      return (
+        <option key={`engine-${id}`} value={id}>
+          {name}
+        </option>
+      );
+    });
+  };
+
+  const onChooseEngine = (e) => {
+    const engineId = e.target.value;
+
+    console.log("NEW ENGINE:", engineId);
+
+    const storedEngine = JSON.parse(
+      localStorage.getItem(`${LOCAL_STORAGE_ENGINE_KEY}_${engineId}`)
+    );
+
+    if (storedEngine?.id) {
+      setCurrentEngine(storedEngine);
     }
   };
 
@@ -44,13 +80,23 @@ export const Toolbar = ({ setRoll, currentRoll }) => {
       <ul className={styles.list}>
         <li className={styles.listItem}>
           <button onClick={runEngine} disabled={currentRoll}>
-            Roll (2d6) & Move
+            Run Engine (2d6)
           </button>
         </li>
         <li className={styles.listItem}>
           <button onClick={randomHex} disabled={currentRoll}>
             Random (1d19)
           </button>
+        </li>
+        <li className={styles.listItem}>
+          <label htmlFor="choose-engine">Engine</label>
+          <select
+            id="choose-engine"
+            onChange={onChooseEngine}
+            disabled={engines.length < 2}
+          >
+            {renderEngineOptions()}
+          </select>
         </li>
       </ul>
       {currentRoll ? (
