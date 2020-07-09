@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/react-hex-flower-engine/precache-manifest.8fc46aa5d40564d0aeacd1c23fee6d2d.js"
+  "/react-hex-flower-engine/precache-manifest.6c29d99280d1a49904a79b2cd54b25b3.js"
 );
 
 self.addEventListener('message', (event) => {
