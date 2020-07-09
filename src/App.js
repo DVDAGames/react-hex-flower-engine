@@ -156,7 +156,7 @@ const nodes = [
       downRight: 10,
       down: 11,
       downLeft: 19,
-      upLeft: 3,
+      upLeft: 7,
     },
   },
   {
@@ -264,21 +264,30 @@ export const App = () => {
 
   useEffect(() => {
     if (roll !== null) {
-      const direction = DIRECTION_MAP[roll];
-
-      if (direction) {
-        const newHexId = currentHex.map[direction];
-
-        if (newHexId) {
-          const activeHex = nodes.find(({ id }) => id === newHexId);
+      switch (roll.type) {
+        case "RANDOM_HEX":
+          const activeHex = nodes.find(({ id }) => id === roll.total);
 
           setCurrentHex(activeHex);
+          break;
+        case "RUN_ENGINE":
+        default:
+          const direction = DIRECTION_MAP[roll.total];
 
-          setTimeout(() => {
-            setRoll(null);
-          }, ROLL_DELAY);
-        }
+          if (direction && currentHex) {
+            const newHexId = currentHex.map[direction];
+
+            if (newHexId) {
+              const activeHex = nodes.find(({ id }) => id === newHexId);
+
+              setCurrentHex(activeHex);
+            }
+          }
       }
+
+      setTimeout(() => {
+        setRoll(null);
+      }, ROLL_DELAY);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roll]);

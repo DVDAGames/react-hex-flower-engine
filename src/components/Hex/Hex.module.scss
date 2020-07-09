@@ -11,6 +11,7 @@
   z-index: 1;
   cursor: pointer;
   appearance: none;
+  opacity: 0.5;
 
   &::before {
     content: "";
@@ -162,6 +163,7 @@
 
 .activeHex {
   background-color: #68f0b0;
+  opacity: 1;
 
   &::before {
     border-left-color: #68f0b0;
@@ -183,4 +185,8 @@
       border-right-color: #68f0b0 !important;
     }
   }
+}
+
+.highlightedHex {
+  opacity: 1;
 }

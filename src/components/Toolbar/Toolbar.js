@@ -4,29 +4,35 @@ import Roller from "@dvdagames/js-die-roller";
 
 import styles from "./Toolbar.module.scss";
 
-const ROLL = "sum(2d6)";
+const RUN_ENGINE_ROLL = "sum(2d6)";
 
-const RANDOM_START_ROLL = "1d19";
+const RANDOM_HEX_ROLL = "1d19";
 
-export const Toolbar = ({ setCurrentHex, setRoll, currentRoll }) => {
-  const rollDice = () => {
-    if (typeof setCurrentHex === "function") {
+export const Toolbar = ({ setRoll, currentRoll }) => {
+  const runEngine = () => {
+    if (typeof setRoll === "function") {
       try {
-        const { result } = new Roller(ROLL);
+        const {
+          result: { total },
+        } = new Roller(RUN_ENGINE_ROLL);
 
-        setRoll(result.total);
+        setRoll({ type: "RUN_ENGINE", total });
       } catch (e) {
         console.error(e);
       }
     }
   };
 
-  const randomStart = () => {
-    if (typeof setCurrentHex === "function") {
+  const randomHex = () => {
+    if (typeof setRoll === "function") {
       try {
-        const { result } = new Roller(RANDOM_START_ROLL);
+        const {
+          result: {
+            total: [total],
+          },
+        } = new Roller(RANDOM_HEX_ROLL);
 
-        setRoll(result.total[0]);
+        setRoll({ type: "RANDOM_HEX", total });
       } catch (e) {
         console.error(e);
       }
@@ -37,17 +43,21 @@ export const Toolbar = ({ setCurrentHex, setRoll, currentRoll }) => {
     <nav className={styles.toolbar}>
       <ul className={styles.list}>
         <li className={styles.listItem}>
-          <button onClick={rollDice} disabled={currentRoll}>
-            Roll
+          <button onClick={runEngine} disabled={currentRoll}>
+            Roll (2d6) & Move
           </button>
         </li>
         <li className={styles.listItem}>
-          <button onClick={randomStart} disabled={currentRoll}>
-            Random
+          <button onClick={randomHex} disabled={currentRoll}>
+            Random (1d19)
           </button>
         </li>
       </ul>
-      {currentRoll ? <p className={styles.roll}>Roll: {currentRoll}</p> : <></>}
+      {currentRoll ? (
+        <p className={styles.roll}>Roll: {currentRoll.total}</p>
+      ) : (
+        <></>
+      )}
     </nav>
   );
 };
