@@ -4,283 +4,127 @@ import Grid from "./components/Grid";
 
 import Toolbar from "./components/Toolbar";
 
+import {
+  LOCAL_STORAGE_ENGINE_KEY,
+  LOCAL_STORAGE_CURRENT_ENGINE_KEY,
+  LOCAL_STORAGE_ENGINE_STORE_KEY,
+  ROLL_DELAY,
+  ACTIONS,
+  DEFAULT_ENGINE,
+  STANDARD_ENGINE,
+} from "./constants";
+
 import styles from "./App.module.scss";
 
-const LOCAL_STORAGE_KEY = "HEX_FLOWER__CURRENT_HEX";
-
-const ROLL_DELAY = 1000;
-
-const DEFAULT_STARTING_HEX_ID = 9;
-
-const DIRECTION_MAP = {
-  2: "upRight",
-  3: "upRight",
-  4: "downRight",
-  5: "downRight",
-  6: "down",
-  7: "down",
-  8: "downLeft",
-  9: "downLeft",
-  10: "upLeft",
-  11: "upLeft",
-  12: "up",
-};
-
-const nodes = [
-  {
-    id: 1,
-    map: {
-      up: 4,
-      upRight: 3,
-      downRight: 5,
-      down: 1,
-      downLeft: 7,
-      upLeft: 2,
-    },
-  },
-  {
-    id: 2,
-    map: {
-      up: 6,
-      upRight: 4,
-      downRight: 1,
-      down: 17,
-      downLeft: 14,
-      upLeft: 5,
-    },
-  },
-  {
-    id: 3,
-    map: {
-      up: 8,
-      upRight: 7,
-      downRight: 11,
-      down: 18,
-      downLeft: 1,
-      upLeft: 4,
-    },
-  },
-  {
-    id: 4,
-    map: {
-      up: 9,
-      upRight: 8,
-      downRight: 3,
-      down: 1,
-      downLeft: 2,
-      upLeft: 6,
-    },
-  },
-  {
-    id: 5,
-    map: {
-      up: 11,
-      upRight: 6,
-      downRight: 2,
-      down: 12,
-      downLeft: 15,
-      upLeft: 1,
-    },
-  },
-  {
-    id: 6,
-    map: {
-      up: 10,
-      upRight: 9,
-      downRight: 4,
-      down: 2,
-      downLeft: 5,
-      upLeft: 11,
-    },
-  },
-  {
-    id: 7,
-    map: {
-      up: 14,
-      upRight: 1,
-      downRight: 12,
-      down: 15,
-      downLeft: 3,
-      upLeft: 8,
-    },
-  },
-  {
-    id: 8,
-    map: {
-      up: 13,
-      upRight: 14,
-      downRight: 7,
-      down: 3,
-      downLeft: 4,
-      upLeft: 9,
-    },
-  },
-  {
-    id: 9,
-    map: {
-      up: 16,
-      upRight: 13,
-      downRight: 8,
-      down: 4,
-      downLeft: 6,
-      upLeft: 10,
-    },
-  },
-  {
-    id: 10,
-    map: {
-      up: 17,
-      upRight: 16,
-      downRight: 9,
-      down: 6,
-      downLeft: 11,
-      upLeft: 12,
-    },
-  },
-  {
-    id: 11,
-    map: {
-      up: 12,
-      upRight: 10,
-      downRight: 6,
-      down: 5,
-      downLeft: 18,
-      upLeft: 3,
-    },
-  },
-  {
-    id: 12,
-    map: {
-      up: 5,
-      upRight: 17,
-      downRight: 10,
-      down: 11,
-      downLeft: 19,
-      upLeft: 7,
-    },
-  },
-  {
-    id: 13,
-    map: {
-      up: 18,
-      upRight: 15,
-      downRight: 14,
-      down: 8,
-      downLeft: 9,
-      upLeft: 16,
-    },
-  },
-  {
-    id: 14,
-    map: {
-      up: 15,
-      upRight: 2,
-      downRight: 17,
-      down: 7,
-      downLeft: 8,
-      upLeft: 13,
-    },
-  },
-  {
-    id: 15,
-    map: {
-      up: 7,
-      upRight: 5,
-      downRight: 19,
-      down: 14,
-      downLeft: 13,
-      upLeft: 18,
-    },
-  },
-  {
-    id: 16,
-    map: {
-      up: 19,
-      upRight: 18,
-      downRight: 13,
-      down: 9,
-      downLeft: 10,
-      upLeft: 17,
-    },
-  },
-  {
-    id: 17,
-    map: {
-      up: 2,
-      upRight: 19,
-      downRight: 16,
-      down: 10,
-      downLeft: 12,
-      upLeft: 14,
-    },
-  },
-  {
-    id: 18,
-    map: {
-      up: 3,
-      upRight: 11,
-      downRight: 15,
-      down: 13,
-      downLeft: 16,
-      upLeft: 19,
-    },
-  },
-  {
-    id: 19,
-    map: {
-      up: 16,
-      upRight: 18,
-      downRight: 18,
-      down: 16,
-      downLeft: 17,
-      upLeft: 17,
-    },
-  },
-];
-
-const DEFAULT_STARTING_NODE = nodes.find(
-  ({ id }) => id === DEFAULT_STARTING_HEX_ID
-);
+const DEFAULT_ENGINE_STORE = [STANDARD_ENGINE, DEFAULT_ENGINE];
 
 export const App = () => {
+  const [currentEngine, setCurrentEngine] = useState(null);
+
+  const [activeHex, setActiveHex] = useState(null);
+
   const [roll, setRoll] = useState(null);
 
-  const [currentHex, setCurrentHex] = useState(DEFAULT_STARTING_NODE);
+  const [engines, setEngines] = useState([]);
 
+  /* eslint-disable react-hooks/exhaustive-deps*/
   useEffect(() => {
-    const hex = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
+    const engine = JSON.parse(
+      localStorage.getItem(LOCAL_STORAGE_CURRENT_ENGINE_KEY)
+    );
 
-    if (hex && hex.id) {
-      setCurrentHex(hex);
+    console.log(localStorage.getItem(LOCAL_STORAGE_ENGINE_STORE_KEY));
+
+    const engineStore = JSON.parse(
+      localStorage.getItem(LOCAL_STORAGE_ENGINE_STORE_KEY)
+    );
+
+    if (Array.isArray(engineStore) && engineStore.length) {
+      setEngines(engineStore);
+    } else {
+      setEngines(DEFAULT_ENGINE_STORE);
+
+      localStorage.setItem(
+        LOCAL_STORAGE_ENGINE_STORE_KEY,
+        JSON.stringify(
+          DEFAULT_ENGINE_STORE.map(({ id, name }) => ({
+            id,
+            name,
+          }))
+        )
+      );
+    }
+
+    if (engine?.id) {
+      setCurrentEngine(engine);
+    } else {
+      setCurrentEngine(DEFAULT_ENGINE_STORE[0]);
     }
   }, []);
 
   useEffect(() => {
-    if (currentHex && currentHex.id) {
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(currentHex));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentHex.id]);
+    engines.forEach((engineStoreItem) => {
+      const engineKey = `${LOCAL_STORAGE_ENGINE_KEY}_${engineStoreItem.id}`;
+
+      const storedEngine = JSON.parse(localStorage.getItem(engineKey));
+
+      if (!storedEngine?.id) {
+        localStorage.setItem(engineKey, JSON.stringify(engineStoreItem));
+      }
+    });
+  }, [engines.length]);
 
   useEffect(() => {
-    if (roll !== null) {
+    if (currentEngine?.id) {
+      localStorage.setItem(
+        LOCAL_STORAGE_CURRENT_ENGINE_KEY,
+        JSON.stringify(currentEngine)
+      );
+
+      if (currentEngine?.start) {
+        setActiveHex(currentEngine.start);
+      }
+    }
+  }, [currentEngine?.id]);
+
+  useEffect(() => {
+    if (currentEngine?.id) {
+      currentEngine.start = activeHex;
+    }
+  }, [activeHex]);
+
+  useEffect(() => {
+    if (currentEngine?.start) {
+      const stringifiedEngine = JSON.stringify(currentEngine);
+
+      localStorage.setItem(
+        `${LOCAL_STORAGE_ENGINE_KEY}_${currentEngine.id}`,
+        stringifiedEngine
+      );
+
+      localStorage.setItem(LOCAL_STORAGE_CURRENT_ENGINE_KEY, stringifiedEngine);
+    }
+  }, [currentEngine?.start]);
+
+  useEffect(() => {
+    if (roll?.total) {
       switch (roll.type) {
-        case "RANDOM_HEX":
-          const activeHex = nodes.find(({ id }) => id === roll.total);
-
-          setCurrentHex(activeHex);
+        case ACTIONS.RANDOM:
+          setActiveHex(roll.total);
           break;
-        case "RUN_ENGINE":
+        case ACTIONS.RUN:
         default:
-          const direction = DIRECTION_MAP[roll.total];
+          const direction = currentEngine.directions[roll.total];
 
-          if (direction && currentHex) {
-            const newHexId = currentHex.map[direction];
+          const currentNode = currentEngine.nodes.find(
+            ({ id }) => id === currentEngine.start
+          );
 
-            if (newHexId) {
-              const activeHex = nodes.find(({ id }) => id === newHexId);
+          if (direction && currentNode) {
+            const newNodeId = currentNode.map[direction];
 
-              setCurrentHex(activeHex);
+            if (newNodeId) {
+              setActiveHex(newNodeId);
             }
           }
       }
@@ -289,24 +133,33 @@ export const App = () => {
         setRoll(null);
       }, ROLL_DELAY);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [roll]);
+  }, [roll?.total]);
+  /* eslint-enable react-hooks/exhaustive-deps*/
 
   return (
     <>
       <section className={styles.container}>
         <h1 className={styles.heading}>Hex Flower Engine</h1>
-        <Grid
-          activeHex={currentHex}
-          hexAction={setCurrentHex}
-          gridItems={nodes}
-        />
+        {currentEngine?.id ? (
+          <Grid
+            engine={currentEngine}
+            setActiveHex={setActiveHex}
+            activeHex={activeHex}
+          />
+        ) : (
+          <></>
+        )}
       </section>
-      <Toolbar
-        setRoll={setRoll}
-        setCurrentHex={setCurrentHex}
-        currentRoll={roll}
-      />
+      {currentEngine?.id ? (
+        <Toolbar
+          setRoll={setRoll}
+          currentRoll={roll}
+          engines={engines}
+          setCurrentEngine={setCurrentEngine}
+        />
+      ) : (
+        <></>
+      )}
     </>
   );
 };
