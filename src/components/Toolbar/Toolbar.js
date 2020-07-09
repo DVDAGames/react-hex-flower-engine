@@ -43,7 +43,7 @@ export const Toolbar = ({ setCurrentHex, setRoll, currentRoll }) => {
         </li>
         <li className={styles.listItem}>
           <button onClick={randomStart} disabled={currentRoll}>
-            Random Start
+            Random
           </button>
         </li>
       </ul>

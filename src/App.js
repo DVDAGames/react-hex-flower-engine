@@ -286,7 +286,7 @@ export const App = () => {
   return (
     <>
       <section className={styles.container}>
-        <h1 className={styles.heading}>Hex Flower</h1>
+        <h1 className={styles.heading}>Hex Flower Engine</h1>
         <Grid
           activeHex={currentHex}
           hexAction={setCurrentHex}

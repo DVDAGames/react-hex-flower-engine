@@ -2,15 +2,14 @@ html {
   width: 100%;
   height: 100%;
   overflow-y: scroll;
-  overflow-x: none;
+  overflow-x: hidden;
   box-sizing: border-box;
 }
 
-* {
-  &::before,
-  &::after {
-    box-sizing: inherit;
-  }
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
 }
 
 body {
@@ -30,4 +29,5 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
 }
