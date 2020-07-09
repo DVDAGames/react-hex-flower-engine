@@ -18,8 +18,6 @@ export const Grid = ({ engine, setActiveHex, activeHex }) => {
   const renderHexes = () => {
     return engine.nodes.map((hex) => {
       const hexAction = () => {
-        console.log("setting active hex:", hex.id);
-
         setActiveHex(hex.id);
       };
 

@@ -15,6 +15,7 @@ export const Toolbar = ({
   setRoll,
   currentRoll,
   engines,
+  currentEngine,
   setCurrentEngine,
 }) => {
   const runEngine = () => {
@@ -64,8 +65,6 @@ export const Toolbar = ({
   const onChooseEngine = (e) => {
     const engineId = e.target.value;
 
-    console.log("NEW ENGINE:", engineId);
-
     const storedEngine = JSON.parse(
       localStorage.getItem(`${LOCAL_STORAGE_ENGINE_KEY}_${engineId}`)
     );
@@ -94,6 +93,7 @@ export const Toolbar = ({
             id="choose-engine"
             onChange={onChooseEngine}
             disabled={engines.length < 2}
+            value={currentEngine.id}
           >
             {renderEngineOptions()}
           </select>

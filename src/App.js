@@ -33,8 +33,6 @@ export const App = () => {
       localStorage.getItem(LOCAL_STORAGE_CURRENT_ENGINE_KEY)
     );
 
-    console.log(localStorage.getItem(LOCAL_STORAGE_ENGINE_STORE_KEY));
-
     const engineStore = JSON.parse(
       localStorage.getItem(LOCAL_STORAGE_ENGINE_STORE_KEY)
     );
@@ -155,6 +153,7 @@ export const App = () => {
           setRoll={setRoll}
           currentRoll={roll}
           engines={engines}
+          currentEngine={currentEngine}
           setCurrentEngine={setCurrentEngine}
         />
       ) : (
