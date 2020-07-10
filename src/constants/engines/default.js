@@ -97,6 +97,12 @@ const nodes = [
   },
   {
     id: 10,
+    icon: "not-available",
+    label: "No Change in Weather",
+    style: {
+      backgroundColor: "#224fdc",
+      iconColor: "#232323",
+    },
     map: {
       up: 15,
       upRight: 13,
@@ -207,6 +213,12 @@ const nodes = [
   },
   {
     id: 19,
+    icon: "tornado",
+    label: "Natural Disaster",
+    style: {
+      backgroundColor: "#f16613",
+      iconColor: "#232323",
+    },
     map: {
       up: 19,
       upRight: 19,

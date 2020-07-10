@@ -11,7 +11,7 @@
   z-index: 1;
   cursor: pointer;
   appearance: none;
-  opacity: 0.5;
+  opacity: 0.35;
 
   &::before {
     content: "";
@@ -122,7 +122,7 @@
   justify-content: center;
   border-top: 2px solid #000;
   border-bottom: 2px solid #000;
-  background: #ccc;
+  background-color: transparent;
   z-index: 2;
 
   &::before {
@@ -132,7 +132,7 @@
     left: calc(100% - 1px);
     transform: translateY(-50%);
     border-top: 20px solid transparent;
-    border-left: 15px solid #ccc;
+    border-left: 15px solid transparent;
     border-bottom: 20px solid transparent;
   }
 
@@ -142,7 +142,7 @@
     top: 50%;
     right: calc(100% - 1px);
     transform: translateY(-50%);
-    border-right: 15px solid #ccc;
+    border-right: 15px solid transparent;
     border-top: 20px solid transparent;
     border-bottom: 20px solid transparent;
   }
@@ -163,7 +163,6 @@
 
 .activeHex {
   background-color: #68f0b0;
-  opacity: 1;
 
   &::before {
     border-left-color: #68f0b0;
@@ -187,6 +186,10 @@
   }
 }
 
-.highlightedHex {
+.activeHexContainer {
   opacity: 1;
+}
+
+.highlightedHex {
+  opacity: 0.6;
 }

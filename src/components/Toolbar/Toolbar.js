@@ -7,9 +7,15 @@ import {
   RANDOM_HEX_ROLL,
   ACTIONS,
   LOCAL_STORAGE_ENGINE_KEY,
+  DEFAULT_ENGINE,
+  STANDARD_ENGINE,
 } from "../../constants";
 
 import styles from "./Toolbar.module.scss";
+
+const CACHE = process.env.REACT_APP_NO_CACHE !== "TRUE";
+
+const DEFAULT_ENGINE_STORE = [STANDARD_ENGINE, DEFAULT_ENGINE];
 
 export const Toolbar = ({
   setRoll,
@@ -65,9 +71,11 @@ export const Toolbar = ({
   const onChooseEngine = (e) => {
     const engineId = e.target.value;
 
-    const storedEngine = JSON.parse(
-      localStorage.getItem(`${LOCAL_STORAGE_ENGINE_KEY}_${engineId}`)
-    );
+    const storedEngine = CACHE
+      ? JSON.parse(
+          localStorage.getItem(`${LOCAL_STORAGE_ENGINE_KEY}_${engineId}`)
+        )
+      : DEFAULT_ENGINE_STORE.find(({ id }) => id === engineId);
 
     if (storedEngine?.id) {
       setCurrentEngine(storedEngine);
