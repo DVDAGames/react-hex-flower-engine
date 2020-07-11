@@ -4,6 +4,10 @@ import Grid from "./components/Grid";
 
 import Toolbar from "./components/Toolbar";
 
+import Store from "./utilities/storage";
+
+import checkEngineVersion from "./utilities/check-version";
+
 import {
   LOCAL_STORAGE_ENGINE_KEY,
   LOCAL_STORAGE_CURRENT_ENGINE_KEY,
@@ -18,8 +22,6 @@ import styles from "./App.module.scss";
 
 const DEFAULT_ENGINE_STORE = [STANDARD_ENGINE, DEFAULT_ENGINE];
 
-const CACHE = process.env.REACT_APP_NO_CACHE !== "TRUE";
-
 export const App = () => {
   const [currentEngine, setCurrentEngine] = useState(null);
 
@@ -31,30 +33,25 @@ export const App = () => {
 
   /* eslint-disable react-hooks/exhaustive-deps*/
   useEffect(() => {
-    const engine = CACHE
-      ? JSON.parse(localStorage.getItem(LOCAL_STORAGE_CURRENT_ENGINE_KEY))
-      : DEFAULT_ENGINE;
+    const engine =
+      Store.get(LOCAL_STORAGE_CURRENT_ENGINE_KEY) || DEFAULT_ENGINE;
 
-    const engineStore = CACHE
-      ? JSON.parse(localStorage.getItem(LOCAL_STORAGE_ENGINE_STORE_KEY))
-      : DEFAULT_ENGINE_STORE;
+    const engineStore =
+      Store.get(LOCAL_STORAGE_ENGINE_STORE_KEY) || DEFAULT_ENGINE_STORE;
 
     if (Array.isArray(engineStore) && engineStore.length) {
       setEngines(engineStore);
     } else {
       setEngines(DEFAULT_ENGINE_STORE);
 
-      if (CACHE) {
-        localStorage.setItem(
-          LOCAL_STORAGE_ENGINE_STORE_KEY,
-          JSON.stringify(
-            DEFAULT_ENGINE_STORE.map(({ id, name }) => ({
-              id,
-              name,
-            }))
-          )
-        );
-      }
+      Storage.set(
+        LOCAL_STORAGE_ENGINE_STORE_KEY,
+        DEFAULT_ENGINE_STORE.map(({ id, name, version }) => ({
+          id,
+          name,
+          version,
+        }))
+      );
     }
 
     if (engine?.id) {
@@ -68,26 +65,27 @@ export const App = () => {
     engines.forEach((engineStoreItem) => {
       const engineKey = `${LOCAL_STORAGE_ENGINE_KEY}_${engineStoreItem.id}`;
 
-      const storedEngine = JSON.parse(localStorage.getItem(engineKey));
+      const storedEngine = Store.get(engineKey);
 
-      if (CACHE) {
-        if (!storedEngine?.id) {
-          localStorage.setItem(engineKey, JSON.stringify(engineStoreItem));
-        }
+      if (
+        !storedEngine?.id ||
+        checkEngineVersion(engineStoreItem.version, storedEngine.version)
+      ) {
+        Store.set(engineKey, {
+          ...engineStoreItem,
+          active: storedEngine.active,
+        });
       }
     });
   }, [engines.length]);
 
   useEffect(() => {
     if (currentEngine?.id) {
-      if (CACHE) {
-        localStorage.setItem(
-          LOCAL_STORAGE_CURRENT_ENGINE_KEY,
-          JSON.stringify(currentEngine)
-        );
-      }
+      Store.set(LOCAL_STORAGE_CURRENT_ENGINE_KEY, currentEngine);
 
-      if (currentEngine?.start) {
+      if (currentEngine?.activeHex) {
+        setActiveHex(currentEngine.activeHex);
+      } else {
         setActiveHex(currentEngine.start);
       }
     }
@@ -95,27 +93,20 @@ export const App = () => {
 
   useEffect(() => {
     if (currentEngine?.id) {
-      currentEngine.start = activeHex;
+      currentEngine.activeHex = activeHex;
     }
   }, [activeHex]);
 
   useEffect(() => {
-    if (currentEngine?.start) {
-      const stringifiedEngine = JSON.stringify(currentEngine);
+    if (currentEngine?.activeHex) {
+      Store.set(
+        `${LOCAL_STORAGE_ENGINE_KEY}_${currentEngine.id}`,
+        currentEngine
+      );
 
-      if (CACHE) {
-        localStorage.setItem(
-          `${LOCAL_STORAGE_ENGINE_KEY}_${currentEngine.id}`,
-          stringifiedEngine
-        );
-
-        localStorage.setItem(
-          LOCAL_STORAGE_CURRENT_ENGINE_KEY,
-          stringifiedEngine
-        );
-      }
+      Store.set(LOCAL_STORAGE_CURRENT_ENGINE_KEY, currentEngine);
     }
-  }, [currentEngine?.start]);
+  }, [currentEngine?.activeHex]);
 
   useEffect(() => {
     if (roll?.total) {
@@ -128,7 +119,7 @@ export const App = () => {
           const direction = currentEngine.directions[roll.total];
 
           const currentNode = currentEngine.nodes.find(
-            ({ id }) => id === currentEngine.start
+            ({ id }) => id === currentEngine.activeHex
           );
 
           if (direction && currentNode) {
