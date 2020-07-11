@@ -4,25 +4,24 @@ import Roller from "@dvdagames/js-die-roller";
 
 import Store from "../../utilities/storage";
 
+import checkVersion from "../../utilities/check-version";
+
 import {
   RUN_ENGINE_ROLL,
   RANDOM_HEX_ROLL,
   ACTIONS,
   LOCAL_STORAGE_ENGINE_KEY,
-  DEFAULT_ENGINE,
-  STANDARD_ENGINE,
+  DEFAULT_ENGINE_STORE,
 } from "../../constants";
 
 import styles from "./Toolbar.module.scss";
 
-const DEFAULT_ENGINE_STORE = [STANDARD_ENGINE, DEFAULT_ENGINE];
-
 export const Toolbar = ({
   setRoll,
-  currentRoll,
   engines,
   currentEngine,
   setCurrentEngine,
+  setActiveHex,
 }) => {
   const runEngine = () => {
     if (typeof setRoll === "function") {
@@ -68,12 +67,29 @@ export const Toolbar = ({
     });
   };
 
+  const restartEngine = () => {
+    setActiveHex(currentEngine.start);
+  };
+
   const onChooseEngine = (e) => {
     const engineId = e.target.value;
 
-    const storedEngine =
-      Store.get(`${LOCAL_STORAGE_ENGINE_KEY}_${engineId}`) ||
-      DEFAULT_ENGINE_STORE.find(({ id }) => id === engineId);
+    const engineKey = `${LOCAL_STORAGE_ENGINE_KEY}_${engineId}`;
+
+    const storedEngine = engines.find(({ id }) => id === engineId);
+
+    const cachedEngine = Store.get(engineKey);
+
+    if (checkVersion(storedEngine.version, cachedEngine.version)) {
+      const newEngine = {
+        ...DEFAULT_ENGINE_STORE.find(({ id }) => id === engineId),
+        active: cachedEngine?.active ? cachedEngine.active : storedEngine.start,
+      };
+
+      Store.set(engineKey, newEngine);
+
+      setCurrentEngine(newEngine);
+    }
 
     if (storedEngine?.id) {
       setCurrentEngine(storedEngine);
@@ -84,14 +100,13 @@ export const Toolbar = ({
     <nav className={styles.toolbar}>
       <ul className={styles.list}>
         <li className={styles.listItem}>
-          <button onClick={runEngine} disabled={currentRoll}>
-            Run Engine (2d6)
-          </button>
+          <button onClick={runEngine}>Run Engine (2d6)</button>
         </li>
         <li className={styles.listItem}>
-          <button onClick={randomHex} disabled={currentRoll}>
-            Random (1d19)
-          </button>
+          <button onClick={randomHex}>Random (1d19)</button>
+        </li>
+        <li className={styles.listItem}>
+          <button onClick={restartEngine}>Restart</button>
         </li>
         <li className={styles.listItem}>
           <label htmlFor="choose-engine">Engine</label>
@@ -105,11 +120,6 @@ export const Toolbar = ({
           </select>
         </li>
       </ul>
-      {currentRoll ? (
-        <p className={styles.roll}>Roll: {currentRoll.total}</p>
-      ) : (
-        <></>
-      )}
     </nav>
   );
 };

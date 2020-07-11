@@ -2,11 +2,11 @@ import { DEFAULT_DIRECTION_MAP as directions } from "./shared";
 
 const id = "00001";
 
-const name = "SKT Campaign Weather";
+const name = "Weather";
 
 const start = 1;
 
-const version = "1.1.0";
+const version = "1.2.2";
 
 const nodes = [
   {

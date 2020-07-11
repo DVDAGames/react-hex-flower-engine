@@ -14,13 +14,11 @@ import {
   LOCAL_STORAGE_ENGINE_STORE_KEY,
   ROLL_DELAY,
   ACTIONS,
-  DEFAULT_ENGINE,
-  STANDARD_ENGINE,
+  DEFAULT_STARTING_HEX,
+  DEFAULT_ENGINE_STORE,
 } from "./constants";
 
 import styles from "./App.module.scss";
-
-const DEFAULT_ENGINE_STORE = [STANDARD_ENGINE, DEFAULT_ENGINE];
 
 export const App = () => {
   const [currentEngine, setCurrentEngine] = useState(null);
@@ -31,27 +29,36 @@ export const App = () => {
 
   const [engines, setEngines] = useState([]);
 
+  const [rollDisplayTimeout, setRollDisplayTimeout] = useState();
+
   /* eslint-disable react-hooks/exhaustive-deps*/
   useEffect(() => {
-    const engine =
-      Store.get(LOCAL_STORAGE_CURRENT_ENGINE_KEY) || DEFAULT_ENGINE;
+    const engine = Store.get(LOCAL_STORAGE_CURRENT_ENGINE_KEY);
 
-    const engineStore =
-      Store.get(LOCAL_STORAGE_ENGINE_STORE_KEY) || DEFAULT_ENGINE_STORE;
+    const engineStore = Store.get(LOCAL_STORAGE_ENGINE_STORE_KEY);
 
     if (Array.isArray(engineStore) && engineStore.length) {
-      setEngines(engineStore);
+      const versionedEngineStore = engineStore.map((engineStoreItem) => {
+        const defaultEngine = DEFAULT_ENGINE_STORE.find(
+          ({ id }) => id === engineStoreItem.id
+        );
+
+        if (
+          checkEngineVersion(defaultEngine.version, engineStoreItem.version)
+        ) {
+          return defaultEngine;
+        }
+
+        return engineStoreItem;
+      });
+
+      Store.set(LOCAL_STORAGE_ENGINE_STORE_KEY, versionedEngineStore);
+
+      setEngines(versionedEngineStore);
     } else {
       setEngines(DEFAULT_ENGINE_STORE);
 
-      Storage.set(
-        LOCAL_STORAGE_ENGINE_STORE_KEY,
-        DEFAULT_ENGINE_STORE.map(({ id, name, version }) => ({
-          id,
-          name,
-          version,
-        }))
-      );
+      Store.set(LOCAL_STORAGE_ENGINE_STORE_KEY, DEFAULT_ENGINE_STORE);
     }
 
     if (engine?.id) {
@@ -71,9 +78,18 @@ export const App = () => {
         !storedEngine?.id ||
         checkEngineVersion(engineStoreItem.version, storedEngine.version)
       ) {
+        const defaultEngine = DEFAULT_ENGINE_STORE.find(
+          ({ id }) => id === engineStoreItem.id
+        );
+
         Store.set(engineKey, {
+          ...defaultEngine,
           ...engineStoreItem,
-          active: storedEngine.active,
+          active: storedEngine?.active
+            ? storedEngine.active
+            : defaultEngine?.start
+            ? defaultEngine.start
+            : DEFAULT_STARTING_HEX,
         });
       }
     });
@@ -83,8 +99,8 @@ export const App = () => {
     if (currentEngine?.id) {
       Store.set(LOCAL_STORAGE_CURRENT_ENGINE_KEY, currentEngine);
 
-      if (currentEngine?.activeHex) {
-        setActiveHex(currentEngine.activeHex);
+      if (currentEngine?.active) {
+        setActiveHex(currentEngine.active);
       } else {
         setActiveHex(currentEngine.start);
       }
@@ -92,13 +108,13 @@ export const App = () => {
   }, [currentEngine?.id]);
 
   useEffect(() => {
-    if (currentEngine?.id) {
-      currentEngine.activeHex = activeHex;
+    if (currentEngine) {
+      setCurrentEngine({ ...currentEngine, active: activeHex });
     }
   }, [activeHex]);
 
   useEffect(() => {
-    if (currentEngine?.activeHex) {
+    if (currentEngine?.active) {
       Store.set(
         `${LOCAL_STORAGE_ENGINE_KEY}_${currentEngine.id}`,
         currentEngine
@@ -106,7 +122,7 @@ export const App = () => {
 
       Store.set(LOCAL_STORAGE_CURRENT_ENGINE_KEY, currentEngine);
     }
-  }, [currentEngine?.activeHex]);
+  }, [currentEngine?.active]);
 
   useEffect(() => {
     if (roll?.total) {
@@ -119,27 +135,42 @@ export const App = () => {
           const direction = currentEngine.directions[roll.total];
 
           const currentNode = currentEngine.nodes.find(
-            ({ id }) => id === currentEngine.activeHex
+            ({ id }) => id === activeHex
           );
 
           if (direction && currentNode) {
             const newNodeId = currentNode.map[direction];
 
-            if (newNodeId) {
+            if (!!newNodeId) {
               setActiveHex(newNodeId);
             }
           }
       }
 
-      setTimeout(() => {
-        setRoll(null);
-      }, ROLL_DELAY);
+      setRollDisplayTimeout(
+        setTimeout(() => {
+          setRoll(null);
+        }, ROLL_DELAY)
+      );
+
+      return () => {
+        if (rollDisplayTimeout) {
+          clearTimeout(rollDisplayTimeout);
+        }
+      };
     }
-  }, [roll?.total]);
+  }, [roll]);
   /* eslint-enable react-hooks/exhaustive-deps*/
 
   return (
     <>
+      {roll ? (
+        <section className={styles.roll}>
+          <p>{roll.total}</p>
+        </section>
+      ) : (
+        <></>
+      )}
       <section className={styles.container}>
         <h1 className={styles.heading}>Hex Flower Engine</h1>
         {currentEngine?.id ? (
@@ -152,17 +183,20 @@ export const App = () => {
           <></>
         )}
       </section>
-      {currentEngine?.id ? (
-        <Toolbar
-          setRoll={setRoll}
-          currentRoll={roll}
-          engines={engines}
-          currentEngine={currentEngine}
-          setCurrentEngine={setCurrentEngine}
-        />
-      ) : (
-        <></>
-      )}
+      <footer className={styles.footer}>
+        {currentEngine?.id ? (
+          <Toolbar
+            setRoll={setRoll}
+            engines={engines}
+            currentEngine={currentEngine}
+            setCurrentEngine={setCurrentEngine}
+            setActiveHex={setActiveHex}
+          />
+        ) : (
+          <></>
+        )}
+        <p>v{process.env.REACT_APP_VERSION}</p>
+      </footer>
     </>
   );
 };
