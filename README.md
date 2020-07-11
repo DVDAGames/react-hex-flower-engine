@@ -34,5 +34,5 @@ mid-session and not lose their current state.
 ## Resources
 
 - https://goblinshenchman.wordpress.com/2018/10/25/2d6-hex-power-flower/
-- https://goblinshenchman.wordpress.com/2018/10/25/2d6-hex-power-flower/
+- https://goblinshenchman.wordpress.com/2019/07/10/hex-flowers-game-engines-as-found-in-the-wild/
 - https://goblinshenchman.files.wordpress.com/2019/04/ithots.png
