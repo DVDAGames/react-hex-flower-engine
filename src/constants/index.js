@@ -1,3 +1,9 @@
+import DEFAULT_ENGINE from "./engines/default";
+
+import STANDARD_ENGINE from "./engines/standard";
+
+export const DEFAULT_ENGINE_STORE = [STANDARD_ENGINE, DEFAULT_ENGINE];
+
 export const LOCAL_STORAGE_NAMESPACE = "HEX_FLOWER_ENGINE";
 
 export const LOCAL_STORAGE_BASE = {
@@ -23,6 +29,4 @@ export const RANDOM_HEX_ROLL = "1d19";
 
 export const ROLL_DELAY = 1000;
 
-export { default as DEFAULT_ENGINE } from "./engines/default";
-
-export { default as STANDARD_ENGINE } from "./engines/standard";
+export const DEFAULT_STARTING_HEX = 1;

@@ -64,8 +64,6 @@ export const Hex = ({
     hexClasses.push(styles.highlightedHex);
   }
 
-  console.log(hex?.style?.backgroundColor);
-
   return (
     <button
       onClick={onClick}

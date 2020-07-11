@@ -2,11 +2,11 @@ import { DEFAULT_DIRECTION_MAP as directions } from "./shared";
 
 const id = "00000";
 
-const name = "Standard Hex Flower Engine";
+const name = "Standard";
 
 const start = 1;
 
-const version = "1.1.0";
+const version = "1.2.1";
 
 const nodes = [
   {
