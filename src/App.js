@@ -18,6 +18,8 @@ import styles from "./App.module.scss";
 
 const DEFAULT_ENGINE_STORE = [STANDARD_ENGINE, DEFAULT_ENGINE];
 
+const CACHE = process.env.REACT_APP_NO_CACHE !== "TRUE";
+
 export const App = () => {
   const [currentEngine, setCurrentEngine] = useState(null);
 
@@ -29,28 +31,30 @@ export const App = () => {
 
   /* eslint-disable react-hooks/exhaustive-deps*/
   useEffect(() => {
-    const engine = JSON.parse(
-      localStorage.getItem(LOCAL_STORAGE_CURRENT_ENGINE_KEY)
-    );
+    const engine = CACHE
+      ? JSON.parse(localStorage.getItem(LOCAL_STORAGE_CURRENT_ENGINE_KEY))
+      : DEFAULT_ENGINE;
 
-    const engineStore = JSON.parse(
-      localStorage.getItem(LOCAL_STORAGE_ENGINE_STORE_KEY)
-    );
+    const engineStore = CACHE
+      ? JSON.parse(localStorage.getItem(LOCAL_STORAGE_ENGINE_STORE_KEY))
+      : DEFAULT_ENGINE_STORE;
 
     if (Array.isArray(engineStore) && engineStore.length) {
       setEngines(engineStore);
     } else {
       setEngines(DEFAULT_ENGINE_STORE);
 
-      localStorage.setItem(
-        LOCAL_STORAGE_ENGINE_STORE_KEY,
-        JSON.stringify(
-          DEFAULT_ENGINE_STORE.map(({ id, name }) => ({
-            id,
-            name,
-          }))
-        )
-      );
+      if (CACHE) {
+        localStorage.setItem(
+          LOCAL_STORAGE_ENGINE_STORE_KEY,
+          JSON.stringify(
+            DEFAULT_ENGINE_STORE.map(({ id, name }) => ({
+              id,
+              name,
+            }))
+          )
+        );
+      }
     }
 
     if (engine?.id) {
@@ -66,18 +70,22 @@ export const App = () => {
 
       const storedEngine = JSON.parse(localStorage.getItem(engineKey));
 
-      if (!storedEngine?.id) {
-        localStorage.setItem(engineKey, JSON.stringify(engineStoreItem));
+      if (CACHE) {
+        if (!storedEngine?.id) {
+          localStorage.setItem(engineKey, JSON.stringify(engineStoreItem));
+        }
       }
     });
   }, [engines.length]);
 
   useEffect(() => {
     if (currentEngine?.id) {
-      localStorage.setItem(
-        LOCAL_STORAGE_CURRENT_ENGINE_KEY,
-        JSON.stringify(currentEngine)
-      );
+      if (CACHE) {
+        localStorage.setItem(
+          LOCAL_STORAGE_CURRENT_ENGINE_KEY,
+          JSON.stringify(currentEngine)
+        );
+      }
 
       if (currentEngine?.start) {
         setActiveHex(currentEngine.start);
@@ -95,12 +103,17 @@ export const App = () => {
     if (currentEngine?.start) {
       const stringifiedEngine = JSON.stringify(currentEngine);
 
-      localStorage.setItem(
-        `${LOCAL_STORAGE_ENGINE_KEY}_${currentEngine.id}`,
-        stringifiedEngine
-      );
+      if (CACHE) {
+        localStorage.setItem(
+          `${LOCAL_STORAGE_ENGINE_KEY}_${currentEngine.id}`,
+          stringifiedEngine
+        );
 
-      localStorage.setItem(LOCAL_STORAGE_CURRENT_ENGINE_KEY, stringifiedEngine);
+        localStorage.setItem(
+          LOCAL_STORAGE_CURRENT_ENGINE_KEY,
+          stringifiedEngine
+        );
+      }
     }
   }, [currentEngine?.start]);
 

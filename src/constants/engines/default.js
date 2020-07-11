@@ -6,9 +6,16 @@ const name = "SKT Campaign Weather";
 
 const start = 1;
 
+const version = "1.0.0";
+
 const nodes = [
   {
     id: 1,
+    label: "Sunny; pleasant",
+    style: {
+      backgroundColor: "#ddddde",
+      icon: "day",
+    },
     map: {
       up: 5,
       upRight: 3,
@@ -20,6 +27,11 @@ const nodes = [
   },
   {
     id: 2,
+    label: "Bright and breezy; light clouds",
+    style: {
+      backgroundColor: "#ddddde",
+      icon: "day-cloudy-windy",
+    },
     map: {
       up: 7,
       upRight: 5,
@@ -31,6 +43,11 @@ const nodes = [
   },
   {
     id: 3,
+    label: "Partly cloudy",
+    style: {
+      backgroundColor: "#ddddde",
+      icon: "day-partly-cloudy",
+    },
     map: {
       up: 8,
       upRight: 6,
@@ -42,6 +59,11 @@ const nodes = [
   },
   {
     id: 5,
+    label: "Partly sunny",
+    style: {
+      backgroundColor: "#ddddde",
+      icon: "day-cloudy",
+    },
     map: {
       up: 10,
       upRight: 8,
@@ -53,6 +75,11 @@ const nodes = [
   },
   {
     id: 4,
+    label: "Cloudy and breezy; chance of light showers",
+    style: {
+      backgroundColor: "#ddddde",
+      icon: "cloudy-and-windy",
+    },
     map: {
       up: 9,
       upRight: 7,
@@ -64,6 +91,11 @@ const nodes = [
   },
   {
     id: 7,
+    label: "Steady breezes; quite windy",
+    style: {
+      backgroundColor: "#ddddde",
+      icon: "wind",
+    },
     map: {
       up: 12,
       upRight: 10,
@@ -75,6 +107,11 @@ const nodes = [
   },
   {
     id: 6,
+    label: "Dark; overcast",
+    style: {
+      backgroundColor: "#ddddde",
+      icon: "day-cloudy-foggy",
+    },
     map: {
       up: 11,
       upRight: 1,
@@ -86,6 +123,11 @@ const nodes = [
   },
   {
     id: 8,
+    label: "Heavy clouds",
+    style: {
+      backgroundColor: "#ddddde",
+      icon: "cloudy",
+    },
     map: {
       up: 13,
       upRight: 11,
@@ -97,6 +139,11 @@ const nodes = [
   },
   {
     id: 10,
+    label: "No Change in Weather",
+    style: {
+      backgroundColor: "#7777ff",
+      icon: "arrow-loading",
+    },
     map: {
       up: 15,
       upRight: 13,
@@ -108,6 +155,11 @@ const nodes = [
   },
   {
     id: 12,
+    label: "Relentless sun",
+    style: {
+      backgroundColor: "#eabcd5",
+      icon: "day",
+    },
     map: {
       up: 17,
       upRight: 15,
@@ -119,6 +171,11 @@ const nodes = [
   },
   {
     id: 9,
+    label: "Oppressive sun",
+    style: {
+      backgroundColor: "#eabcd5",
+      icon: "day",
+    },
     map: {
       up: 14,
       upRight: 12,
@@ -130,6 +187,11 @@ const nodes = [
   },
   {
     id: 14,
+    label: "Severe heat; vhance of exhaustion",
+    style: {
+      backgroundColor: "#eabcd5",
+      icon: "hot",
+    },
     map: {
       up: 4,
       upRight: 17,
@@ -141,6 +203,11 @@ const nodes = [
   },
   {
     id: 13,
+    label: "Heavy constant rain; reduced visibility; +1 stealth; -1 perception",
+    style: {
+      backgroundColor: "#77bc77",
+      icon: "rain",
+    },
     map: {
       up: 18,
       upRight: 16,
@@ -152,6 +219,11 @@ const nodes = [
   },
   {
     id: 11,
+    label: "Lightning and sunshine; roll for rainbow",
+    style: {
+      backgroundColor: "#77bc77",
+      icon: "day-thunderstorms",
+    },
     map: {
       up: 16,
       upRight: 2,
@@ -163,6 +235,11 @@ const nodes = [
   },
   {
     id: 16,
+    label: "Dark thunder storms; low visibility",
+    style: {
+      backgroundColor: "#77bc77",
+      icon: "thunderstorms",
+    },
     map: {
       up: 6,
       upRight: 4,
@@ -174,6 +251,12 @@ const nodes = [
   },
   {
     id: 15,
+    label:
+      "Severe lightning; high winds; exposure to the elements is dangerous",
+    style: {
+      backgroundColor: "#ffcf77",
+      icon: "thundershowers",
+    },
     map: {
       up: 19,
       upRight: 18,
@@ -185,6 +268,12 @@ const nodes = [
   },
   {
     id: 17,
+    label:
+      "Severe lightning; high winds; exposure to the elements is dangerous",
+    style: {
+      backgroundColor: "#ffcf77",
+      icon: "thundershowers",
+    },
     map: {
       up: 2,
       upRight: 19,
@@ -196,6 +285,12 @@ const nodes = [
   },
   {
     id: 18,
+    label:
+      "Severe lightning; high winds; exposure to the elements is dangerous",
+    style: {
+      backgroundColor: "#ffcf77",
+      icon: "thundershowers",
+    },
     map: {
       up: 3,
       upRight: 9,
@@ -207,6 +302,12 @@ const nodes = [
   },
   {
     id: 19,
+    label:
+      "Disaster! Zero visibility; if you're outside immediately roll for environmental damage/exhaustion",
+    style: {
+      backgroundColor: "#ff7777",
+      icon: "tornado",
+    },
     map: {
       up: 19,
       upRight: 19,
@@ -224,4 +325,5 @@ export default {
   directions,
   nodes,
   start,
+  version,
 };

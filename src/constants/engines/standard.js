@@ -6,6 +6,8 @@ const name = "Standard Hex Flower Engine";
 
 const start = 1;
 
+const version = "1.0.0";
+
 const nodes = [
   {
     id: 1,
@@ -224,4 +226,5 @@ export default {
   directions,
   nodes,
   start,
+  version,
 };
