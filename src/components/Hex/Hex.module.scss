@@ -1,8 +1,8 @@
 .outline {
   position: relative;
   width: 40px;
-  height: 43px;
-  min-height: 43px;
+  height: 50px;
+  min-height: 50px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -12,6 +12,7 @@
   cursor: pointer;
   appearance: none;
   opacity: 0.35;
+  transition: opacity 0.3s ease, background-color 0.3s ease;
 
   &::before {
     content: "";
@@ -19,9 +20,10 @@
     top: 50%;
     left: 100%;
     transform: translateY(-50%);
-    border-top: 22px solid transparent;
-    border-left: 17px solid #000;
-    border-bottom: 22px solid transparent;
+    border-top: 26px solid transparent;
+    border-left: 17px solid #999;
+    border-bottom: 26px solid transparent;
+    transition: border-color 0.3s ease;
   }
 
   &::after {
@@ -30,9 +32,10 @@
     top: 50%;
     right: 100%;
     transform: translateY(-50%);
-    border-right: 17px solid #000;
-    border-top: 22px solid transparent;
-    border-bottom: 22px solid transparent;
+    border-right: 17px solid #999;
+    border-top: 26px solid transparent;
+    border-bottom: 26px solid transparent;
+    transition: border-color 0.3s ease;
   }
 
   &:nth-child(1) {
@@ -116,14 +119,15 @@
   position: relative;
   width: 100%;
   height: 100%;
-  min-height: 43px;
+  min-height: 50px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-top: 2px solid #000;
-  border-bottom: 2px solid #000;
+  border-top: 2px solid #999;
+  border-bottom: 2px solid #999;
   background-color: transparent;
   z-index: 2;
+  transition: background-color 0.3s ease;
 
   &::before {
     content: "";
@@ -131,9 +135,9 @@
     top: 50%;
     left: calc(100% - 1px);
     transform: translateY(-50%);
-    border-top: 20px solid transparent;
+    border-top: 24px solid transparent;
     border-left: 15px solid transparent;
-    border-bottom: 20px solid transparent;
+    border-bottom: 24px solid transparent;
   }
 
   &::after {
@@ -143,53 +147,27 @@
     right: calc(100% - 1px);
     transform: translateY(-50%);
     border-right: 15px solid transparent;
-    border-top: 20px solid transparent;
-    border-bottom: 20px solid transparent;
-  }
-
-  &:hover,
-  &:focus {
-    background: #11ddcd;
-
-    &::before {
-      border-left-color: #11ddcd !important;
-    }
-
-    &::after {
-      border-right-color: #11ddcd !important;
-    }
-  }
-}
-
-.activeHex {
-  background-color: #68f0b0;
-
-  &::before {
-    border-left-color: #68f0b0;
-  }
-
-  &::after {
-    border-right-color: #68f0b0;
-  }
-
-  &:hover,
-  &:focus {
-    background: #68f0b0;
-
-    &::before {
-      border-left-color: #68f0b0 !important;
-    }
-
-    &::after {
-      border-right-color: #68f0b0 !important;
-    }
+    border-top: 24px solid transparent;
+    border-bottom: 24px solid transparent;
   }
 }
 
 .activeHexContainer {
   opacity: 1;
+
+  &::before {
+    border-left-color: #232323;
+  }
+
+  &::after {
+    border-right-color: #232323;
+  }
 }
 
-.highlightedHex {
-  opacity: 0.6;
+.activeHex {
+  border-color: #232323;
+}
+
+.highlightedHexContainer {
+  opacity: 0.8;
 }

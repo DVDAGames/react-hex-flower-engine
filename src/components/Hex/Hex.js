@@ -26,7 +26,15 @@ const HexCell = ({ hex, hexClasses, backgroundColor }) => {
       backgroundColor={backgroundColor}
       className={hexClasses.join(" ")}
     >
-      {hex.icon ? <Icon icon={hex.icon} label={hex.label} /> : hex.id}
+      {hex?.style?.icon ? (
+        <Icon
+          icon={hex.style.icon}
+          id={hex.id}
+          label={`${hex.id}: ${hex.label}`}
+        />
+      ) : (
+        hex.id
+      )}
     </StyledHexCell>
   );
 };
@@ -52,7 +60,8 @@ export const Hex = ({
   }
 
   if (highlighted) {
-    containerClasses.push(styles.highlightedHex);
+    containerClasses.push(styles.highlightedHexContainer);
+    hexClasses.push(styles.highlightedHex);
   }
 
   console.log(hex?.style?.backgroundColor);
@@ -62,6 +71,7 @@ export const Hex = ({
       onClick={onClick}
       className={containerClasses.join(" ")}
       disabled={active}
+      title={hex?.label ? hex.label : ""}
     >
       <HexCell
         hex={hex}
