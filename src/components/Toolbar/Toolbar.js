@@ -2,6 +2,8 @@ import React from "react";
 
 import Roller from "@dvdagames/js-die-roller";
 
+import Store from "../../utilities/storage";
+
 import {
   RUN_ENGINE_ROLL,
   RANDOM_HEX_ROLL,
@@ -12,8 +14,6 @@ import {
 } from "../../constants";
 
 import styles from "./Toolbar.module.scss";
-
-const CACHE = process.env.REACT_APP_NO_CACHE !== "TRUE";
 
 const DEFAULT_ENGINE_STORE = [STANDARD_ENGINE, DEFAULT_ENGINE];
 
@@ -71,11 +71,9 @@ export const Toolbar = ({
   const onChooseEngine = (e) => {
     const engineId = e.target.value;
 
-    const storedEngine = CACHE
-      ? JSON.parse(
-          localStorage.getItem(`${LOCAL_STORAGE_ENGINE_KEY}_${engineId}`)
-        )
-      : DEFAULT_ENGINE_STORE.find(({ id }) => id === engineId);
+    const storedEngine =
+      Store.get(`${LOCAL_STORAGE_ENGINE_KEY}_${engineId}`) ||
+      DEFAULT_ENGINE_STORE.find(({ id }) => id === engineId);
 
     if (storedEngine?.id) {
       setCurrentEngine(storedEngine);

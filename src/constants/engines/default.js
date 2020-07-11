@@ -6,7 +6,7 @@ const name = "SKT Campaign Weather";
 
 const start = 1;
 
-const version = "1.0.0";
+const version = "1.1.0";
 
 const nodes = [
   {
