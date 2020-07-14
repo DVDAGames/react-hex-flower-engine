@@ -27,6 +27,8 @@ export const App = () => {
 
   const [roll, setRoll] = useState(null);
 
+  const [showAnnotations, setShowAnnotations] = useState(true);
+
   const [engines, setEngines] = useState([]);
 
   const [rollDisplayTimeout, setRollDisplayTimeout] = useState();
@@ -178,6 +180,7 @@ export const App = () => {
             engine={currentEngine}
             setActiveHex={setActiveHex}
             activeHex={activeHex}
+            showAnnotations={showAnnotations}
           />
         ) : (
           <></>
@@ -191,6 +194,8 @@ export const App = () => {
             currentEngine={currentEngine}
             setCurrentEngine={setCurrentEngine}
             setActiveHex={setActiveHex}
+            showAnnotations={showAnnotations}
+            setShowAnnotations={setShowAnnotations}
           />
         ) : (
           <></>

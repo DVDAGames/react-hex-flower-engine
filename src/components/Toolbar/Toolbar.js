@@ -22,6 +22,8 @@ export const Toolbar = ({
   currentEngine,
   setCurrentEngine,
   setActiveHex,
+  showAnnotations,
+  setShowAnnotations,
 }) => {
   const runEngine = () => {
     if (typeof setRoll === "function") {
@@ -96,6 +98,14 @@ export const Toolbar = ({
     }
   };
 
+  const onChangeAnnotations = (e) => {
+    e.persist();
+
+    console.log(e);
+
+    setShowAnnotations(e.target.checked);
+  };
+
   return (
     <nav className={styles.toolbar}>
       <ul className={styles.list}>
@@ -118,6 +128,15 @@ export const Toolbar = ({
           >
             {renderEngineOptions()}
           </select>
+        </li>
+        <li className={styles.listItem}>
+          <label htmlFor="show-annotations">Show Roll Map</label>
+          <input
+            type="checkbox"
+            value={1}
+            checked={showAnnotations}
+            onChange={onChangeAnnotations}
+          />
         </li>
       </ul>
     </nav>

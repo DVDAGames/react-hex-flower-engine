@@ -4,6 +4,8 @@ import styled from "styled-components";
 
 import Icon from "../Icon";
 
+import Annotations from "../Annotations";
+
 import styles from "./Hex.module.scss";
 
 const StyledHexCell = styled.div`
@@ -42,6 +44,8 @@ const HexCell = ({ hex, hexClasses, backgroundColor }) => {
 export const Hex = ({
   hex,
   hexAction,
+  engine,
+  showAnnotations,
   active = false,
   highlighted = false,
 }) => {
@@ -65,23 +69,26 @@ export const Hex = ({
   }
 
   return (
-    <button
-      onClick={onClick}
-      className={containerClasses.join(" ")}
-      disabled={active}
-      title={hex?.label ? hex.label : ""}
-    >
-      <HexCell
-        hex={hex}
-        hexClasses={hexClasses}
-        backgroundColor={
-          hex?.style?.backgroundColor
-            ? hex?.style.backgroundColor
-            : active
-            ? "#68f0b0"
-            : "#ccc"
-        }
-      />
-    </button>
+    <li className={styles.gridItem}>
+      {showAnnotations ? <Annotations engine={engine} /> : <></>}
+      <button
+        onClick={onClick}
+        className={containerClasses.join(" ")}
+        disabled={active}
+        title={hex?.label ? hex.label : ""}
+      >
+        <HexCell
+          hex={hex}
+          hexClasses={hexClasses}
+          backgroundColor={
+            hex?.style?.backgroundColor
+              ? hex?.style.backgroundColor
+              : active
+              ? "#68f0b0"
+              : "#ccc"
+          }
+        />
+      </button>
+    </li>
   );
 };
