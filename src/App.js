@@ -35,6 +35,8 @@ export const App = () => {
 
     const engine = DEFAULT_ENGINE_STORE.find(({ id }) => id === engineId);
 
+    setEngines(DEFAULT_ENGINE_STORE);
+
     if (engine) {
       setCurrentEngine(engine);
     } else {
