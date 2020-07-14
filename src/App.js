@@ -4,17 +4,14 @@ import Grid from "./components/Grid";
 
 import Toolbar from "./components/Toolbar";
 
+import makeStorageKey from "./utilities/make-key";
+
 import Store from "./utilities/storage";
 
-import checkEngineVersion from "./utilities/check-version";
-
 import {
-  LOCAL_STORAGE_ENGINE_KEY,
   LOCAL_STORAGE_CURRENT_ENGINE_KEY,
-  LOCAL_STORAGE_ENGINE_STORE_KEY,
   ROLL_DELAY,
   ACTIONS,
-  DEFAULT_STARTING_HEX,
   DEFAULT_ENGINE_STORE,
 } from "./constants";
 
@@ -27,41 +24,18 @@ export const App = () => {
 
   const [roll, setRoll] = useState(null);
 
-  const [engines, setEngines] = useState([]);
+  const [showAnnotations, setShowAnnotations] = useState(true);
+
+  const [engines, setEngines] = useState(DEFAULT_ENGINE_STORE);
 
   const [rollDisplayTimeout, setRollDisplayTimeout] = useState();
 
-  /* eslint-disable react-hooks/exhaustive-deps*/
   useEffect(() => {
-    const engine = Store.get(LOCAL_STORAGE_CURRENT_ENGINE_KEY);
+    const engineId = Store.get(LOCAL_STORAGE_CURRENT_ENGINE_KEY);
 
-    const engineStore = Store.get(LOCAL_STORAGE_ENGINE_STORE_KEY);
+    const engine = DEFAULT_ENGINE_STORE.find(({ id }) => id === engineId);
 
-    if (Array.isArray(engineStore) && engineStore.length) {
-      const versionedEngineStore = engineStore.map((engineStoreItem) => {
-        const defaultEngine = DEFAULT_ENGINE_STORE.find(
-          ({ id }) => id === engineStoreItem.id
-        );
-
-        if (
-          checkEngineVersion(defaultEngine.version, engineStoreItem.version)
-        ) {
-          return defaultEngine;
-        }
-
-        return engineStoreItem;
-      });
-
-      Store.set(LOCAL_STORAGE_ENGINE_STORE_KEY, versionedEngineStore);
-
-      setEngines(versionedEngineStore);
-    } else {
-      setEngines(DEFAULT_ENGINE_STORE);
-
-      Store.set(LOCAL_STORAGE_ENGINE_STORE_KEY, DEFAULT_ENGINE_STORE);
-    }
-
-    if (engine?.id) {
+    if (engine) {
       setCurrentEngine(engine);
     } else {
       setCurrentEngine(DEFAULT_ENGINE_STORE[0]);
@@ -69,35 +43,8 @@ export const App = () => {
   }, []);
 
   useEffect(() => {
-    engines.forEach((engineStoreItem) => {
-      const engineKey = `${LOCAL_STORAGE_ENGINE_KEY}_${engineStoreItem.id}`;
-
-      const storedEngine = Store.get(engineKey);
-
-      if (
-        !storedEngine?.id ||
-        checkEngineVersion(engineStoreItem.version, storedEngine.version)
-      ) {
-        const defaultEngine = DEFAULT_ENGINE_STORE.find(
-          ({ id }) => id === engineStoreItem.id
-        );
-
-        Store.set(engineKey, {
-          ...defaultEngine,
-          ...engineStoreItem,
-          active: storedEngine?.active
-            ? storedEngine.active
-            : defaultEngine?.start
-            ? defaultEngine.start
-            : DEFAULT_STARTING_HEX,
-        });
-      }
-    });
-  }, [engines.length]);
-
-  useEffect(() => {
     if (currentEngine?.id) {
-      Store.set(LOCAL_STORAGE_CURRENT_ENGINE_KEY, currentEngine);
+      Store.set(LOCAL_STORAGE_CURRENT_ENGINE_KEY, currentEngine.id);
 
       if (currentEngine?.active) {
         setActiveHex(currentEngine.active);
@@ -115,12 +62,7 @@ export const App = () => {
 
   useEffect(() => {
     if (currentEngine?.active) {
-      Store.set(
-        `${LOCAL_STORAGE_ENGINE_KEY}_${currentEngine.id}`,
-        currentEngine
-      );
-
-      Store.set(LOCAL_STORAGE_CURRENT_ENGINE_KEY, currentEngine);
+      Store.set(makeStorageKey(currentEngine.id), currentEngine.active);
     }
   }, [currentEngine?.active]);
 
@@ -160,7 +102,6 @@ export const App = () => {
       };
     }
   }, [roll]);
-  /* eslint-enable react-hooks/exhaustive-deps*/
 
   return (
     <>
@@ -178,6 +119,7 @@ export const App = () => {
             engine={currentEngine}
             setActiveHex={setActiveHex}
             activeHex={activeHex}
+            showAnnotations={showAnnotations}
           />
         ) : (
           <></>
@@ -191,6 +133,8 @@ export const App = () => {
             currentEngine={currentEngine}
             setCurrentEngine={setCurrentEngine}
             setActiveHex={setActiveHex}
+            showAnnotations={showAnnotations}
+            setShowAnnotations={setShowAnnotations}
           />
         ) : (
           <></>

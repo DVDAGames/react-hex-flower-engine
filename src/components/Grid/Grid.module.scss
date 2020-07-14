@@ -1,10 +1,14 @@
 .grid {
-  width: 100%;
-  height: 0;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column-reverse;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  // TODO: figure out a better way to lay out the grid items so that
+  // we don't have this kind of craziness
+  margin: -900% 0 0;
   list-style: none;
-  margin: 0;
 }

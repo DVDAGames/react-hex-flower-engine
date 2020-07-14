@@ -2,15 +2,14 @@ import React from "react";
 
 import Roller from "@dvdagames/js-die-roller";
 
-import Store from "../../utilities/storage";
+import makeStorageKey from "../../utilities/make-key";
 
-import checkVersion from "../../utilities/check-version";
+import Store from "../../utilities/storage";
 
 import {
   RUN_ENGINE_ROLL,
   RANDOM_HEX_ROLL,
   ACTIONS,
-  LOCAL_STORAGE_ENGINE_KEY,
   DEFAULT_ENGINE_STORE,
 } from "../../constants";
 
@@ -22,6 +21,8 @@ export const Toolbar = ({
   currentEngine,
   setCurrentEngine,
   setActiveHex,
+  showAnnotations,
+  setShowAnnotations,
 }) => {
   const runEngine = () => {
     if (typeof setRoll === "function") {
@@ -74,26 +75,26 @@ export const Toolbar = ({
   const onChooseEngine = (e) => {
     const engineId = e.target.value;
 
-    const engineKey = `${LOCAL_STORAGE_ENGINE_KEY}_${engineId}`;
+    const engine = DEFAULT_ENGINE_STORE.find(({ id }) => id === engineId);
 
-    const storedEngine = engines.find(({ id }) => id === engineId);
+    const activeHex = Store.get(makeStorageKey(engineId)) || engine.start;
 
-    const cachedEngine = Store.get(engineKey);
+    const newEngine = {
+      ...engine,
+      active: activeHex,
+    };
 
-    if (checkVersion(storedEngine.version, cachedEngine.version)) {
-      const newEngine = {
-        ...DEFAULT_ENGINE_STORE.find(({ id }) => id === engineId),
-        active: cachedEngine?.active ? cachedEngine.active : storedEngine.start,
-      };
+    setCurrentEngine(newEngine);
 
-      Store.set(engineKey, newEngine);
+    setActiveHex(activeHex);
+  };
 
-      setCurrentEngine(newEngine);
-    }
+  const onChangeAnnotations = (e) => {
+    e.persist();
 
-    if (storedEngine?.id) {
-      setCurrentEngine(storedEngine);
-    }
+    console.log(e);
+
+    setShowAnnotations(e.target.checked);
   };
 
   return (
@@ -118,6 +119,15 @@ export const Toolbar = ({
           >
             {renderEngineOptions()}
           </select>
+        </li>
+        <li className={styles.listItem}>
+          <label htmlFor="show-annotations">Show Roll Map</label>
+          <input
+            type="checkbox"
+            value={1}
+            checked={showAnnotations}
+            onChange={onChangeAnnotations}
+          />
         </li>
       </ul>
     </nav>
