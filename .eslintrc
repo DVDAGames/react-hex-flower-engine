@@ -1,6 +1,0 @@
-{
-  "extends": ["react-app", "shared-config"],
-  "rules": {
-    "react-hooks/exhaustive-deps": "off"
-  }
-}
