@@ -71,7 +71,9 @@ export const App = () => {
       switch (roll.type) {
         case ACTIONS.RANDOM:
           setActiveHex(roll.total);
+
           break;
+
         case ACTIONS.RUN:
         default:
           const direction = currentEngine.directions[roll.total];
