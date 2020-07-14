@@ -22,12 +22,7 @@ export const Annotations = ({ engine }) => {
         return collationObject;
       }, {})
     );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(engine.directions)]);
-
-  useEffect(() => {
-    console.log(collatedDirectionRolls);
-  }, [collatedDirectionRolls]);
 
   const renderDirectionAnnotations = () =>
     Object.keys(collatedDirectionRolls).map((direction) => {
