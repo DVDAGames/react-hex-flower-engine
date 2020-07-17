@@ -22,6 +22,8 @@ export const App = () => {
 
   const [activeHex, setActiveHex] = useState(null);
 
+  const [activeHexInfo, setActiveHexInfo] = useState(null);
+
   const [roll, setRoll] = useState(null);
 
   const [showAnnotations, setShowAnnotations] = useState(true);
@@ -59,6 +61,8 @@ export const App = () => {
   useEffect(() => {
     if (currentEngine) {
       setCurrentEngine({ ...currentEngine, active: activeHex });
+
+      setActiveHexInfo(currentEngine.nodes.find(({ id }) => id === activeHex));
     }
   }, [activeHex]);
 
@@ -107,11 +111,48 @@ export const App = () => {
     }
   }, [roll]);
 
+  const renderStatus = () => {
+    if (activeHexInfo?.label) {
+      return (
+        <h2 className={styles.status}>
+          <span class="visually-hidden">Status:</span>
+          {activeHexInfo.label}
+        </h2>
+      );
+    }
+
+    return <></>;
+  };
+
+  const renderModifiers = () => {
+    const renderModifier = ([stat, modifier]) => (
+      <li key={`modifier-for-${stat}`}>
+        <strong>{stat}</strong>: {modifier}
+      </li>
+    );
+
+    if (activeHexInfo?.modifiers) {
+      return (
+        <div className={styles.modifiers}>
+          <h3 className="visually-hidden">Modifiers:</h3>
+          <ul className={styles.modifierList}>
+            {Object.entries(activeHexInfo.modifiers).map(renderModifier)}
+          </ul>
+        </div>
+      );
+    }
+
+    return <></>;
+  };
+
   return (
     <>
       {roll ? (
         <section className={styles.roll}>
-          <p>{roll.total}</p>
+          <p>
+            <span className="visually-hidden">You rolled:</span>
+            {roll.total}
+          </p>
         </section>
       ) : (
         <></>
@@ -128,6 +169,9 @@ export const App = () => {
         ) : (
           <></>
         )}
+        <p className="visually-hidden">Active Hex: {activeHex}</p>
+        {renderStatus()}
+        {renderModifiers()}
       </section>
       <footer className={styles.footer}>
         {currentEngine?.id ? (
