@@ -130,6 +130,7 @@
   border-top: 2px solid #999;
   border-bottom: 2px solid #999;
   background-color: transparent;
+  color: #666;
   z-index: 2;
   transition: background-color 0.3s ease;
 
@@ -170,6 +171,7 @@
 
 .activeHex {
   border-color: #232323;
+  color: #000;
 }
 
 .highlightedHexContainer {
