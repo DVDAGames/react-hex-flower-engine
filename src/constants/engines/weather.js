@@ -187,7 +187,10 @@ const nodes = [
   },
   {
     id: 14,
-    label: "Severe heat; vhance of exhaustion",
+    label: "Severe heat; chance of exhaustion",
+    modifiers: {
+      Exhaustion: "DC 5 CON Save",
+    },
     style: {
       backgroundColor: "#eabcd5",
       icon: "hot",
@@ -203,7 +206,11 @@ const nodes = [
   },
   {
     id: 13,
-    label: "Heavy constant rain; reduced visibility; +1 stealth; -1 perception",
+    label: "Heavy constant rain; reduced visibility",
+    modifiers: {
+      Stealth: "+1",
+      Perception: "-1",
+    },
     style: {
       backgroundColor: "#77bc77",
       icon: "rain",
@@ -302,8 +309,11 @@ const nodes = [
   },
   {
     id: 19,
-    label:
-      "Disaster! Zero visibility; if you're outside immediately roll for environmental damage/exhaustion",
+    label: "Disaster! Zero visibility",
+    modifiers: {
+      Exhaustion: "DC 10 CON Save",
+      Vision: "Heavily Obscured",
+    },
     style: {
       backgroundColor: "#ff7777",
       icon: "tornado",

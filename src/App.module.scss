@@ -9,7 +9,48 @@
 }
 
 .heading {
-  position: fixed;
+  margin: 10px auto;
+  font-size: 1.75rem;
+}
+
+.status {
+  margin: 0 auto 10px;
+  font-size: 1rem;
+  font-weight: normal;
+}
+
+.modifiers {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  justify-content: flex-start;
+  font-size: 0.825rem;
+  font-weight: normal;
+}
+
+.modifiersHeader {
+  margin: 0 5px 10px auto;
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+.modifierList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: inherit;
+  font-weight: inherit;
+
+  > li {
+    display: inline-block;
+    margin-right: 5px;
+    font-size: inherit;
+    font-weight: inherit;
+
+    &:last-child {
+      margin-right: 0;
+    }
+  }
 }
 
 .footer {

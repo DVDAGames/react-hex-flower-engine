@@ -33,3 +33,12 @@ export const RANDOM_HEX_ROLL = "1d19";
 export const ROLL_DELAY = 1000;
 
 export const DEFAULT_STARTING_HEX = 1;
+
+export const ROLL_DIRECTION_ORDER = [
+  "upRight",
+  "downRight",
+  "down",
+  "downLeft",
+  "upLeft",
+  "up",
+];
