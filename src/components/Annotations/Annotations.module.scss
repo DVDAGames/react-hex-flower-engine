@@ -19,8 +19,15 @@
 
   > li {
     position: absolute;
+    width: 30px;
+    margin: 0;
+    padding: 0;
+    font-family: monospace;
     font-size: 10px;
     line-height: 1;
+    letter-spacing: 0px;
+    text-align: center;
+    transform-origin: center;
     z-index: 6;
   }
 }
@@ -33,13 +40,13 @@
 
 .upRight {
   bottom: 70%;
-  left: 120%;
+  left: 100%;
   transform: rotate(60deg);
 }
 
 .downRight {
-  top: 72%;
-  left: 115%;
+  top: 70%;
+  left: 100%;
   transform: rotate(-60deg);
 }
 
@@ -50,13 +57,13 @@
 }
 
 .downLeft {
-  top: 72%;
-  right: 115%;
+  top: 70%;
+  right: 100%;
   transform: rotate(60deg);
 }
 
 .upLeft {
   bottom: 70%;
-  right: 108%;
+  right: 100%;
   transform: rotate(-60deg);
 }
