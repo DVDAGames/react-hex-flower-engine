@@ -50,8 +50,10 @@ export const App = () => {
     if (currentEngine?.id) {
       Store.set(LOCAL_STORAGE_CURRENT_ENGINE_KEY, currentEngine.id);
 
-      if (currentEngine?.active) {
-        setActiveHex(currentEngine.active);
+      const activeHex = Store.get(makeStorageKey(currentEngine.id));
+
+      if (activeHex) {
+        setActiveHex(activeHex);
       } else {
         setActiveHex(currentEngine.start);
       }
@@ -67,6 +69,8 @@ export const App = () => {
   }, [activeHex]);
 
   useEffect(() => {
+    console.log(currentEngine?.active);
+
     if (currentEngine?.active) {
       Store.set(makeStorageKey(currentEngine.id), currentEngine.active);
     }
@@ -115,7 +119,7 @@ export const App = () => {
     if (activeHexInfo?.label) {
       return (
         <h2 className={styles.status}>
-          <span class="visually-hidden">Status:</span>
+          <span className="visually-hidden">Status:</span>
           {activeHexInfo.label}
         </h2>
       );
