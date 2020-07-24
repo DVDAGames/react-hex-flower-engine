@@ -8,6 +8,8 @@ import makeStorageKey from "./utilities/make-key";
 
 import Store from "./utilities/storage";
 
+import { getLabel, getModifiers } from "./utilities/get-hex-feature";
+
 import {
   LOCAL_STORAGE_CURRENT_ENGINE_KEY,
   ROLL_DELAY,
@@ -21,6 +23,8 @@ export const App = () => {
   const [currentEngine, setCurrentEngine] = useState(null);
 
   const [activeHex, setActiveHex] = useState(null);
+
+  const [features, setFeatures] = useState(null);
 
   const [activeHexInfo, setActiveHexInfo] = useState(null);
 
@@ -37,8 +41,6 @@ export const App = () => {
 
     const engine = DEFAULT_ENGINE_STORE.find(({ id }) => id === engineId);
 
-    setEngines(DEFAULT_ENGINE_STORE);
-
     if (engine) {
       setCurrentEngine(engine);
     } else {
@@ -50,12 +52,28 @@ export const App = () => {
     if (currentEngine?.id) {
       Store.set(LOCAL_STORAGE_CURRENT_ENGINE_KEY, currentEngine.id);
 
-      const activeHex = Store.get(makeStorageKey(currentEngine.id));
+      const storedEngine = Store.get(makeStorageKey(currentEngine.id));
 
-      if (activeHex) {
-        setActiveHex(activeHex);
+      if (storedEngine) {
+        const {
+          activeHex: storedActiveHex,
+          features: storedFeatures,
+        } = Store.get(makeStorageKey(currentEngine.id));
+
+        if (activeHex) {
+          setActiveHex(storedActiveHex);
+        } else {
+          setActiveHex(currentEngine.start);
+        }
+
+        if (features) {
+          setFeatures(storedFeatures);
+        } else {
+          setFeatures(currentEngine.features);
+        }
       } else {
         setActiveHex(currentEngine.start);
+        setFeatures(currentEngine.features);
       }
     }
   }, [currentEngine?.id]);
@@ -69,12 +87,40 @@ export const App = () => {
   }, [activeHex]);
 
   useEffect(() => {
-    console.log(currentEngine?.active);
+    if (currentEngine) {
+      setCurrentEngine({ ...currentEngine, features });
+    }
+  }, [features]);
 
+  useEffect(() => {
     if (currentEngine?.active) {
-      Store.set(makeStorageKey(currentEngine.id), currentEngine.active);
+      const currentStoredEngineStatus = Store.get(
+        makeStorageKey(currentEngine.id)
+      );
+
+      const newStoredEngineStatus = {
+        ...currentStoredEngineStatus,
+        activeHex: currentEngine.active,
+      };
+
+      Store.set(makeStorageKey(currentEngine.id), newStoredEngineStatus);
     }
   }, [currentEngine?.active]);
+
+  useEffect(() => {
+    if (currentEngine?.features) {
+      const currentStoredEngineStatus = Store.get(
+        makeStorageKey(currentEngine.id)
+      );
+
+      const newStoredEngineStatus = {
+        ...currentStoredEngineStatus,
+        features: currentEngine.features,
+      };
+
+      Store.set(makeStorageKey(currentEngine.id), newStoredEngineStatus);
+    }
+  }, [currentEngine?.features]);
 
   useEffect(() => {
     if (roll?.total) {
@@ -120,7 +166,7 @@ export const App = () => {
       return (
         <h2 className={styles.status}>
           <span className="visually-hidden">Status:</span>
-          {activeHexInfo.label}
+          {getLabel(activeHexInfo, features)}
         </h2>
       );
     }
@@ -136,11 +182,13 @@ export const App = () => {
     );
 
     if (activeHexInfo?.modifiers) {
+      const modifiers = getModifiers(activeHexInfo, features);
+
       return (
         <div className={styles.modifiers}>
           <h3 className="visually-hidden">Modifiers:</h3>
           <ul className={styles.modifierList}>
-            {Object.entries(activeHexInfo.modifiers).map(renderModifier)}
+            {Object.entries(modifiers).map(renderModifier)}
           </ul>
         </div>
       );
@@ -169,6 +217,7 @@ export const App = () => {
             setActiveHex={setActiveHex}
             activeHex={activeHex}
             showAnnotations={showAnnotations}
+            features={features}
           />
         ) : (
           <></>
@@ -187,6 +236,8 @@ export const App = () => {
             setActiveHex={setActiveHex}
             showAnnotations={showAnnotations}
             setShowAnnotations={setShowAnnotations}
+            features={features}
+            setFeatures={setFeatures}
           />
         ) : (
           <></>

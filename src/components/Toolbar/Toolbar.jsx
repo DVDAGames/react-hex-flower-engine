@@ -23,6 +23,8 @@ export const Toolbar = ({
   setActiveHex,
   showAnnotations,
   setShowAnnotations,
+  features,
+  setFeatures,
 }) => {
   const runEngine = () => {
     if (typeof setRoll === "function") {
@@ -68,6 +70,45 @@ export const Toolbar = ({
     });
   };
 
+  const renderFeatureOptions = () => {
+    const onFeatureChange = (e) => {
+      const newFeatures = {
+        ...features,
+        [e.target.name]: e.target.checked,
+      };
+
+      setFeatures(newFeatures);
+    };
+
+    return Object.keys(features).map((feature) => {
+      const formatFeatureLabel = () => {
+        return feature
+          .split(/[A-Z]/)
+          .map(
+            (partialString) =>
+              `${partialString[0].toUpperCase()}${partialString.slice(1)}`
+          )
+          .join(" ");
+      };
+
+      const labelName = `feature-${feature}`;
+
+      return (
+        <li key={labelName}>
+          <label htmlFor={labelName}>{formatFeatureLabel()}</label>
+          <input
+            type="checkbox"
+            value={true}
+            name={feature}
+            id={labelName}
+            checked={features[feature]}
+            onChange={onFeatureChange}
+          />
+        </li>
+      );
+    });
+  };
+
   const restartEngine = () => {
     setActiveHex(currentEngine.start);
   };
@@ -90,10 +131,6 @@ export const Toolbar = ({
   };
 
   const onChangeAnnotations = (e) => {
-    e.persist();
-
-    console.log(e);
-
     setShowAnnotations(e.target.checked);
   };
 
@@ -123,11 +160,16 @@ export const Toolbar = ({
         <li className={styles.listItem}>
           <label htmlFor="show-annotations">Show Roll Map</label>
           <input
+            id="show-annotations"
+            name="show-annotations"
             type="checkbox"
             value={1}
             checked={showAnnotations}
             onChange={onChangeAnnotations}
           />
+        </li>
+        <li className={styles.listItem}>
+          {features ? <ul>{renderFeatureOptions()}</ul> : <></>}
         </li>
       </ul>
     </nav>

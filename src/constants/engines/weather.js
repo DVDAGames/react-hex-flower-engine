@@ -6,15 +6,26 @@ const name = "Weather";
 
 const start = 1;
 
-const version = "1.2.2";
+const version = "2.2.2";
+
+const features = {
+  night: false,
+  cold: true,
+};
 
 const nodes = [
   {
     id: 1,
-    label: "Sunny; pleasant",
+    label: {
+      default: "Sunny; pleasant",
+      night: "Bright moon; pleasant",
+    },
     style: {
       backgroundColor: "#ddddde",
-      icon: "day",
+      icon: {
+        default: "day",
+        night: "night",
+      },
     },
     map: {
       up: 5,
@@ -336,4 +347,5 @@ export default {
   nodes,
   start,
   version,
+  features,
 };

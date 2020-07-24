@@ -9,6 +9,7 @@ export { default as DayPartlyCloudy } from "./DayPartlyCloudy";
 export { default as DayThunderstorms } from "./DayThunderstorms";
 export { default as Hot } from "./Hot";
 export { default as MostlyCloudy } from "./MostlyCloudy";
+export { default as Night } from "./Night";
 export { default as NotAvailable } from "./NotAvailable";
 export { default as Rain } from "./Rain";
 export { default as Thundershowers } from "./Thundershowers";

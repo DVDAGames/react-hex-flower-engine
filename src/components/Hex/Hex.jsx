@@ -6,6 +6,12 @@ import Icon from "../Icon";
 
 import Annotations from "../Annotations";
 
+import {
+  getLabel,
+  getIcon,
+  getBackgroundColor,
+} from "../../utilities/get-hex-feature";
+
 import styles from "./Hex.module.scss";
 
 const StyledHexCell = styled.div`
@@ -22,18 +28,16 @@ const StyledHexCell = styled.div`
   }
 `;
 
-const HexCell = ({ hex, hexClasses, backgroundColor }) => {
+const HexCell = ({ hex, hexClasses, backgroundColor, features }) => {
+  const icon = getIcon(hex.style, features);
+
   return (
     <StyledHexCell
       backgroundColor={backgroundColor}
       className={hexClasses.join(" ")}
     >
-      {hex?.style?.icon ? (
-        <Icon
-          icon={hex.style.icon}
-          id={hex.id}
-          label={`${hex.id}: ${hex.label}`}
-        />
+      {icon ? (
+        <Icon icon={icon} id={hex.id} label={`${hex.id}: ${hex.label}`} />
       ) : (
         hex.id
       )}
@@ -46,6 +50,7 @@ export const Hex = ({
   hexAction,
   engine,
   showAnnotations,
+  features = {},
   active = false,
   highlighted = false,
 }) => {
@@ -75,14 +80,15 @@ export const Hex = ({
         onClick={onClick}
         className={containerClasses.join(" ")}
         disabled={active}
-        title={hex?.label ? hex.label : ""}
+        title={getLabel(hex.style, features)}
       >
         <HexCell
           hex={hex}
           hexClasses={hexClasses}
+          features={features}
           backgroundColor={
-            hex?.style?.backgroundColor
-              ? hex?.style.backgroundColor
+            getBackgroundColor(hex.style, features)
+              ? getBackgroundColor(hex.style, features)
               : active
               ? "#68f0b0"
               : "#ccc"

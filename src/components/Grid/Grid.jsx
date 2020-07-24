@@ -4,7 +4,13 @@ import Hex from "../Hex";
 
 import styles from "./Grid.module.scss";
 
-export const Grid = ({ engine, setActiveHex, activeHex, showAnnotations }) => {
+export const Grid = ({
+  engine,
+  setActiveHex,
+  activeHex,
+  showAnnotations,
+  features,
+}) => {
   const activeNode = engine.nodes.find(({ id }) => id === activeHex);
 
   const itemsToHighlight = activeNode?.map
@@ -15,7 +21,7 @@ export const Grid = ({ engine, setActiveHex, activeHex, showAnnotations }) => {
       }, [])
     : [];
 
-  const renderHexes = () => {
+  const renderHexes = (featureMap) => {
     return engine.nodes.map((hex) => {
       const hexAction = () => {
         setActiveHex(hex.id);
@@ -30,6 +36,7 @@ export const Grid = ({ engine, setActiveHex, activeHex, showAnnotations }) => {
           highlighted={itemsToHighlight.indexOf(hex.id) > -1}
           showAnnotations={hex.id === activeHex && showAnnotations}
           engine={engine}
+          features={featureMap}
         />
       );
     });
@@ -37,7 +44,7 @@ export const Grid = ({ engine, setActiveHex, activeHex, showAnnotations }) => {
 
   return (
     <article>
-      <ol className={styles.grid}>{renderHexes()}</ol>
+      <ol className={styles.grid}>{renderHexes(features)}</ol>
     </article>
   );
 };
