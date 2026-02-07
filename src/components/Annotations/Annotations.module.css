@@ -1,0 +1,79 @@
+.annotations {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 20;
+  width: calc(var(--hex-size, 60px) * 3);
+  height: calc(var(--hex-size, 60px) * 3);
+}
+
+.directionList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.direction {
+  position: absolute;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: var(--mantine-color-dark-7);
+  color: var(--mantine-color-white);
+  padding: 2px 6px;
+  border-radius: var(--mantine-radius-sm);
+  white-space: nowrap;
+}
+
+/* Position annotations around the hex - clockwise from 2 o'clock */
+.upRight {
+  top: 10%;
+  right: 5%;
+  transform: translate(0, -50%);
+}
+
+.downRight {
+  top: 50%;
+  right: 0;
+  transform: translate(50%, -50%);
+}
+
+.down {
+  bottom: 10%;
+  left: 50%;
+  transform: translate(-50%, 0);
+}
+
+.downLeft {
+  top: 50%;
+  left: 0;
+  transform: translate(-50%, -50%);
+}
+
+.upLeft {
+  top: 10%;
+  left: 5%;
+  transform: translate(0, -50%);
+}
+
+.up {
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -100%);
+}
+
+/* Light mode adjustments */
+:root[data-mantine-color-scheme="light"] .direction {
+  background: var(--mantine-color-gray-8);
+}
+
+@media (min-width: 768px) {
+  .direction {
+    font-size: 0.875rem;
+    padding: 4px 8px;
+  }
+}

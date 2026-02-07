@@ -1,0 +1,1 @@
+export { HexIcon } from './HexIcon';

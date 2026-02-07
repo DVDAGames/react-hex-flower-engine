@@ -1,0 +1,55 @@
+import { UnstyledButton, Tooltip, Box } from "@mantine/core";
+import type { EngineDefinition, HexNode } from "@/types/engine";
+import { HexIcon } from "@/components/HexIcon";
+import { Annotations } from "@/components/Annotations";
+import classes from "./Hex.module.css";
+
+interface HexProps {
+  hex: HexNode;
+  onHexClick: () => void;
+  isActive: boolean;
+  isHighlighted: boolean;
+  showAnnotations: boolean;
+  engine: EngineDefinition;
+}
+
+export function Hex({ hex, onHexClick, isActive, isHighlighted, showAnnotations, engine }: HexProps) {
+  const backgroundColor = hex.style?.backgroundColor ?? (isActive ? "#68f0b0" : "#ccc");
+
+  const containerClasses = [classes.outline, isActive && classes.activeContainer, isHighlighted && classes.highlightedContainer]
+    .filter(Boolean)
+    .join(" ");
+
+  const hexClasses = [classes.hex, isActive && classes.activeHex, isHighlighted && classes.highlightedHex]
+    .filter(Boolean)
+    .join(" ");
+
+  const tooltipLabel = hex.label || `Hex ${hex.id}`;
+
+  return (
+    <li className={classes.gridItem} data-hex-id={hex.id}>
+      {showAnnotations && <Annotations engine={engine} />}
+      <Tooltip label={tooltipLabel} position="top" withArrow>
+        <UnstyledButton onClick={onHexClick} className={containerClasses} disabled={isActive} aria-label={tooltipLabel}>
+          <Box
+            className={hexClasses}
+            style={
+              {
+                backgroundColor,
+                "--hex-bg": backgroundColor,
+              } as React.CSSProperties
+            }
+          >
+            {hex.style?.icon ? (
+              <HexIcon icon={hex.style.icon} label={tooltipLabel} />
+            ) : (
+              <span className={classes.hexId}>{hex.id}</span>
+            )}
+          </Box>
+        </UnstyledButton>
+      </Tooltip>
+    </li>
+  );
+}
+
+export default Hex;

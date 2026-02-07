@@ -1,0 +1,36 @@
+.grid {
+  --hex-size: 60px;
+  --hex-width: calc(var(--hex-size) * 1.1547);
+  --hex-height: var(--hex-size);
+  --hex-gap: 4px;
+
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(5, var(--hex-width));
+  grid-template-rows: repeat(5, calc(var(--hex-height) * 0.75));
+  gap: var(--hex-gap);
+  justify-content: center;
+  position: relative;
+
+  /* Hex flower layout - 19 hexes in a flower pattern */
+  /* Row 1: positions 10 */
+  /* Row 2: positions 12, 7, 9 */
+  /* Row 3: positions 15, 2, 1, 4, 14 */
+  /* Row 4: positions 17, 5, 3, 6, 18 */
+  /* Row 5: positions 19, 8, 11, 16 */
+  /* Row 6: positions 13 */
+}
+
+@media (min-width: 480px) {
+  .grid {
+    --hex-size: 80px;
+  }
+}
+
+@media (min-width: 768px) {
+  .grid {
+    --hex-size: 100px;
+  }
+}

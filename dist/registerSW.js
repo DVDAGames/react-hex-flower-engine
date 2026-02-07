@@ -1,0 +1,1 @@
+if('serviceWorker' in navigator) {window.addEventListener('load', () => {navigator.serviceWorker.register('/react-hex-flower-engine/sw.js', { scope: '/react-hex-flower-engine/' })})}

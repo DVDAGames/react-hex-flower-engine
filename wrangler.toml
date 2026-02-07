@@ -1,0 +1,18 @@
+# Cloudflare Pages + D1 Configuration
+name = "hex-flower-engine"
+compatibility_date = "2024-01-01"
+pages_build_output_dir = "dist"
+
+# D1 Database binding
+[[d1_databases]]
+binding = "DB"
+database_name = "hex-flower-engine-db"
+database_id = "" # Fill in after creating: npx wrangler d1 create hex-flower-engine-db
+
+# Environment variables (set in Cloudflare dashboard or .dev.vars)
+# RESEND_API_KEY - For sending magic link emails
+# JWT_SECRET - For signing auth tokens
+# ADMIN_EMAILS - Comma-separated list of admin email addresses
+
+[vars]
+ENVIRONMENT = "production"

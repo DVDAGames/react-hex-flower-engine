@@ -1,0 +1,15 @@
+.toolbar {
+  padding: var(--mantine-spacing-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--mantine-spacing-sm);
+}
+
+.readonlyBadge {
+  font-size: 0.875rem;
+  color: var(--mantine-color-dimmed);
+  display: flex;
+  align-items: center;
+  gap: var(--mantine-spacing-xs);
+}
