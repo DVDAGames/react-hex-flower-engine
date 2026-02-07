@@ -140,7 +140,11 @@ export interface VerifyResponse {
 export async function sendMagicLink(email: string): Promise<ApiResponse<LoginResponse>> {
   return apiRequest<LoginResponse>('/auth/login', {
     method: 'POST',
-    body: JSON.stringify({ email }),
+    body: JSON.stringify({ 
+      email,
+      // Send current origin so magic link points back to the right place (important for dev)
+      redirectOrigin: window.location.origin,
+    }),
   });
 }
 

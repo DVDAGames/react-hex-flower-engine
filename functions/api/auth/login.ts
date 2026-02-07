@@ -6,6 +6,7 @@ import { generateId, generateToken, sendMagicLinkEmail, json, errorResponse } fr
 
 interface LoginRequest {
   email: string;
+  redirectOrigin?: string;
 }
 
 export const onRequestPost: PagesFunction<Env> = async (context) => {
@@ -29,8 +30,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       VALUES (?, ?, ?, ?)
     `).bind(generateId(), email, token, expiresAt).run();
     
-    // Send email
-    const baseUrl = new URL(request.url).origin;
+    // Use redirectOrigin from frontend if provided (for dev), otherwise use request origin
+    const baseUrl = body.redirectOrigin || new URL(request.url).origin;
     const sent = await sendMagicLinkEmail(email, token, baseUrl, env);
     
     if (!sent) {

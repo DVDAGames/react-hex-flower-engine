@@ -1,10 +1,15 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Routes, Route } from "react-router-dom";
 import { AppShell, Container, Title, Text, Stack, Paper, Badge, List, Transition } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 
 import { Grid } from "@/components/Grid";
 import { Toolbar } from "@/components/Toolbar";
+import { HexEditor } from "@/components/Editor";
+import { AuthVerify } from "@/components/Auth";
+import { Garden } from "@/components/Garden";
+import { SharedEngine } from "@/components/SharedEngine";
+import { EditorProvider } from "@/contexts/EditorContext";
 import type { EngineDefinition, HexNode } from "@/types/engine";
 import { BUILTIN_ENGINES, ROLL_DELAY, ACTIONS, type ActionType } from "@/constants";
 import {
@@ -34,8 +39,9 @@ function HexFlowerRunner() {
   const [engines] = useState<EngineDefinition[]>(BUILTIN_ENGINES);
   const [online, setOnline] = useState(isOnline());
 
-  // DEBUG - remove after fixing
-  console.log("HexFlowerRunner render, engines:", engines.length, "currentEngine:", currentEngine?.name);
+  // Ref to track current activeHex without causing effect re-runs
+  const activeHexRef = useRef<number | null>(null);
+  activeHexRef.current = activeHex;
 
   // Initialize from localStorage
   useEffect(() => {
@@ -86,7 +92,10 @@ function HexFlowerRunner() {
 
   // Handle roll results
   useEffect(() => {
-    if (!roll || !currentEngine || activeHex === null) return;
+    if (!roll || !currentEngine) return;
+
+    const currentActiveHex = activeHexRef.current;
+    if (currentActiveHex === null) return;
 
     const handleRoll = () => {
       switch (roll.type) {
@@ -97,7 +106,12 @@ function HexFlowerRunner() {
         case ACTIONS.RUN:
         default: {
           const direction = currentEngine.directions[roll.total];
-          const currentNode = currentEngine.nodes.find(({ id }) => id === activeHex);
+          const currentNode = currentEngine.nodes.find(({ id }) => id === currentActiveHex);
+
+          // If direction is 'stay', don't move
+          if (direction === "stay") {
+            break;
+          }
 
           if (direction && currentNode) {
             const newNodeId = currentNode.map[direction];
@@ -118,7 +132,7 @@ function HexFlowerRunner() {
     }, ROLL_DELAY);
 
     return () => clearTimeout(timeout);
-  }, [roll, currentEngine, activeHex]);
+  }, [roll, currentEngine]);
 
   // Save annotation preference
   const handleSetShowAnnotations = useCallback((show: boolean) => {
@@ -128,9 +142,9 @@ function HexFlowerRunner() {
 
   // Setup sync listeners
   useEffect(() => {
-    const cleanup = setupSyncListeners((isOnline) => {
-      setOnline(isOnline);
-      if (isOnline) {
+    const cleanup = setupSyncListeners((online: boolean) => {
+      setOnline(online);
+      if (online) {
         notifications.show({
           title: "Back online",
           message: "Your changes will sync to the Weave.",
@@ -239,24 +253,6 @@ function HexFlowerRunner() {
 }
 
 // Placeholder components for future routes
-function Gallery() {
-  return (
-    <Container>
-      <Title>Public Gallery</Title>
-      <Text>Coming soon...</Text>
-    </Container>
-  );
-}
-
-function SharedView() {
-  return (
-    <Container>
-      <Title>Shared Engine</Title>
-      <Text>Coming soon...</Text>
-    </Container>
-  );
-}
-
 function AdminReview() {
   return (
     <Container>
@@ -266,13 +262,24 @@ function AdminReview() {
   );
 }
 
+function EditorPage() {
+  return (
+    <EditorProvider>
+      <HexEditor />
+    </EditorProvider>
+  );
+}
+
 export function App() {
   return (
     <Routes>
       <Route path="/" element={<HexFlowerRunner />} />
-      <Route path="/gallery" element={<Gallery />} />
-      <Route path="/s/:token" element={<SharedView />} />
-      <Route path="/shared/:token" element={<SharedView />} />
+      <Route path="/auth/verify" element={<AuthVerify />} />
+      <Route path="/editor" element={<EditorPage />} />
+      <Route path="/editor/:engineId" element={<EditorPage />} />
+      <Route path="/gallery" element={<Garden />} />
+      <Route path="/s/:token" element={<SharedEngine />} />
+      <Route path="/shared/:token" element={<SharedEngine />} />
       <Route path="/admin/review" element={<AdminReview />} />
     </Routes>
   );

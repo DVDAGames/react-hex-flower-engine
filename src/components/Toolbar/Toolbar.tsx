@@ -1,10 +1,12 @@
 import { Group, Button, Select, Switch, ActionIcon, Menu, Tooltip } from "@mantine/core";
-import { Dices, Shuffle, RotateCcw, Settings, Moon, Sun, Monitor } from "lucide-react";
+import { Dices, Shuffle, RotateCcw, Settings, Moon, Sun, Monitor, PenTool, Flower2 } from "lucide-react";
 import { useMantineColorScheme } from "@mantine/core";
+import { Link } from "react-router-dom";
 import Roller from "@dvdagames/js-die-roller";
 import type { EngineDefinition } from "@/types/engine";
 import { useAccessMode } from "@/contexts";
 import { ACTIONS, RANDOM_HEX_ROLL, type ActionType } from "@/constants";
+import { UserMenu } from "@/components/Auth";
 import classes from "./Toolbar.module.css";
 
 // Helper to extract a single number from Roller result total
@@ -133,6 +135,24 @@ export function Toolbar({
           </Menu.Target>
 
           <Menu.Dropdown>
+            <Menu.Label>Navigation</Menu.Label>
+            <Menu.Item
+              leftSection={<PenTool size={16} />}
+              component={Link}
+              to="/editor"
+            >
+              Engine Editor
+            </Menu.Item>
+            <Menu.Item
+              leftSection={<Flower2 size={16} />}
+              component={Link}
+              to="/gallery"
+            >
+              The Garden
+            </Menu.Item>
+
+            <Menu.Divider />
+
             <Menu.Label>Appearance</Menu.Label>
             <Menu.Item
               leftSection={colorSchemeIcon.light}
@@ -157,6 +177,9 @@ export function Toolbar({
             </Menu.Item>
           </Menu.Dropdown>
         </Menu>
+
+        {/* User menu */}
+        <UserMenu />
       </Group>
 
       {/* Readonly indicator */}

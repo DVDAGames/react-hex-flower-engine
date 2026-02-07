@@ -7,7 +7,8 @@ export interface Env {
   RESEND_API_KEY: string;
   JWT_SECRET: string;
   ADMIN_EMAILS: string;
-  ENVIRONMENT: string;
+  EMAIL_FROM?: string;
+  ENVIRONMENT?: string;
 }
 
 export interface User {

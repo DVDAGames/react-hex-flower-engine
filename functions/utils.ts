@@ -136,6 +136,9 @@ export async function sendMagicLinkEmail(
 ): Promise<boolean> {
   const magicLink = `${baseUrl}/auth/verify?token=${token}`;
   
+  // Use configured sender email, or fall back to Resend's test sender for development
+  const fromEmail = env.EMAIL_FROM || 'Hex Flower Engine <onboarding@resend.dev>';
+  
   try {
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -144,7 +147,7 @@ export async function sendMagicLinkEmail(
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Hex Flower Engine <noreply@hexflower.app>',
+        from: fromEmail,
         to: email,
         subject: 'Sign in to Hex Flower Engine',
         html: `
@@ -157,6 +160,11 @@ export async function sendMagicLinkEmail(
         `,
       }),
     });
+    
+    if (!response.ok) {
+      const errorData = await response.text();
+      console.error('Resend API error:', response.status, errorData);
+    }
     
     return response.ok;
   } catch (error) {

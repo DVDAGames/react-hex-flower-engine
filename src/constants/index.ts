@@ -8,7 +8,6 @@ export { DEFAULT_2D6_DIRECTIONS } from '@/types/engine';
 import { STANDARD_ENGINE } from './engines/standard';
 import { WEATHER_ENGINE } from './engines/weather';
 import { INVERSE_ENGINE } from './engines/inverse';
-import { ARCANE_TIDE_ENGINE } from './engines/arcane-tide';
 
 /**
  * Built-in engines that ship with the application
@@ -17,7 +16,6 @@ export const BUILTIN_ENGINES: EngineDefinition[] = [
   STANDARD_ENGINE,
   WEATHER_ENGINE,
   INVERSE_ENGINE,
-  ARCANE_TIDE_ENGINE,
 ];
 
 /**

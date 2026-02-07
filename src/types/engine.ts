@@ -1,12 +1,22 @@
 /**
- * Direction type representing the 6 possible directions on a hex grid
+ * Movement direction type representing the 6 possible directions on a hex grid
  */
 export type Direction = 'up' | 'upRight' | 'downRight' | 'down' | 'downLeft' | 'upLeft';
 
 /**
- * All valid directions
+ * Roll result direction - can be a movement direction or 'stay' (no movement)
+ */
+export type RollDirection = Direction | 'stay';
+
+/**
+ * All valid movement directions
  */
 export const DIRECTIONS: Direction[] = ['up', 'upRight', 'downRight', 'down', 'downLeft', 'upLeft'];
+
+/**
+ * All valid roll result directions (including stay)
+ */
+export const ROLL_DIRECTIONS: RollDirection[] = ['up', 'upRight', 'downRight', 'down', 'downLeft', 'upLeft', 'stay'];
 
 /**
  * A modifier is a key-value pair that provides additional game information
@@ -23,6 +33,8 @@ export interface Modifier {
 export interface NodeStyle {
   /** Background color in hex format (e.g., "#ff7777") */
   backgroundColor?: string;
+  /** Text color in hex format (e.g., "#000000") */
+  textColor?: string;
   /** Lucide icon name (e.g., "sun", "cloud", "zap") */
   icon?: string;
 }
@@ -66,8 +78,9 @@ export interface EngineDefinition {
   /** 
    * Default mapping of roll results to directions
    * Can be overridden per-node via the node's map property
+   * 'stay' means the token does not move
    */
-  directions: Record<number, Direction>;
+  directions: Record<number, RollDirection>;
   /** Starting node ID */
   start: number;
   /** Array of hex nodes (typically 19 for a standard hex flower) */

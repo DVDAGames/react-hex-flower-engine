@@ -3,30 +3,29 @@ import type { EngineDefinition, Direction } from '@/types/engine';
 /**
  * Inverse direction mapping - directions are reversed from standard
  * 
- * Standard: low rolls go down, high rolls go up-right
- * Inverse: low rolls go up, high rolls go down
+ * Inverse mapping:
+ * - 6, 7: Up (optional: 7 = Stay, 6 = Up)
+ * - 8, 9: Up-Right
+ * - 10, 11: Down-Right
+ * - 12: Down
+ * - 2, 3: Down-Left
+ * - 4, 5: Up-Left
  * 
- * Mapping:
- * - 2: Up (was Down)
- * - 3: Upper-Right (was Lower-Left)
- * - 4, 5: Lower-Right (was Upper-Left)
- * - 6, 7, 8: Down (was Up)
- * - 9, 10: Lower-Left (was Upper-Right)
- * - 11: Upper-Left (was Lower-Right)
- * - 12: Up (was Down)
+ * Note: Some engines may treat 7 as "Stay" instead of "Up" -
+ * this is handled as an engine option.
  */
 const INVERSE_DIRECTIONS: Record<number, Direction> = {
-  2: 'up',
-  3: 'upRight',
-  4: 'downRight',
-  5: 'downRight',
-  6: 'down',
-  7: 'down',
-  8: 'down',
-  9: 'downLeft',
-  10: 'downLeft',
-  11: 'upLeft',
-  12: 'up',
+  2: 'downLeft',
+  3: 'downLeft',
+  4: 'upLeft',
+  5: 'upLeft',
+  6: 'up',
+  7: 'up',
+  8: 'upRight',
+  9: 'upRight',
+  10: 'downRight',
+  11: 'downRight',
+  12: 'down',
 };
 
 /**
@@ -44,6 +43,7 @@ export const INVERSE_ENGINE: EngineDefinition = {
   directions: INVERSE_DIRECTIONS,
   start: 10,
   nodes: [
+    // Row 9 (bottom): 1
     {
       id: 1,
       label: '1',
@@ -51,12 +51,13 @@ export const INVERSE_ENGINE: EngineDefinition = {
       map: {
         up: 5,
         upRight: 3,
-        downRight: 1,
-        down: 1,
-        downLeft: 1,
+        downRight: 3,  // Wrap to top-left
+        down: 1,       // Stay (single hex row)
+        downLeft: 2,
         upLeft: 2,
       },
     },
+    // Row 8: 2, 3
     {
       id: 2,
       label: '2',
@@ -64,8 +65,8 @@ export const INVERSE_ENGINE: EngineDefinition = {
         up: 7,
         upRight: 5,
         downRight: 1,
-        down: 1,
-        downLeft: 1,
+        down: 17,      // Wrap to top
+        downLeft: 11,  // Wrap to top-right
         upLeft: 4,
       },
     },
@@ -75,22 +76,23 @@ export const INVERSE_ENGINE: EngineDefinition = {
       map: {
         up: 8,
         upRight: 6,
-        downRight: 1,
-        down: 1,
+        downRight: 9,  // Wrap to top-left
+        down: 18,      // Wrap to top
         downLeft: 1,
         upLeft: 5,
       },
     },
+    // Row 7: 4, 5, 6
     {
       id: 4,
       label: '4',
       map: {
-        up: 12,
+        up: 9,
         upRight: 7,
         downRight: 2,
-        down: 2,
-        downLeft: 6,
-        upLeft: 9,
+        down: 14,      // Wrap to top
+        downLeft: 16,  // Wrap to top-right
+        upLeft: 1,     // Wrap to bottom (corner)
       },
     },
     {
@@ -109,14 +111,15 @@ export const INVERSE_ENGINE: EngineDefinition = {
       id: 6,
       label: '6',
       map: {
-        up: 13,
-        upRight: 11,
-        downRight: 4,
-        down: 3,
+        up: 11,
+        upRight: 1,    // Wrap to bottom (corner)
+        downRight: 14, // Wrap to top-left
+        down: 16,      // Wrap to top
         downLeft: 3,
         upLeft: 8,
       },
     },
+    // Row 6: 7, 8
     {
       id: 7,
       label: '7',
@@ -124,7 +127,7 @@ export const INVERSE_ENGINE: EngineDefinition = {
         up: 12,
         upRight: 10,
         downRight: 5,
-        down: 5,
+        down: 2,
         downLeft: 4,
         upLeft: 9,
       },
@@ -136,21 +139,22 @@ export const INVERSE_ENGINE: EngineDefinition = {
         up: 13,
         upRight: 11,
         downRight: 6,
-        down: 5,
+        down: 3,
         downLeft: 5,
         upLeft: 10,
       },
     },
+    // Row 5: 9, 10, 11
     {
       id: 9,
       label: '9',
       map: {
-        up: 17,
+        up: 14,
         upRight: 12,
         downRight: 7,
-        down: 7,
-        downLeft: 11,
-        upLeft: 14,
+        down: 4,
+        downLeft: 18,  // Wrap to right edge
+        upLeft: 3,     // Wrap to right edge
       },
     },
     {
@@ -174,14 +178,15 @@ export const INVERSE_ENGINE: EngineDefinition = {
       id: 11,
       label: '11',
       map: {
-        up: 18,
-        upRight: 16,
-        downRight: 9,
-        down: 8,
+        up: 16,
+        upRight: 2,    // Wrap to left edge
+        downRight: 17, // Wrap to left edge
+        down: 6,
         downLeft: 8,
         upLeft: 13,
       },
     },
+    // Row 4: 12, 13
     {
       id: 12,
       label: '12',
@@ -189,7 +194,7 @@ export const INVERSE_ENGINE: EngineDefinition = {
         up: 17,
         upRight: 15,
         downRight: 10,
-        down: 10,
+        down: 7,
         downLeft: 9,
         upLeft: 14,
       },
@@ -201,21 +206,22 @@ export const INVERSE_ENGINE: EngineDefinition = {
         up: 18,
         upRight: 16,
         downRight: 11,
-        down: 10,
+        down: 8,
         downLeft: 10,
         upLeft: 15,
       },
     },
+    // Row 3: 14, 15, 16
     {
       id: 14,
       label: '14',
       map: {
-        up: 19,
+        up: 4,         // Wrap to bottom
         upRight: 17,
         downRight: 12,
-        down: 12,
-        downLeft: 16,
-        upLeft: 16,
+        down: 9,
+        downLeft: 19,  // Wrap to top (corner)
+        upLeft: 6,     // Wrap to bottom-right
       },
     },
     {
@@ -234,49 +240,51 @@ export const INVERSE_ENGINE: EngineDefinition = {
       id: 16,
       label: '16',
       map: {
-        up: 19,
-        upRight: 14,
-        downRight: 14,
-        down: 13,
+        up: 6,         // Wrap to bottom
+        upRight: 4,    // Wrap to bottom-left
+        downRight: 19, // Wrap to top (corner)
+        down: 11,
         downLeft: 13,
         upLeft: 18,
       },
     },
+    // Row 2: 17, 18
     {
       id: 17,
       label: '17',
       map: {
-        up: 19,
-        upRight: 19,
+        up: 2,         // Wrap to bottom
+        upRight: 19,   // Wrap to top (corner)
         downRight: 15,
-        down: 15,
+        down: 12,
         downLeft: 14,
-        upLeft: 18,
+        upLeft: 11,    // Wrap to right edge
       },
     },
     {
       id: 18,
       label: '18',
       map: {
-        up: 19,
-        upRight: 17,
+        up: 3,         // Wrap to bottom
+        upRight: 9,    // Wrap to left edge
         downRight: 16,
-        down: 15,
+        down: 13,
         downLeft: 15,
-        upLeft: 17,
+        upLeft: 19,    // Wrap to top (corner)
       },
     },
+    // Row 1 (top): 19
     {
       id: 19,
       label: '19',
       description: 'Top of the hex flower',
       map: {
-        up: 19,
-        upRight: 18,
+        up: 19,        // Stay (top edge)
+        upRight: 19,   // Stay (top edge)
         downRight: 18,
         down: 15,
         downLeft: 17,
-        upLeft: 17,
+        upLeft: 19,    // Stay (top edge)
       },
     },
   ],
