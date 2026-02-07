@@ -53,7 +53,6 @@ export default defineConfig({
       },
     }),
   ],
-  base: '/react-hex-flower-engine/',
   server: {
     port: 3000,
     open: true,

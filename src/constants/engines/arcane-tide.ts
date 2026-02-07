@@ -1,58 +1,78 @@
 import type { EngineDefinition } from '@/types/engine';
 import { DEFAULT_2D6_DIRECTIONS } from './shared';
 
+/**
+ * Arcane Tide Hex Flower Engine
+ * 
+ * Tracks the ebb and flow of magical energy in a fantasy setting.
+ * The Void (hex 1) represents magic at its lowest, while 
+ * Surge (hex 19) represents peak magical power.
+ * 
+ * Layout follows standard hex flower with hex 10 as center ("Normal").
+ */
 export const ARCANE_TIDE_ENGINE: EngineDefinition = {
   name: 'Arcane Tide',
   description: 'Track the ebb and flow of magical energy. Perfect for campaigns where magic waxes and wanes, affecting spellcasters and magical effects.',
   icon: 'sparkles',
   roll: '2d6',
   directions: DEFAULT_2D6_DIRECTIONS,
-  start: 1,
+  start: 10,
   nodes: [
     {
       id: 1,
       label: 'The Void',
       description: 'Magic is at its absolute lowest. Spells may fail or have reduced effects.',
+      modifiers: [
+        { key: 'Spell DC', value: '-2' },
+        { key: 'Spell Slots', value: 'Expend extra slot on cast' },
+      ],
       style: {
-        backgroundColor: '#323232',
+        backgroundColor: '#1a1a2e',
+        icon: 'circle-off',
       },
       map: {
         up: 5,
         upRight: 3,
-        downRight: 3,
+        downRight: 1,
         down: 1,
-        downLeft: 2,
+        downLeft: 1,
         upLeft: 2,
       },
     },
     {
       id: 2,
-      label: 'Ebbing',
-      description: 'The magical tide is receding.',
+      label: 'Deep Ebb',
+      description: 'The magical tide has nearly vanished.',
+      modifiers: [
+        { key: 'Spell DC', value: '-1' },
+      ],
       style: {
-        backgroundColor: '#666666',
+        backgroundColor: '#2d2d44',
       },
       map: {
         up: 7,
         upRight: 5,
         downRight: 1,
-        down: 17,
-        downLeft: 11,
+        down: 1,
+        downLeft: 1,
         upLeft: 4,
       },
     },
     {
       id: 3,
-      label: 'Ebbing',
-      description: 'The magical tide is receding.',
+      label: 'Deep Ebb',
+      description: 'The magical tide has nearly vanished.',
+      modifiers: [
+        { key: 'Spell DC', value: '-1' },
+      ],
       style: {
-        backgroundColor: '#666666',
+        backgroundColor: '#2d2d44',
       },
       map: {
         up: 8,
         upRight: 6,
-        downRight: 9,
-        down: 18,
+        downRight: 1,
+        down: 1,
         downLeft: 1,
         upLeft: 5,
       },
@@ -62,15 +82,15 @@ export const ARCANE_TIDE_ENGINE: EngineDefinition = {
       label: 'Low Tide',
       description: 'Magical energy is weak but stable.',
       style: {
-        backgroundColor: '#999999',
+        backgroundColor: '#404060',
       },
       map: {
-        up: 9,
+        up: 12,
         upRight: 7,
         downRight: 2,
-        down: 14,
-        downLeft: 16,
-        upLeft: 1,
+        down: 2,
+        downLeft: 6,
+        upLeft: 9,
       },
     },
     {
@@ -78,7 +98,7 @@ export const ARCANE_TIDE_ENGINE: EngineDefinition = {
       label: 'Ebbing',
       description: 'The magical tide is receding.',
       style: {
-        backgroundColor: '#666666',
+        backgroundColor: '#505070',
       },
       map: {
         up: 10,
@@ -94,13 +114,13 @@ export const ARCANE_TIDE_ENGINE: EngineDefinition = {
       label: 'Low Tide',
       description: 'Magical energy is weak but stable.',
       style: {
-        backgroundColor: '#999999',
+        backgroundColor: '#404060',
       },
       map: {
-        up: 11,
-        upRight: 1,
-        downRight: 14,
-        down: 16,
+        up: 13,
+        upRight: 11,
+        downRight: 4,
+        down: 3,
         downLeft: 3,
         upLeft: 8,
       },
@@ -110,13 +130,13 @@ export const ARCANE_TIDE_ENGINE: EngineDefinition = {
       label: 'Normal',
       description: 'Magic flows at its expected strength.',
       style: {
-        backgroundColor: '#cccccc',
+        backgroundColor: '#606080',
       },
       map: {
         up: 12,
         upRight: 10,
         downRight: 5,
-        down: 2,
+        down: 5,
         downLeft: 4,
         upLeft: 9,
       },
@@ -126,40 +146,40 @@ export const ARCANE_TIDE_ENGINE: EngineDefinition = {
       label: 'Normal',
       description: 'Magic flows at its expected strength.',
       style: {
-        backgroundColor: '#cccccc',
+        backgroundColor: '#606080',
       },
       map: {
         up: 13,
         upRight: 11,
         downRight: 6,
-        down: 3,
+        down: 5,
         downLeft: 5,
         upLeft: 10,
       },
     },
     {
       id: 9,
-      label: 'Normal',
-      description: 'Magic flows at its expected strength.',
+      label: 'Calm Waters',
+      description: 'Magic is stable and predictable.',
       style: {
-        backgroundColor: '#cccccc',
+        backgroundColor: '#7070a0',
       },
       map: {
-        up: 14,
+        up: 17,
         upRight: 12,
         downRight: 7,
-        down: 4,
-        downLeft: 18,
-        upLeft: 3,
+        down: 7,
+        downLeft: 11,
+        upLeft: 14,
       },
     },
     {
       id: 10,
-      label: 'Normal',
-      description: 'Magic flows at its expected strength. The tide is stable.',
+      label: 'Balanced',
+      description: 'The arcane tide is perfectly balanced. Magic flows normally.',
       style: {
         backgroundColor: '#7777ff',
-        icon: 'rotate-cw',
+        icon: 'scale',
       },
       map: {
         up: 15,
@@ -172,74 +192,80 @@ export const ARCANE_TIDE_ENGINE: EngineDefinition = {
     },
     {
       id: 11,
-      label: 'Normal',
-      description: 'Magic flows at its expected strength.',
+      label: 'Calm Waters',
+      description: 'Magic is stable and predictable.',
       style: {
-        backgroundColor: '#cccccc',
+        backgroundColor: '#7070a0',
       },
       map: {
-        up: 16,
-        upRight: 2,
-        downRight: 17,
-        down: 6,
+        up: 18,
+        upRight: 16,
+        downRight: 9,
+        down: 8,
         downLeft: 8,
         upLeft: 13,
       },
     },
     {
       id: 12,
-      label: 'Normal',
-      description: 'Magic flows at its expected strength.',
+      label: 'Rising',
+      description: 'The magical tide is building.',
       style: {
-        backgroundColor: '#cccccc',
+        backgroundColor: '#9090c0',
       },
       map: {
         up: 17,
         upRight: 15,
         downRight: 10,
-        down: 7,
+        down: 10,
         downLeft: 9,
         upLeft: 14,
       },
     },
     {
       id: 13,
-      label: 'Normal',
-      description: 'Magic flows at its expected strength.',
+      label: 'Rising',
+      description: 'The magical tide is building.',
       style: {
-        backgroundColor: '#cccccc',
+        backgroundColor: '#9090c0',
       },
       map: {
         up: 18,
         upRight: 16,
         downRight: 11,
-        down: 8,
+        down: 10,
         downLeft: 10,
         upLeft: 15,
       },
     },
     {
       id: 14,
-      label: 'Normal',
-      description: 'Magic flows at its expected strength.',
+      label: 'High Tide',
+      description: 'Magical energy is strong. Spells are empowered.',
+      modifiers: [
+        { key: 'Spell DC', value: '+1' },
+      ],
       style: {
-        backgroundColor: '#cccccc',
+        backgroundColor: '#b0b0e0',
       },
       map: {
-        up: 4,
+        up: 19,
         upRight: 17,
         downRight: 12,
-        down: 9,
-        downLeft: 19,
-        upLeft: 6,
+        down: 12,
+        downLeft: 16,
+        upLeft: 16,
       },
     },
     {
       id: 15,
-      label: 'High Tide',
-      description: 'Magical energy is strong and building.',
+      label: 'Swelling',
+      description: 'The arcane tide swells with power.',
+      modifiers: [
+        { key: 'Spell DC', value: '+1' },
+      ],
       style: {
-        backgroundColor: '#ffcf77',
+        backgroundColor: '#c0c0ff',
       },
       map: {
         up: 19,
@@ -252,71 +278,84 @@ export const ARCANE_TIDE_ENGINE: EngineDefinition = {
     },
     {
       id: 16,
-      label: 'Normal',
-      description: 'Magic flows at its expected strength.',
+      label: 'High Tide',
+      description: 'Magical energy is strong. Spells are empowered.',
+      modifiers: [
+        { key: 'Spell DC', value: '+1' },
+      ],
       style: {
-        backgroundColor: '#cccccc',
+        backgroundColor: '#b0b0e0',
       },
       map: {
-        up: 6,
-        upRight: 4,
-        downRight: 19,
-        down: 11,
+        up: 19,
+        upRight: 14,
+        downRight: 14,
+        down: 13,
         downLeft: 13,
         upLeft: 18,
       },
     },
     {
       id: 17,
-      label: 'High Tide',
-      description: 'Magical energy is strong and building.',
-      style: {
-        backgroundColor: '#ffcf77',
-      },
-      map: {
-        up: 2,
-        upRight: 19,
-        downRight: 15,
-        down: 12,
-        downLeft: 14,
-        upLeft: 11,
-      },
-    },
-    {
-      id: 18,
-      label: 'High Tide',
-      description: 'Magical energy is strong and building.',
-      style: {
-        backgroundColor: '#ffcf77',
-      },
-      map: {
-        up: 3,
-        upRight: 9,
-        downRight: 16,
-        down: 13,
-        downLeft: 15,
-        upLeft: 19,
-      },
-    },
-    {
-      id: 19,
-      label: 'Surge',
-      description: 'The arcane tide reaches its peak! Magic is at its most potent.',
+      label: 'Cresting',
+      description: 'The tide approaches its peak. Magic crackles in the air.',
       modifiers: [
-        { key: 'Either', value: 'Regain lowest spell slot (up to 3rd level)' },
-        { key: 'Or', value: 'Cast spell as if it were one level higher' },
+        { key: 'Spell DC', value: '+1' },
+        { key: 'Wild Magic', value: 'Chance on any spell' },
       ],
       style: {
-        backgroundColor: '#ff7777',
-        icon: 'sparkles',
+        backgroundColor: '#d4d4ff',
       },
       map: {
         up: 19,
         upRight: 19,
+        downRight: 15,
+        down: 15,
+        downLeft: 14,
+        upLeft: 18,
+      },
+    },
+    {
+      id: 18,
+      label: 'Cresting',
+      description: 'The tide approaches its peak. Magic crackles in the air.',
+      modifiers: [
+        { key: 'Spell DC', value: '+1' },
+        { key: 'Wild Magic', value: 'Chance on any spell' },
+      ],
+      style: {
+        backgroundColor: '#d4d4ff',
+      },
+      map: {
+        up: 19,
+        upRight: 17,
+        downRight: 16,
+        down: 15,
+        downLeft: 15,
+        upLeft: 17,
+      },
+    },
+    {
+      id: 19,
+      label: 'SURGE!',
+      description: 'The arcane tide reaches its peak! Magic is at its most potent and most dangerous.',
+      modifiers: [
+        { key: 'Spell DC', value: '+2' },
+        { key: 'Bonus', value: 'Regain lowest expended spell slot (max 3rd)' },
+        { key: 'Or', value: 'Cast one spell as if one level higher' },
+        { key: 'Wild Magic', value: 'Roll on Wild Magic table for every spell' },
+      ],
+      style: {
+        backgroundColor: '#ff77ff',
+        icon: 'sparkles',
+      },
+      map: {
+        up: 19,
+        upRight: 18,
         downRight: 18,
         down: 15,
         downLeft: 17,
-        upLeft: 19,
+        upLeft: 17,
       },
     },
   ],

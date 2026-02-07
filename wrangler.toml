@@ -7,7 +7,7 @@ pages_build_output_dir = "dist"
 [[d1_databases]]
 binding = "DB"
 database_name = "hex-flower-engine-db"
-database_id = "" # Fill in after creating: npx wrangler d1 create hex-flower-engine-db
+database_id = "28890a06-d90d-42b6-a601-2d2f3c7ba608" # Fill in after creating: npx wrangler d1 create hex-flower-engine-db
 
 # Environment variables (set in Cloudflare dashboard or .dev.vars)
 # RESEND_API_KEY - For sending magic link emails

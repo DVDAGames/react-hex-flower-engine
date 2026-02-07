@@ -32,7 +32,7 @@ root.render(
   <StrictMode>
     <MantineProvider theme={theme} defaultColorScheme="auto">
       <Notifications position="top-right" />
-      <BrowserRouter basename="/react-hex-flower-engine">
+      <BrowserRouter>
         <AuthProvider>
           <AccessModeProvider>
             <App />

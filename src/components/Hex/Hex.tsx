@@ -27,7 +27,7 @@ export function Hex({ hex, onHexClick, isActive, isHighlighted, showAnnotations,
   const tooltipLabel = hex.label || `Hex ${hex.id}`;
 
   return (
-    <li className={classes.gridItem} data-hex-id={hex.id}>
+    <div className={classes.gridItem} data-hex-id={hex.id}>
       {showAnnotations && <Annotations engine={engine} />}
       <Tooltip label={tooltipLabel} position="top" withArrow>
         <UnstyledButton onClick={onHexClick} className={containerClasses} disabled={isActive} aria-label={tooltipLabel}>
@@ -48,7 +48,7 @@ export function Hex({ hex, onHexClick, isActive, isHighlighted, showAnnotations,
           </Box>
         </UnstyledButton>
       </Tooltip>
-    </li>
+    </div>
   );
 }
 

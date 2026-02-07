@@ -34,13 +34,22 @@ function HexFlowerRunner() {
   const [engines] = useState<EngineDefinition[]>(BUILTIN_ENGINES);
   const [online, setOnline] = useState(isOnline());
 
+  // DEBUG - remove after fixing
+  console.log("HexFlowerRunner render, engines:", engines.length, "currentEngine:", currentEngine?.name);
+
   // Initialize from localStorage
   useEffect(() => {
     const savedEngineId = getCurrentEngineId();
     const prefs = getPreferences();
     setShowAnnotations(prefs.showAnnotations);
 
-    const engine = savedEngineId ? engines.find((e) => e.name === savedEngineId) : engines[0];
+    // Try to find saved engine, fall back to first engine if not found
+    let engine = savedEngineId ? engines.find((e) => e.name === savedEngineId) : null;
+
+    // If saved engine not found (e.g., old localStorage data), use first engine
+    if (!engine && engines.length > 0) {
+      engine = engines[0];
+    }
 
     if (engine) {
       setCurrentEngine(engine);
