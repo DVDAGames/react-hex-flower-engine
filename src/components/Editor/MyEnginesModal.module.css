@@ -1,0 +1,7 @@
+.engineCard {
+  transition: border-color 150ms ease;
+
+  &:hover {
+    border-color: var(--mantine-color-violet-4);
+  }
+}

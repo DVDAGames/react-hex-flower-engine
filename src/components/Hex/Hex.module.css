@@ -1,0 +1,89 @@
+.gridItem {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.outline {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  border-radius: 4px;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.outline:hover:not(:disabled) {
+  opacity: 1;
+}
+
+.outline:focus-visible {
+  outline: 2px solid var(--mantine-primary-color-filled);
+  outline-offset: 2px;
+}
+
+.highlightedContainer {
+  opacity: 0.75;
+}
+
+.activeContainer {
+  opacity: 9;
+}
+
+.outline:not(.activeContainer):not(.highlightedContainer) {
+  opacity: 0.5;
+}
+
+.hex {
+  --hex-bg: #ccc;
+  --hex-size: 60px;
+  /* For flat-top hex: width > height. Using standard ratio where width = height * 1.1547 */
+  --hex-width: calc(var(--hex-size) * 1.1547);
+  --hex-height: var(--hex-size);
+
+  width: var(--hex-width);
+  height: var(--hex-height);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  /* Flat-top hexagon: flat edges on top/bottom, points on left/right
+     Points at 0% and 100% x, flat edges from 25%-75% x */
+  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+  /* Negative horizontal margin to account for clipped triangular areas */
+  margin-left: calc(var(--hex-width) * -0.25);
+  margin-right: calc(var(--hex-width) * -0.25);
+  transition: background-color 0.15s ease;
+  font-weight: 600;
+  font-size: calc(var(--hex-size) * 0.3);
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.activeHex {
+  box-shadow: 0 0 0 3px var(--mantine-primary-color-filled);
+}
+
+.highlightedHex {
+  filter: brightness(1.1);
+}
+
+.hexId {
+  font-size: inherit;
+  font-weight: bold;
+}
+
+@media (min-width: 480px) {
+  .hex {
+    --hex-size: 80px;
+  }
+}
+
+@media (min-width: 768px) {
+  .hex {
+    --hex-size: 100px;
+  }
+}

@@ -1,0 +1,11 @@
+.container {
+  flex: 1;
+}
+
+.engineCard {
+  transition: box-shadow 0.2s ease;
+}
+
+.engineCard:hover {
+  box-shadow: var(--mantine-shadow-md);
+}

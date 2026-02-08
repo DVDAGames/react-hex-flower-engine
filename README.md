@@ -1,10 +1,26 @@
-# React Hex Flower Engine
+# Hex v2
 
-![Weather Generation Hex Flower Engine](./public/weather-flower-demo.png)
+![Hex v2](./public/hex-v2.png)
 
-This is a simple application for managing a
-[Hex Flower Engine](https://goblinshenchman.wordpress.com/2018/10/25/2d6-hex-power-flower/)
+Hex is an application for managing
+[Hex Flower Engines](https://goblinshenchman.wordpress.com/2018/10/25/2d6-hex-power-flower/)
 for any tabletop game in the browser.
+
+## Create and Share Hex Flower Engines
+
+In the Hex application, you can create your own Hex Flower Engines, share them with your players, and even publish them to the Garden, where other users can find them and use them in their own games.
+
+The Hex Editor allows you to choose a label, icon, color, and description for each Hex cell, and also customize the Hex Flower Engine movement rules for each roll outcome for that cell.
+
+**Coming Soon**:
+
+- Fork published engines and save your own version of them with modifications
+- Use movement rules other than `2d6` and `1d19`
+- Offline -> Online sync of engine state and editor state in case you lose network connection while using the application
+
+### Legacy Version
+
+The legacy version of this application is still hosted on GitHub Pages, but `v2` is a much better application for your needs and provides an interface for you to configure your own Hex Flower Engines.
 
 It currently supports two engines:
 

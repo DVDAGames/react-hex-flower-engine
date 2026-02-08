@@ -1,0 +1,39 @@
+.grid {
+  --hex-size: 60px;
+  /* For flat-top hex: width = size * 2/sqrt(3) ≈ 1.1547, height = size */
+  --hex-width: calc(var(--hex-size) * 1.1547);
+  --hex-height: var(--hex-size);
+  /* Gap between hexes (visual spacing) */
+  --hex-gap: 2px;
+
+  list-style: none;
+  padding: 0;
+  margin: 2rem auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.row {
+  display: flex;
+  justify-content: center;
+  /* Hexes use negative margins to overlap clipped areas, add gap for visual spacing */
+  gap: calc(var(--hex-width) + var(--hex-gap) * 2);
+}
+
+/* Rows overlap vertically - for flat-top hexes, rows interlock at 50% of height */
+.row:not(:first-child) {
+  margin-top: calc(var(--hex-height) * -0.5 + var(--hex-gap) * -0.5);
+}
+
+@media (min-width: 480px) {
+  .grid {
+    --hex-size: 80px;
+  }
+}
+
+@media (min-width: 768px) {
+  .grid {
+    --hex-size: 100px;
+  }
+}
