@@ -20,7 +20,6 @@ import { getEngine, saveEngineState, retrieveEngineState } from "@/lib/api";
 import { setCurrentEngineId, getEngineState, setEngineState, setupSyncListeners, isOnline } from "@/services";
 
 import classes from "./App.module.css";
-import { get } from "http";
 
 interface RollResult {
   type: ActionType;
