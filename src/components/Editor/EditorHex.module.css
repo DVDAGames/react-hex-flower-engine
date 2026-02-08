@@ -115,6 +115,17 @@
   font-weight: bold;
 }
 
+/* Blank rendering for editor hexes */
+.blank .hexId,
+.blank .icon {
+  display: none !important;
+}
+
+/* Hide all direct children (icon/label/etc) when blank — preserves pseudo-elements */
+.blank > * {
+  display: none !important;
+}
+
 @media (min-width: 480px) {
   .hex {
     --hex-size: 60px;

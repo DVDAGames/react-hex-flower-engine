@@ -20,6 +20,8 @@ export function Hex({ hex, onHexClick, isActive, isHighlighted }: HexProps) {
   const hexClasses = [classes.hex, isActive && classes.activeHex, isHighlighted && classes.highlightedHex]
     .filter(Boolean)
     .join(" ");
+  // add blank class when hex should render empty
+  const boxClasses = [hexClasses, hex.blank && classes.blank].filter(Boolean).join(" ");
 
   const tooltipLabel = hex.label || `Hex ${hex.id}`;
 
@@ -28,7 +30,7 @@ export function Hex({ hex, onHexClick, isActive, isHighlighted }: HexProps) {
       <Tooltip label={tooltipLabel} position="top" withArrow>
         <UnstyledButton onClick={onHexClick} className={containerClasses} disabled={isActive} aria-label={tooltipLabel}>
           <Box
-            className={hexClasses}
+            className={boxClasses}
             style={
               {
                 backgroundColor,
@@ -36,11 +38,7 @@ export function Hex({ hex, onHexClick, isActive, isHighlighted }: HexProps) {
               } as React.CSSProperties
             }
           >
-            {hex.style?.icon ? (
-              <HexIcon icon={hex.style.icon} label={tooltipLabel} />
-            ) : (
-              <span className={classes.hexId}>{hex.id}</span>
-            )}
+            {!hex.blank && (hex.style?.icon ? <HexIcon icon={hex.style.icon} label={tooltipLabel} /> : <span className={classes.hexId}>{hex.id}</span>)}
           </Box>
         </UnstyledButton>
       </Tooltip>

@@ -2,6 +2,7 @@ import { useCallback, useState } from "react";
 import {
   Stack,
   Text,
+  Switch,
   TextInput,
   Textarea,
   ColorInput,
@@ -198,6 +199,15 @@ export function HexPropertyPanel() {
           swatches={["#000000", "#ffffff", "#333333", "#666666", "#999999", "#cccccc", "#ff0000", "#0000ff"]}
           swatchesPerRow={8}
         />
+
+        <Group justify="space-between" align="center">
+          <Text size="sm">Render blank</Text>
+          <Switch
+            checked={!!selectedHex.blank}
+            onChange={(e) => actions.updateHex(selectedHex.id, { blank: e.currentTarget.checked })}
+            aria-label="Render hex blank"
+          />
+        </Group>
 
         <Box>
           <Text size="sm" fw={500} mb={4}>

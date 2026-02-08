@@ -143,10 +143,11 @@ export function EngineSettingsPanel() {
 
         <Select
           label="Dice Roll"
-          description="The dice rolled to determine movement"
+          description="(Coming Soon) The dice rolled to determine movement"
           value={draft.roll}
           onChange={handleRollChange}
           data={DICE_OPTIONS}
+          disabled
         />
 
         <Text size="sm" fw={500}>

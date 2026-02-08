@@ -33,6 +33,7 @@ export function EditorHex({ hex, onHexClick, isSelected, isHighlighted, isStart,
   ]
     .filter(Boolean)
     .join(" ");
+  const boxClasses = [hexClasses, hex.blank && classes.blank].filter(Boolean).join(" ");
 
   const tooltipLabel = hex.label || `Hex ${hex.id}`;
 
@@ -41,7 +42,7 @@ export function EditorHex({ hex, onHexClick, isSelected, isHighlighted, isStart,
       <Tooltip label={tooltipLabel} position="top" withArrow>
         <UnstyledButton onClick={onHexClick} className={containerClasses} aria-label={tooltipLabel}>
           <Box
-            className={hexClasses}
+            className={boxClasses}
             style={
               {
                 backgroundColor,
@@ -49,11 +50,7 @@ export function EditorHex({ hex, onHexClick, isSelected, isHighlighted, isStart,
               } as React.CSSProperties
             }
           >
-            {hex.style?.icon ? (
-              <HexIcon icon={hex.style.icon} label={tooltipLabel} />
-            ) : (
-              <span className={classes.hexId}>{hex.id}</span>
-            )}
+            {!hex.blank && (hex.style?.icon ? <HexIcon icon={hex.style.icon} label={tooltipLabel} /> : <span className={classes.hexId}>{hex.id}</span>)}
           </Box>
         </UnstyledButton>
       </Tooltip>
