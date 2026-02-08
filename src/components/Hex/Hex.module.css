@@ -76,6 +76,20 @@
   font-weight: bold;
 }
 
+/* When a hex is marked blank, hide overlays (icon/label/number) */
+.blank .hexId,
+.blank .icon {
+  display: none !important;
+}
+
+.blank {
+  /* make sure blank hexes still show shape but without content */
+}
+/* Hide all direct children (icon/label/etc) when blank — preserves pseudo-elements */
+.blank > * {
+  display: none !important;
+}
+
 @media (min-width: 480px) {
   .hex {
     --hex-size: 80px;

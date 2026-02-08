@@ -54,6 +54,11 @@ export interface HexNode {
   modifiers?: Modifier[];
   /** Visual styling */
   style?: NodeStyle;
+  /**
+   * When true, this hex renders as a blank cell on the grid:
+   * no icon, no number/label — only the base hex shape (still selectable).
+   */
+  blank?: boolean;
   /** 
    * Navigation map: direction -> target node ID
    * A node can reference itself to indicate "stay in place"
