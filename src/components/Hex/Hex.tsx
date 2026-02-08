@@ -38,7 +38,12 @@ export function Hex({ hex, onHexClick, isActive, isHighlighted }: HexProps) {
               } as React.CSSProperties
             }
           >
-            {!hex.blank && (hex.style?.icon ? <HexIcon icon={hex.style.icon} label={tooltipLabel} /> : <span className={classes.hexId}>{hex.id}</span>)}
+            {!hex.blank &&
+              (hex.style?.icon ? (
+                <HexIcon icon={hex.style.icon} label={tooltipLabel} />
+              ) : (
+                <span className={classes.hexId}>{hex.id}</span>
+              ))}
           </Box>
         </UnstyledButton>
       </Tooltip>

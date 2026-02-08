@@ -47,6 +47,19 @@ function HexFlowerRunner() {
     // Wait for auth to finish loading before deciding on default engine
     if (authLoading) return;
 
+    // If a builtin query param is present, load a built-in engine by name (takes precedence)
+    const builtin = searchParams.get("builtin");
+    if (builtin) {
+      const match = BUILTIN_ENGINES.find((e) => e.name.toLowerCase() === builtin.toLowerCase());
+      if (match) {
+        setCurrentEngine(match);
+        setActiveHex(match.start);
+        setIsBasicEngine(true);
+        setEngineId(null);
+        return;
+      }
+    }
+
     const urlEngineId = searchParams.get("engine");
 
     if (urlEngineId) {
@@ -58,10 +71,14 @@ function HexFlowerRunner() {
           setCurrentEngine(engineDef);
           setEngineId(urlEngineId);
           setCurrentEngineId(engineDef.name);
+
+          // Try to restore saved state for this engine id
           getSavedEngineState(urlEngineId)
             .then((savedHex) => {
               if (savedHex) {
                 setActiveHex(savedHex);
+              } else {
+                setActiveHex(engineDef.start);
               }
             })
             .catch(() => {
@@ -74,8 +91,8 @@ function HexFlowerRunner() {
           // Fall back to default engine on error
           console.error("Failed to load engine:", error);
           setCurrentEngine(BUILTIN_ENGINES[0]);
+          setIsLoadingEngine(false);
         }
-        setIsLoadingEngine(false);
         setIsBasicEngine(false);
       });
     } else if (isAuthenticated && user?.defaultEngineId) {

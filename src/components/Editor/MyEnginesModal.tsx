@@ -1,6 +1,21 @@
 import { useState, useEffect, useCallback } from "react";
 import { Modal, Stack, Text, Button, Group, Card, Badge, ActionIcon, Loader, Alert, TextInput, Menu } from "@mantine/core";
-import { Trash2, Edit2, Share2, ExternalLink, MoreVertical, Search, Cloud, CloudOff, Globe, Lock, Send } from "lucide-react";
+import {
+  Trash2,
+  Edit2,
+  Share2,
+  ExternalLink,
+  MoreVertical,
+  Search,
+  Cloud,
+  CloudOff,
+  Globe,
+  Lock,
+  Send,
+  Hexagon,
+  Play,
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts";
 import { getMyEngines, deleteEngine, updateEngine, createShareLink, type Engine } from "@/lib/api";
 import type { EngineDefinition } from "@/types/engine";
@@ -131,9 +146,28 @@ export function MyEnginesModal({ opened, onClose, onLoadEngine }: MyEnginesModal
     );
   }
 
+  const navigate = useNavigate();
+
   return (
     <Modal opened={opened} onClose={onClose} title="My Engines" size="lg">
       <Stack gap="md">
+        <Group justify="space-between">
+          <Text size="sm" c="dimmed">
+            Quick access
+          </Text>
+          <Button
+            variant="outline"
+            size="xs"
+            leftSection={<Hexagon size={14} />}
+            onClick={() => {
+              navigate("/?builtin=standard");
+              onClose();
+            }}
+          >
+            View Standard Engine
+          </Button>
+        </Group>
+
         <TextInput
           placeholder="Search engines..."
           leftSection={<Search size={16} />}
@@ -203,12 +237,22 @@ export function MyEnginesModal({ opened, onClose, onLoadEngine }: MyEnginesModal
                           </Menu.Item>
 
                           <Menu.Item
+                            leftSection={<Play size={14} />}
+                            onClick={() => {
+                              navigate(`/?engine=${engine.id}`);
+                              onClose();
+                            }}
+                          >
+                            Run in runner
+                          </Menu.Item>
+
+                          <Menu.Item
                             leftSection={<ExternalLink size={14} />}
                             component="a"
                             href={`/?engine=${engine.id}`}
                             target="_blank"
                           >
-                            Open in runner
+                            Open in new tab
                           </Menu.Item>
 
                           {engine.visibility === "private" && (
