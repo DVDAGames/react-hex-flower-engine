@@ -149,6 +149,7 @@ export async function sendMagicLinkEmail(
       body: JSON.stringify({
         from: fromEmail,
         to: email,
+        reply_to: 'noreply@hex.dvdagames.com',
         subject: 'Sign in to Hex Flower Engine',
         html: `
           <h2>Sign in to Hex Flower Engine</h2>

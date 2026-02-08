@@ -15,5 +15,7 @@ database_id = "28890a06-d90d-42b6-a601-2d2f3c7ba608" # Fill in after creating: n
 # ADMIN_EMAILS - Comma-separated list of admin email addresses
 # EMAIL_FROM - Sender email address (e.g., "Hex Flower Engine <info@hex.dvdagames.com>")
 
+EMAIL_FROM = "Hex Flower Engine <info@hex.dvdagames.com>"
+
 [vars]
 ENVIRONMENT = "production"
