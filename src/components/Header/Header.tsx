@@ -1,12 +1,11 @@
-import { useState, useEffect, useMemo } from "react";
-import { Group, Text, Anchor, ActionIcon, Tooltip, Menu, TextInput, Loader, ScrollArea } from "@mantine/core";
+import { useState } from "react";
+import { Group, Text, Anchor, ActionIcon, Tooltip } from "@mantine/core";
 import { Link, useNavigate } from "react-router-dom";
 import { useMantineColorScheme } from "@mantine/core";
-import { Hexagon, Sun, Moon, Flower2, Search } from "lucide-react";
+import { Hexagon, Sun, Moon, Flower2 } from "lucide-react";
 import { UserMenu } from "@/components/Auth";
 import { useAuth } from "@/contexts";
-import { getMyEngines, type Engine } from "@/lib/api";
-import type { EngineDefinition } from "@/types/engine";
+import { MyEnginesModal } from "@/components/Editor/MyEnginesModal";
 import classes from "./Header.module.css";
 
 export function Header() {
@@ -14,38 +13,16 @@ export function Header() {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
-  const [engines, setEngines] = useState<Engine[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [menuOpened, setMenuOpened] = useState(false);
+  const [myEnginesOpen, setMyEnginesOpen] = useState(false);
 
-  // Load engines when menu opens
-  useEffect(() => {
-    if (menuOpened && isAuthenticated && engines.length === 0) {
-      setIsLoading(true);
-      getMyEngines().then(({ data, error }) => {
-        if (data && !error) {
-          setEngines(data);
-        }
-        setIsLoading(false);
-      });
-    }
-  }, [menuOpened, isAuthenticated, engines.length]);
+  // Toggle My Engines modal when requested
 
   // Filter engines based on search
-  const filteredEngines = useMemo(() => {
-    if (!searchQuery.trim()) return engines;
-    const query = searchQuery.toLowerCase();
-    return engines.filter((engine) => {
-      const def = engine.definition as EngineDefinition;
-      return def.name.toLowerCase().includes(query) || def.description?.toLowerCase().includes(query);
-    });
-  }, [engines, searchQuery]);
+  // NOTE: My engines list is loaded by the modal itself; header delegates to modal
 
   const handleSelectEngine = (engineId: string) => {
     navigate(`/?engine=${engineId}`);
-    setMenuOpened(false);
-    setSearchQuery("");
+    setMyEnginesOpen(false);
   };
 
   const toggleColorScheme = () => {
@@ -71,6 +48,7 @@ export function Header() {
             <Anchor component={Link} to="/gallery" className={classes.navLink} underline="never">
               Garden
             </Anchor>
+            {/* Standard engine is available from My Engines modal */}
           </Group>
         </nav>
       </Group>
@@ -78,58 +56,18 @@ export function Header() {
       {/* Right side - My Engines dropdown, Color scheme toggle and User Menu */}
       <Group gap="sm">
         {isAuthenticated && (
-          <Menu opened={menuOpened} onChange={setMenuOpened} position="bottom-end" width={280} shadow="md">
-            <Menu.Target>
-              <Tooltip label="My Engines">
-                <ActionIcon variant="subtle" size="lg" aria-label="My Engines">
-                  <Flower2 size={18} />
-                </ActionIcon>
-              </Tooltip>
-            </Menu.Target>
-
-            <Menu.Dropdown>
-              <TextInput
-                placeholder="Search engines..."
-                leftSection={<Search size={14} />}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.currentTarget.value)}
-                size="xs"
-                mx="xs"
-                mt="xs"
-                mb="xs"
-              />
-
-              <Menu.Divider />
-
-              <ScrollArea.Autosize mah={300}>
-                {isLoading ? (
-                  <Group justify="center" py="md">
-                    <Loader size="sm" />
-                  </Group>
-                ) : filteredEngines.length === 0 ? (
-                  <Text size="sm" c="dimmed" ta="center" py="md" px="xs">
-                    {engines.length === 0 ? "No saved engines yet" : "No matches found"}
-                  </Text>
-                ) : (
-                  filteredEngines.map((engine) => {
-                    const def = engine.definition as EngineDefinition;
-                    return (
-                      <Menu.Item key={engine.id} onClick={() => handleSelectEngine(engine.id)}>
-                        <Text size="sm" fw={500} lineClamp={1}>
-                          {def.name}
-                        </Text>
-                        {def.description && (
-                          <Text size="xs" c="dimmed" lineClamp={1}>
-                            {def.description}
-                          </Text>
-                        )}
-                      </Menu.Item>
-                    );
-                  })
-                )}
-              </ScrollArea.Autosize>
-            </Menu.Dropdown>
-          </Menu>
+          <>
+            <Tooltip label="My Engines">
+              <ActionIcon variant="subtle" size="lg" aria-label="My Engines" onClick={() => setMyEnginesOpen(true)}>
+                <Flower2 size={18} />
+              </ActionIcon>
+            </Tooltip>
+            <MyEnginesModal
+              opened={myEnginesOpen}
+              onClose={() => setMyEnginesOpen(false)}
+              onLoadEngine={(_engine, id) => handleSelectEngine(id)}
+            />
+          </>
         )}
 
         <Tooltip label={colorScheme === "dark" ? "Light mode" : "Dark mode"}>

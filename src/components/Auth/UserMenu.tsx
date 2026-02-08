@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Menu, Avatar, Text, Group, UnstyledButton, ActionIcon, Tooltip } from "@mantine/core";
+import { Link } from "react-router-dom";
 import { User, LogOut, Shield, LogIn } from "lucide-react";
 import { useAuth } from "@/contexts";
 import { LoginModal } from "./LoginModal";
@@ -67,11 +68,11 @@ export function UserMenu() {
 
           {user?.isAdmin && (
             <>
-              <Menu.Divider />
-              <Menu.Label>Admin</Menu.Label>
-              <Menu.Item leftSection={<Shield size={16} />} component="a" href="/admin/review">
+              {/* Admin link placed directly under Edit Profile for quick access */}
+              <Menu.Item leftSection={<Shield size={16} />} component={Link} to="/admin/review">
                 Review submissions
               </Menu.Item>
+              <Menu.Divider />
             </>
           )}
 
