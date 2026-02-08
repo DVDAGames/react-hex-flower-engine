@@ -2,11 +2,12 @@
  * Movement direction type representing the 6 possible directions on a hex grid
  */
 export type Direction = 'up' | 'upRight' | 'downRight' | 'down' | 'downLeft' | 'upLeft';
+export type Stay = 'stay';
 
 /**
  * Roll result direction - can be a movement direction or 'stay' (no movement)
  */
-export type RollDirection = Direction | 'stay';
+export type RollDirection = Direction | Stay;
 
 /**
  * All valid movement directions
@@ -57,7 +58,7 @@ export interface HexNode {
    * Navigation map: direction -> target node ID
    * A node can reference itself to indicate "stay in place"
    */
-  map: Record<Direction, number>;
+  map: Partial<Record<RollDirection, number>>;
 }
 
 /**

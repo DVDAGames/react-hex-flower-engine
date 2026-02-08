@@ -12,19 +12,41 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
   if (!session) {
     return errorResponse('Unauthorized', 401);
   }
+
+  const { searchParams } = new URL(request.url);
+  const engineId = searchParams.get('engineId');
   
-  const states = await env.DB.prepare(`
-    SELECT engine_id, active_hex, pinned_version, synced_at
-    FROM engine_states
-    WHERE user_id = ?
-  `).bind(session.userId).all();
-  
-  return json(states.results.map(s => ({
-    engineId: s.engine_id,
-    activeHex: s.active_hex,
-    pinnedVersion: s.pinned_version,
-    syncedAt: s.synced_at,
-  })));
+  if (engineId) {
+    const state = await env.DB.prepare(`
+      SELECT engine_id, active_hex, pinned_version, synced_at
+      FROM engine_states
+      WHERE user_id = ? AND engine_id = ?
+    `).bind(session.userId, engineId).first();
+
+    if (!state) {
+      return errorResponse('Engine state not found', 404);
+    }
+
+    return json({
+      engineId: state.engine_id,
+      activeHex: state.active_hex,
+      pinnedVersion: state.pinned_version,
+      syncedAt: state.synced_at,
+    });
+  } else {
+    const states = await env.DB.prepare(`
+      SELECT engine_id, active_hex, pinned_version, synced_at
+      FROM engine_states
+      WHERE user_id = ?
+    `).bind(session.userId).all();
+    
+    return json(states.results.map(s => ({
+      engineId: s.engine_id,
+      activeHex: s.active_hex,
+      pinnedVersion: s.pinned_version,
+      syncedAt: s.synced_at,
+    })));
+  }
 };
 
 interface SaveStateRequest {
@@ -54,7 +76,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     const existing = await env.DB.prepare(`
       SELECT id FROM engine_states WHERE user_id = ? AND engine_id = ?
     `).bind(session.userId, body.engineId).first();
-    
+
     if (existing) {
       await env.DB.prepare(`
         UPDATE engine_states 
@@ -68,7 +90,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         body.engineId
       ).run();
     } else {
-      await env.DB.prepare(`
+      const insert = await env.DB.prepare(`
         INSERT INTO engine_states (id, user_id, engine_id, active_hex, pinned_version, synced_at)
         VALUES (?, ?, ?, ?, ?, ?)
       `).bind(

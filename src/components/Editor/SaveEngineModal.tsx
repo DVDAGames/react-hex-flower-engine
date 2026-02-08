@@ -1,16 +1,9 @@
-import { useState } from 'react';
-import {
-  Modal,
-  Stack,
-  Text,
-  Button,
-  Alert,
-  Group,
-} from '@mantine/core';
-import { Cloud, CloudOff, CheckCircle, AlertCircle } from 'lucide-react';
-import { useAuth } from '@/contexts';
-import { createEngine, updateEngine } from '@/lib/api';
-import type { EngineDefinition } from '@/types/engine';
+import { useState } from "react";
+import { Modal, Stack, Text, Button, Alert, Group } from "@mantine/core";
+import { Cloud, CloudOff, CheckCircle, AlertCircle } from "lucide-react";
+import { useAuth } from "@/contexts";
+import { createEngine, updateEngine } from "@/lib/api";
+import type { EngineDefinition } from "@/types/engine";
 
 interface SaveEngineModalProps {
   opened: boolean;
@@ -20,13 +13,7 @@ interface SaveEngineModalProps {
   onSaveSuccess: (engineId: string) => void;
 }
 
-export function SaveEngineModal({
-  opened,
-  onClose,
-  engine,
-  existingEngineId,
-  onSaveSuccess,
-}: SaveEngineModalProps) {
+export function SaveEngineModal({ opened, onClose, engine, existingEngineId, onSaveSuccess }: SaveEngineModalProps) {
   const { isAuthenticated, user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -112,9 +99,9 @@ export function SaveEngineModal({
                 <strong>Saving as:</strong> {user?.displayName || user?.email}
               </Text>
               <Text size="sm" c="dimmed">
-                {existingEngineId 
-                  ? 'This will update your existing saved engine.' 
-                  : 'This will create a new engine in your cloud storage.'}
+                {existingEngineId
+                  ? "This will update your existing saved engine."
+                  : "This will create a new engine in your cloud storage."}
               </Text>
             </Stack>
 
@@ -128,12 +115,8 @@ export function SaveEngineModal({
               <Button variant="subtle" onClick={handleClose} disabled={isLoading}>
                 Cancel
               </Button>
-              <Button
-                leftSection={<Cloud size={16} />}
-                onClick={handleSave}
-                loading={isLoading}
-              >
-                {existingEngineId ? 'Update' : 'Save'}
+              <Button leftSection={<Cloud size={16} />} onClick={handleSave} loading={isLoading}>
+                {existingEngineId ? "Update" : "Save"}
               </Button>
             </Group>
           </>

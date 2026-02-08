@@ -1,29 +1,26 @@
-import { useState, useEffect, useCallback, useRef } from "react";
-import { Routes, Route } from "react-router-dom";
-import { AppShell, Container, Title, Text, Stack, Paper, Badge, List, Transition } from "@mantine/core";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { Routes, Route, useSearchParams } from "react-router-dom";
+import { Container, Title, Text, Stack, Paper, Badge, List, Transition, Loader } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 
+import { Header } from "@/components/Header";
+import { PageLayout } from "@/components/PageLayout";
 import { Grid } from "@/components/Grid";
 import { Toolbar } from "@/components/Toolbar";
 import { HexEditor } from "@/components/Editor";
 import { AuthVerify } from "@/components/Auth";
 import { Garden } from "@/components/Garden";
 import { SharedEngine } from "@/components/SharedEngine";
+import { AdminReview, AdminPreview } from "@/components/Admin";
 import { EditorProvider } from "@/contexts/EditorContext";
+import { useAuth } from "@/contexts";
 import type { EngineDefinition, HexNode } from "@/types/engine";
 import { BUILTIN_ENGINES, ROLL_DELAY, ACTIONS, type ActionType } from "@/constants";
-import {
-  getCurrentEngineId,
-  setCurrentEngineId,
-  getEngineState,
-  setEngineState,
-  getPreferences,
-  setPreferences,
-  setupSyncListeners,
-  isOnline,
-} from "@/services";
+import { getEngine, saveEngineState, retrieveEngineState } from "@/lib/api";
+import { setCurrentEngineId, getEngineState, setEngineState, setupSyncListeners, isOnline } from "@/services";
 
 import classes from "./App.module.css";
+import { get } from "http";
 
 interface RollResult {
   type: ActionType;
@@ -31,38 +28,96 @@ interface RollResult {
 }
 
 function HexFlowerRunner() {
+  const [searchParams] = useSearchParams();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
+  const [isBasicEngine, setIsBasicEngine] = useState(true);
   const [currentEngine, setCurrentEngine] = useState<EngineDefinition | null>(null);
+  const [engineId, setEngineId] = useState<string | null>(null);
   const [activeHex, setActiveHex] = useState<number | null>(null);
   const [activeHexInfo, setActiveHexInfo] = useState<HexNode | null>(null);
   const [roll, setRoll] = useState<RollResult | null>(null);
-  const [showAnnotations, setShowAnnotations] = useState(true);
-  const [engines] = useState<EngineDefinition[]>(BUILTIN_ENGINES);
+  const [isLoadingEngine, setIsLoadingEngine] = useState(false);
   const [online, setOnline] = useState(isOnline());
 
   // Ref to track current activeHex without causing effect re-runs
   const activeHexRef = useRef<number | null>(null);
   activeHexRef.current = activeHex;
 
-  // Initialize from localStorage
+  // Load engine from query param, user's default engine, or built-in engine
   useEffect(() => {
-    const savedEngineId = getCurrentEngineId();
-    const prefs = getPreferences();
-    setShowAnnotations(prefs.showAnnotations);
+    // Wait for auth to finish loading before deciding on default engine
+    if (authLoading) return;
 
-    // Try to find saved engine, fall back to first engine if not found
-    let engine = savedEngineId ? engines.find((e) => e.name === savedEngineId) : null;
+    const urlEngineId = searchParams.get("engine");
 
-    // If saved engine not found (e.g., old localStorage data), use first engine
-    if (!engine && engines.length > 0) {
-      engine = engines[0];
+    if (urlEngineId) {
+      // Load engine from URL query param
+      setIsLoadingEngine(true);
+      getEngine(urlEngineId).then(({ data, error }) => {
+        if (data && !error) {
+          const engineDef = data.definition as EngineDefinition;
+          setCurrentEngine(engineDef);
+          setEngineId(urlEngineId);
+          setCurrentEngineId(engineDef.name);
+          getSavedEngineState(urlEngineId)
+            .then((savedHex) => {
+              if (savedHex) {
+                setActiveHex(savedHex);
+              }
+            })
+            .catch(() => {
+              setActiveHex(engineDef.start);
+            })
+            .finally(() => {
+              setIsLoadingEngine(false);
+            });
+        } else {
+          // Fall back to default engine on error
+          console.error("Failed to load engine:", error);
+          setCurrentEngine(BUILTIN_ENGINES[0]);
+        }
+        setIsLoadingEngine(false);
+        setIsBasicEngine(false);
+      });
+    } else if (isAuthenticated && user?.defaultEngineId) {
+      // Load user's default engine
+      setIsLoadingEngine(true);
+      getEngine(user.defaultEngineId).then(({ data, error }) => {
+        if (data && !error) {
+          const engineDef = data.definition as EngineDefinition;
+          setCurrentEngine(engineDef);
+          setActiveHex(engineDef.start);
+          setIsBasicEngine(false);
+          setEngineId(user.defaultEngineId);
+          getSavedEngineState(user.defaultEngineId!)
+            .then((savedHex) => {
+              if (savedHex) {
+                setActiveHex(savedHex);
+              }
+            })
+            .catch(() => {
+              setActiveHex(engineDef.start);
+            })
+            .finally(() => {
+              setIsLoadingEngine(false);
+            });
+        } else {
+          // Fall back to built-in engine on error
+          console.error("Failed to load default engine:", error);
+          setCurrentEngine(BUILTIN_ENGINES[0]);
+          setIsBasicEngine(true);
+        }
+
+        setIsLoadingEngine(false);
+      });
+    } else {
+      // No engine ID in URL and no default - use built-in Standard engine
+      setCurrentEngine(BUILTIN_ENGINES[0]);
+      setIsBasicEngine(true);
     }
+  }, [searchParams, authLoading, isAuthenticated, user?.defaultEngineId]);
 
-    if (engine) {
-      setCurrentEngine(engine);
-    }
-  }, [engines]);
-
-  // Load engine state when engine changes
+  // Load engine state when engine changes (only for non-URL engines)
   useEffect(() => {
     if (currentEngine) {
       setCurrentEngineId(currentEngine.name);
@@ -74,7 +129,7 @@ function HexFlowerRunner() {
         setActiveHex(currentEngine.start);
       }
     }
-  }, [currentEngine]);
+  }, [currentEngine, searchParams]);
 
   // Update active hex info when hex changes
   useEffect(() => {
@@ -134,12 +189,6 @@ function HexFlowerRunner() {
     return () => clearTimeout(timeout);
   }, [roll, currentEngine]);
 
-  // Save annotation preference
-  const handleSetShowAnnotations = useCallback((show: boolean) => {
-    setShowAnnotations(show);
-    setPreferences({ showAnnotations: show });
-  }, []);
-
   // Setup sync listeners
   useEffect(() => {
     const cleanup = setupSyncListeners((online: boolean) => {
@@ -162,103 +211,134 @@ function HexFlowerRunner() {
     return cleanup;
   }, []);
 
-  if (!currentEngine) {
+  const getSavedEngineState = useCallback(
+    async (engineId: string) => {
+      if (!engineId) return null;
+
+      try {
+        const { data, error } = await retrieveEngineState(engineId);
+        if (data && !error) {
+          return data.activeHex;
+        }
+      } catch (err) {
+        console.error("Error retrieving engine state:", err);
+      }
+
+      return null;
+    },
+    [engineId]
+  );
+
+  // Save engine state to the database
+  const saveStateToDatabase = useCallback(async () => {
+    if (!currentEngine || !activeHex || isBasicEngine || !engineId) return;
+
+    try {
+      const { error } = await saveEngineState(engineId, activeHex);
+      if (error) {
+        console.error("Failed to save engine state:", error);
+      }
+    } catch (err) {
+      console.error("Error saving engine state:", err);
+    }
+  }, [currentEngine, activeHex, isBasicEngine, engineId]);
+
+  // Save state on toolbar actions
+  const handleToolbarAction = (action: ActionType, rollTotal: number) => {
+    switch (action) {
+      case ACTIONS.RANDOM:
+        setActiveHex(rollTotal);
+        break;
+      case ACTIONS.RUN:
+        const direction = currentEngine?.directions[rollTotal];
+        const currentNode = currentEngine?.nodes.find(({ id }) => id === activeHex);
+        if (direction && currentNode) {
+          const newNodeId = currentNode.map[direction];
+          if (newNodeId) {
+            setActiveHex(newNodeId);
+          }
+        }
+        break;
+      default:
+        break;
+    }
+    saveStateToDatabase();
+  };
+
+  if (!currentEngine || isLoadingEngine) {
     return (
-      <Container>
-        <Text>Loading engine...</Text>
+      <Container size="lg" py="xl">
+        <Stack align="center" gap="md">
+          <Loader size="lg" />
+          <Text c="dimmed">Loading engine...</Text>
+        </Stack>
       </Container>
     );
   }
 
   return (
-    <AppShell padding="md">
-      <AppShell.Main>
-        {/* Roll display */}
-        <Transition mounted={!!roll} transition="fade" duration={200}>
-          {(styles) => (
-            <Paper className={classes.rollDisplay} style={styles} shadow="lg" p="xl" radius="md">
-              <Text size="xl" fw={700}>
-                {roll?.total}
-              </Text>
+    <PageLayout>
+      {/* Roll display */}
+      <Transition mounted={!!roll} transition="fade" duration={200}>
+        {(styles) => (
+          <Paper className={classes.rollDisplay} style={styles} shadow="lg" p="xl" radius="md">
+            <Text size="xl" fw={700}>
+              {roll?.total}
+            </Text>
+          </Paper>
+        )}
+      </Transition>
+
+      <Container size="lg" className={classes.container}>
+        <Stack gap="md" align="center">
+          <Title order={1} className={classes.heading}>
+            {isBasicEngine ? "Hex Flower Engine" : currentEngine.name}
+          </Title>
+
+          {!online && (
+            <Badge color="yellow" variant="light">
+              Offline Mode
+            </Badge>
+          )}
+
+          <Grid engine={currentEngine} activeHex={activeHex ?? currentEngine.start} setActiveHex={setActiveHex} />
+
+          {/* Status display */}
+          {activeHexInfo?.label && (
+            <Paper p="md" radius="md" className={classes.status}>
+              <Title order={2} size="h4">
+                {activeHexInfo.label}
+              </Title>
+
+              {activeHexInfo.description && (
+                <Text size="sm" c="dimmed" mt="xs">
+                  {activeHexInfo.description}
+                </Text>
+              )}
+
+              {activeHexInfo.modifiers && activeHexInfo.modifiers.length > 0 && (
+                <List size="sm" mt="sm">
+                  {activeHexInfo.modifiers.map((mod) => (
+                    <List.Item key={mod.key}>
+                      <Text component="span" fw={600}>
+                        {mod.key}:
+                      </Text>{" "}
+                      {mod.value}
+                    </List.Item>
+                  ))}
+                </List>
+              )}
             </Paper>
           )}
-        </Transition>
-
-        <Container size="lg" className={classes.container}>
-          <Stack gap="md" align="center">
-            <Title order={1} className={classes.heading}>
-              Hex Flower Engine
-            </Title>
-
-            {!online && (
-              <Badge color="yellow" variant="light">
-                Offline Mode
-              </Badge>
-            )}
-
-            <Grid
-              engine={currentEngine}
-              activeHex={activeHex ?? currentEngine.start}
-              setActiveHex={setActiveHex}
-              showAnnotations={showAnnotations}
-            />
-
-            {/* Status display */}
-            {activeHexInfo?.label && (
-              <Paper p="md" radius="md" className={classes.status}>
-                <Title order={2} size="h4">
-                  {activeHexInfo.label}
-                </Title>
-
-                {activeHexInfo.description && (
-                  <Text size="sm" c="dimmed" mt="xs">
-                    {activeHexInfo.description}
-                  </Text>
-                )}
-
-                {activeHexInfo.modifiers && activeHexInfo.modifiers.length > 0 && (
-                  <List size="sm" mt="sm">
-                    {activeHexInfo.modifiers.map((mod) => (
-                      <List.Item key={mod.key}>
-                        <Text component="span" fw={600}>
-                          {mod.key}:
-                        </Text>{" "}
-                        {mod.value}
-                      </List.Item>
-                    ))}
-                  </List>
-                )}
-              </Paper>
-            )}
-          </Stack>
-        </Container>
-      </AppShell.Main>
-
-      <AppShell.Footer>
+        </Stack>
         <Toolbar
-          engines={engines}
           currentEngine={currentEngine}
-          setCurrentEngine={setCurrentEngine}
           setActiveHex={setActiveHex}
           setRoll={setRoll}
-          showAnnotations={showAnnotations}
-          setShowAnnotations={handleSetShowAnnotations}
+          onAction={handleToolbarAction} // Pass the new handler
         />
-        <Text size="xs" ta="center" c="dimmed" pb="xs">
-          v1.0.0
-        </Text>
-      </AppShell.Footer>
-    </AppShell>
-  );
-}
-
-// Placeholder components for future routes
-function AdminReview() {
-  return (
-    <Container>
-      <Title>Admin Review</Title>
-      <Text>Coming soon...</Text>
-    </Container>
+      </Container>
+    </PageLayout>
   );
 }
 
@@ -272,16 +352,20 @@ function EditorPage() {
 
 export function App() {
   return (
-    <Routes>
-      <Route path="/" element={<HexFlowerRunner />} />
-      <Route path="/auth/verify" element={<AuthVerify />} />
-      <Route path="/editor" element={<EditorPage />} />
-      <Route path="/editor/:engineId" element={<EditorPage />} />
-      <Route path="/gallery" element={<Garden />} />
-      <Route path="/s/:token" element={<SharedEngine />} />
-      <Route path="/shared/:token" element={<SharedEngine />} />
-      <Route path="/admin/review" element={<AdminReview />} />
-    </Routes>
+    <>
+      <Header />
+      <Routes>
+        <Route path="/" element={<HexFlowerRunner />} />
+        <Route path="/auth/verify" element={<AuthVerify />} />
+        <Route path="/editor" element={<EditorPage />} />
+        <Route path="/editor/:engineId" element={<EditorPage />} />
+        <Route path="/gallery" element={<Garden />} />
+        <Route path="/s/:token" element={<SharedEngine />} />
+        <Route path="/shared/:token" element={<SharedEngine />} />
+        <Route path="/admin/review" element={<AdminReview />} />
+        <Route path="/admin/review/:engineId" element={<AdminPreview />} />
+      </Routes>
+    </>
   );
 }
 

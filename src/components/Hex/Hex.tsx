@@ -1,7 +1,6 @@
 import { UnstyledButton, Tooltip, Box } from "@mantine/core";
-import type { EngineDefinition, HexNode } from "@/types/engine";
+import type { HexNode } from "@/types/engine";
 import { HexIcon } from "@/components/HexIcon";
-import { Annotations } from "@/components/Annotations";
 import classes from "./Hex.module.css";
 
 interface HexProps {
@@ -9,11 +8,9 @@ interface HexProps {
   onHexClick: () => void;
   isActive: boolean;
   isHighlighted: boolean;
-  showAnnotations: boolean;
-  engine: EngineDefinition;
 }
 
-export function Hex({ hex, onHexClick, isActive, isHighlighted, showAnnotations, engine }: HexProps) {
+export function Hex({ hex, onHexClick, isActive, isHighlighted }: HexProps) {
   const backgroundColor = hex.style?.backgroundColor ?? (isActive ? "#68f0b0" : "#ccc");
 
   const containerClasses = [classes.outline, isActive && classes.activeContainer, isHighlighted && classes.highlightedContainer]
@@ -28,7 +25,6 @@ export function Hex({ hex, onHexClick, isActive, isHighlighted, showAnnotations,
 
   return (
     <div className={classes.gridItem} data-hex-id={hex.id}>
-      {showAnnotations && <Annotations engine={engine} />}
       <Tooltip label={tooltipLabel} position="top" withArrow>
         <UnstyledButton onClick={onHexClick} className={containerClasses} disabled={isActive} aria-label={tooltipLabel}>
           <Box

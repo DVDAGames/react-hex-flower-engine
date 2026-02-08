@@ -2,7 +2,9 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  transition: border-color 150ms ease, transform 150ms ease;
+  transition:
+    border-color 150ms ease,
+    transform 150ms ease;
 
   &:hover {
     border-color: var(--mantine-color-violet-4);

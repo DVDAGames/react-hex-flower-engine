@@ -22,10 +22,9 @@ interface GridProps {
   engine: EngineDefinition;
   activeHex: number;
   setActiveHex: (id: number) => void;
-  showAnnotations: boolean;
 }
 
-export function Grid({ engine, activeHex, setActiveHex, showAnnotations }: GridProps) {
+export function Grid({ engine, activeHex, setActiveHex }: GridProps) {
   const activeNode = engine.nodes.find(({ id }) => id === activeHex);
 
   const highlightedHexes = useMemo(() => {
@@ -59,8 +58,6 @@ export function Grid({ engine, activeHex, setActiveHex, showAnnotations }: GridP
                   onHexClick={() => handleHexClick(hex)}
                   isActive={hex.id === activeHex}
                   isHighlighted={highlightedHexes.has(hex.id)}
-                  showAnnotations={hex.id === activeHex && showAnnotations}
-                  engine={engine}
                 />
               );
             })}

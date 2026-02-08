@@ -2,8 +2,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-height: calc(100vh - 200px);
-  padding-top: var(--mantine-spacing-xl);
+  flex: 1;
+  padding: var(--mantine-spacing-xl);
 }
 
 .heading {

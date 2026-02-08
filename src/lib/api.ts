@@ -121,6 +121,7 @@ export interface AuthUser {
   displayName: string | null;
   avatarUrl: string | null;
   isAdmin: boolean;
+  defaultEngineId: string | null;
 }
 
 export interface LoginResponse {
@@ -166,6 +167,20 @@ export async function verifyMagicLink(token: string): Promise<ApiResponse<Verify
  */
 export async function getCurrentUser(): Promise<ApiResponse<AuthUser>> {
   return apiRequest<AuthUser>('/auth/me');
+}
+
+/**
+ * Update user profile
+ */
+export async function updateProfile(data: { 
+  displayName?: string; 
+  avatarIcon?: string | null;
+  defaultEngineId?: string | null;
+}): Promise<ApiResponse<AuthUser>> {
+  return apiRequest<AuthUser>('/auth/profile', {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
 }
 
 /**
@@ -299,6 +314,10 @@ export async function getEngineStates(): Promise<ApiResponse<EngineState[]>> {
   return apiRequest<EngineState[]>('/engine-states');
 }
 
+export async function retrieveEngineState(engineId: string): Promise<ApiResponse<EngineState>> {
+  return apiRequest<EngineState>(`/engine-states?engineId=${engineId}`);
+}
+
 /**
  * Save engine state
  */
@@ -312,3 +331,81 @@ export async function saveEngineState(
     body: JSON.stringify({ engineId, activeHex, pinnedVersion }),
   });
 }
+
+// ============================================
+// Admin API
+// ============================================
+
+export interface PendingEngine extends Engine {
+  submittedAt: string;
+  user: {
+    email: string;
+    displayName: string | null;
+  };
+}
+
+export interface ReviewedEngine extends PendingEngine {
+  reviewedAt: string;
+  rejectionReason: string | null;
+  reviewer: {
+    email: string;
+    displayName: string | null;
+  } | null;
+}
+
+/**
+ * Get engines pending review (admin only)
+ */
+export async function getPendingEngines(): Promise<ApiResponse<{ engines: PendingEngine[] }>> {
+  return apiRequest<{ engines: PendingEngine[] }>('/admin/pending');
+}
+
+/**
+ * Get review history (admin only)
+ */
+export async function getReviewHistory(
+  filter: 'all' | 'approved' | 'rejected' = 'all',
+  limit = 50
+): Promise<ApiResponse<{ engines: ReviewedEngine[] }>> {
+  return apiRequest<{ engines: ReviewedEngine[] }>(`/admin/history?filter=${filter}&limit=${limit}`);
+}
+
+/**
+ * Approve or reject an engine (admin only)
+ */
+export async function reviewEngine(
+  engineId: string,
+  action: 'approve' | 'reject',
+  reason?: string
+): Promise<ApiResponse<{ success: boolean; message: string; visibility: string }>> {
+  return apiRequest<{ success: boolean; message: string; visibility: string }>('/admin/review', {
+    method: 'POST',
+    body: JSON.stringify({ engineId, action, reason }),
+  });
+}
+
+// ============================================
+// Engine State API (for tracking current hex position)
+// ============================================
+
+export interface EngineState {
+  currentHexId: string | null;
+  history: string[];
+}
+
+/**
+ * Get the current state (hex position) for an engine
+ */
+export async function getEngineState(engineId: string): Promise<ApiResponse<EngineState>> {
+  return apiRequest<EngineState>(`/engines/${engineId}/state`);
+}
+
+/**
+ * Reset engine state to start
+ */
+export async function resetEngineState(engineId: string): Promise<ApiResponse<{ success: boolean }>> {
+  return apiRequest<{ success: boolean }>(`/engines/${engineId}/state`, {
+    method: 'DELETE',
+  });
+}
+

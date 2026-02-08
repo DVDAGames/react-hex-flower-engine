@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from "react";
-import { sendMagicLink, verifyMagicLink, getCurrentUser, logout, clearAuthTokens, type AuthUser } from "@/lib/api";
+import { sendMagicLink, verifyMagicLink, getCurrentUser, logout, clearAuthTokens, updateProfile, type AuthUser } from "@/lib/api";
 
 interface AuthContextType {
   user: AuthUser | null;
@@ -7,6 +7,11 @@ interface AuthContextType {
   isAuthenticated: boolean;
   signInWithMagicLink: (email: string) => Promise<{ error: string | null }>;
   verifyToken: (token: string) => Promise<{ error: string | null }>;
+  updateUser: (data: {
+    displayName?: string;
+    avatarIcon?: string | null;
+    defaultEngineId?: string | null;
+  }) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
 }
 
@@ -38,21 +43,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     checkAuth();
   }, []);
 
-  // Check for magic link token in URL on mount
-  useEffect(() => {
-    const url = new URL(window.location.href);
-    const token = url.searchParams.get("token");
-
-    if (token && url.pathname === "/auth/verify") {
-      verifyToken(token).then(({ error }) => {
-        if (!error) {
-          // Clear the token from URL and redirect to home
-          window.history.replaceState({}, "", "/");
-        }
-      });
-    }
-  }, []);
-
   const signInWithMagicLink = useCallback(async (email: string): Promise<{ error: string | null }> => {
     const { error } = await sendMagicLink(email);
 
@@ -82,6 +72,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   }, []);
 
+  const updateUser = useCallback(
+    async (data: {
+      displayName?: string;
+      avatarIcon?: string | null;
+      defaultEngineId?: string | null;
+    }): Promise<{ error: string | null }> => {
+      const { data: updatedUser, error } = await updateProfile(data);
+
+      if (error) {
+        return { error };
+      }
+
+      if (updatedUser) {
+        setUser(updatedUser);
+      }
+
+      return { error: null };
+    },
+    []
+  );
+
   return (
     <AuthContext.Provider
       value={{
@@ -90,6 +101,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAuthenticated: !!user,
         signInWithMagicLink,
         verifyToken,
+        updateUser,
         signOut,
       }}
     >

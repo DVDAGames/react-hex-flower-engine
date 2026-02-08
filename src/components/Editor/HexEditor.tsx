@@ -1,6 +1,19 @@
 import { useCallback, useState } from "react";
 import { AppShell, Group, ActionIcon, Tooltip, Badge, Divider, Text } from "@mantine/core";
-import { Undo2, Redo2, Save, Download, Upload, FilePlus, PanelLeft, PanelRight, Play, Eye, Cloud, FolderOpen } from "lucide-react";
+import {
+  Undo2,
+  Redo2,
+  Save,
+  Download,
+  Upload,
+  FilePlus,
+  PanelLeft,
+  PanelRight,
+  Play,
+  Eye,
+  Cloud,
+  FolderOpen,
+} from "lucide-react";
 import { useEditor } from "@/contexts/EditorContext";
 import { useAuth } from "@/contexts";
 import { EditorGrid } from "./EditorGrid";
@@ -8,7 +21,8 @@ import { HexPropertyPanel } from "./HexPropertyPanel";
 import { EngineSettingsPanel } from "./EngineSettingsPanel";
 import { MyEnginesModal } from "./MyEnginesModal";
 import { SaveEngineModal } from "./SaveEngineModal";
-import { UserMenu } from "@/components/Auth";
+import { Footer } from "@/components/Footer";
+
 import type { EngineDefinition } from "@/types/engine";
 import classes from "./HexEditor.module.css";
 
@@ -16,7 +30,7 @@ export function HexEditor() {
   const { state, actions } = useEditor();
   const { isAuthenticated } = useAuth();
   const { draft, mode, panels } = state;
-  
+
   // Modal states
   const [myEnginesOpen, setMyEnginesOpen] = useState(false);
   const [saveModalOpen, setSaveModalOpen] = useState(false);
@@ -67,18 +81,25 @@ export function HexEditor() {
     setCloudEngineId(null);
   }, [actions, draft.isDirty]);
 
-  const handleLoadFromCloud = useCallback((engine: EngineDefinition, engineId: string) => {
-    actions.importEngine(engine, engine.name);
-    setCloudEngineId(engineId);
-  }, [actions]);
+  const handleLoadFromCloud = useCallback(
+    (engine: EngineDefinition, engineId: string) => {
+      actions.importEngine(engine, engine.name);
+      setCloudEngineId(engineId);
+    },
+    [actions]
+  );
 
-  const handleCloudSaveSuccess = useCallback((engineId: string) => {
-    setCloudEngineId(engineId);
-    actions.saveDraft(); // Also save locally and mark as clean
-  }, [actions]);
+  const handleCloudSaveSuccess = useCallback(
+    (engineId: string) => {
+      setCloudEngineId(engineId);
+      actions.saveDraft(); // Also save locally and mark as clean
+    },
+    [actions]
+  );
 
   return (
     <AppShell
+      className={classes.editorShell}
       header={{ height: 60 }}
       navbar={{
         width: panels.hexProperties ? 320 : 0,
@@ -116,9 +137,9 @@ export function HexEditor() {
                 <Download size={18} />
               </ActionIcon>
             </Tooltip>
-            
+
             <Divider orientation="vertical" mx="xs" />
-            
+
             <Tooltip label="Save Draft (Local)">
               <ActionIcon
                 variant={draft.isDirty ? "filled" : "subtle"}
@@ -200,11 +221,6 @@ export function HexEditor() {
                 <PanelRight size={18} />
               </ActionIcon>
             </Tooltip>
-
-            <Divider orientation="vertical" mx="xs" />
-
-            {/* User menu */}
-            <UserMenu />
           </Group>
         </Group>
       </AppShell.Header>
@@ -223,14 +239,11 @@ export function HexEditor() {
 
       <AppShell.Main className={classes.main}>
         <EditorGrid />
+        <Footer />
       </AppShell.Main>
 
       {/* Modals */}
-      <MyEnginesModal
-        opened={myEnginesOpen}
-        onClose={() => setMyEnginesOpen(false)}
-        onLoadEngine={handleLoadFromCloud}
-      />
+      <MyEnginesModal opened={myEnginesOpen} onClose={() => setMyEnginesOpen(false)} onLoadEngine={handleLoadFromCloud} />
       <SaveEngineModal
         opened={saveModalOpen}
         onClose={() => setSaveModalOpen(false)}

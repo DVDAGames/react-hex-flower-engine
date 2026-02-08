@@ -14,7 +14,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
   
   // Get user profile
   const user = await env.DB.prepare(`
-    SELECT id, email, display_name, avatar_url, is_admin, created_at, updated_at
+    SELECT id, email, display_name, avatar_url, is_admin, default_engine_id, created_at, updated_at
     FROM profiles
     WHERE id = ?
   `).bind(session.userId).first();
@@ -29,5 +29,6 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
     displayName: user.display_name,
     avatarUrl: user.avatar_url,
     isAdmin: user.is_admin === 1,
+    defaultEngineId: user.default_engine_id,
   });
 };

@@ -34,13 +34,16 @@ export const STANDARD_ENGINE: EngineDefinition = {
   icon: 'hexagon',
   roll: '2d6',
   directions: DEFAULT_2D6_DIRECTIONS,
-  start: 10,
+  start: 1,
   nodes: [
     // Row 9 (bottom): 1
     {
       id: 1,
       label: '1',
-      description: 'Bottom of the hex flower',
+      style: {
+        backgroundColor: '#7777ff',
+        icon: 'home',
+      },
       map: {
         up: 5,
         upRight: 3,
@@ -153,11 +156,6 @@ export const STANDARD_ENGINE: EngineDefinition = {
     {
       id: 10,
       label: '10',
-      description: 'Center of the hex flower - starting position',
-      style: {
-        backgroundColor: '#7777ff',
-        icon: 'home',
-      },
       map: {
         up: 15,
         upRight: 13,
@@ -270,7 +268,6 @@ export const STANDARD_ENGINE: EngineDefinition = {
     {
       id: 19,
       label: '19',
-      description: 'Top of the hex flower',
       map: {
         up: 19,        // Stay (top edge)
         upRight: 19,   // Stay (top edge)

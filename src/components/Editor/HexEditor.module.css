@@ -1,9 +1,15 @@
+.editorShell {
+  margin-top: 56px; /* Account for global header */
+}
+
 .header {
+  top: 56px !important; /* Position below global navbar */
   background: var(--mantine-color-body);
   border-bottom: 1px solid var(--mantine-color-default-border);
 }
 
 .panel {
+  top: 116px !important; /* Position below global navbar (56px) + editor header (60px) */
   background: var(--mantine-color-body);
   overflow-y: auto;
 }
@@ -12,6 +18,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   min-height: 100%;
+  padding-bottom: var(--mantine-spacing-xl);
 }

@@ -1,35 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
-import {
-  Modal,
-  Stack,
-  Text,
-  Button,
-  Group,
-  Card,
-  Badge,
-  ActionIcon,
-  Loader,
-  Alert,
-  TextInput,
-  Menu,
-} from '@mantine/core';
-import {
-  Trash2,
-  Edit2,
-  Share2,
-  ExternalLink,
-  MoreVertical,
-  Search,
-  Cloud,
-  CloudOff,
-  Globe,
-  Lock,
-  Send,
-} from 'lucide-react';
-import { useAuth } from '@/contexts';
-import { getMyEngines, deleteEngine, updateEngine, createShareLink, type Engine } from '@/lib/api';
-import type { EngineDefinition } from '@/types/engine';
-import classes from './MyEnginesModal.module.css';
+import { useState, useEffect, useCallback } from "react";
+import { Modal, Stack, Text, Button, Group, Card, Badge, ActionIcon, Loader, Alert, TextInput, Menu } from "@mantine/core";
+import { Trash2, Edit2, Share2, ExternalLink, MoreVertical, Search, Cloud, CloudOff, Globe, Lock, Send } from "lucide-react";
+import { useAuth } from "@/contexts";
+import { getMyEngines, deleteEngine, updateEngine, createShareLink, type Engine } from "@/lib/api";
+import type { EngineDefinition } from "@/types/engine";
+import classes from "./MyEnginesModal.module.css";
 
 interface MyEnginesModalProps {
   opened: boolean;
@@ -42,22 +17,22 @@ export function MyEnginesModal({ opened, onClose, onLoadEngine }: MyEnginesModal
   const [engines, setEngines] = useState<Engine[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
 
   const loadEngines = useCallback(async () => {
     if (!isAuthenticated) return;
-    
+
     setIsLoading(true);
     setError(null);
-    
+
     const { data, error: apiError } = await getMyEngines();
-    
+
     if (apiError) {
       setError(apiError);
     } else if (data) {
       setEngines(data);
     }
-    
+
     setIsLoading(false);
   }, [isAuthenticated]);
 
@@ -68,7 +43,7 @@ export function MyEnginesModal({ opened, onClose, onLoadEngine }: MyEnginesModal
   }, [opened, isAuthenticated, loadEngines]);
 
   const handleDelete = async (engineId: string) => {
-    if (!confirm('Are you sure you want to delete this engine? This cannot be undone.')) {
+    if (!confirm("Are you sure you want to delete this engine? This cannot be undone.")) {
       return;
     }
 
@@ -97,11 +72,11 @@ export function MyEnginesModal({ opened, onClose, onLoadEngine }: MyEnginesModal
   };
 
   const handleSubmitForReview = async (engineId: string) => {
-    if (!confirm('Submit this engine for review to be featured in The Garden (public gallery)?')) {
+    if (!confirm("Submit this engine for review to be featured in The Garden (public gallery)?")) {
       return;
     }
 
-    const { error: apiError } = await updateEngine(engineId, { visibility: 'pending_review' });
+    const { error: apiError } = await updateEngine(engineId, { visibility: "pending_review" });
     if (apiError) {
       setError(apiError);
     } else {
@@ -111,20 +86,38 @@ export function MyEnginesModal({ opened, onClose, onLoadEngine }: MyEnginesModal
 
   const filteredEngines = engines.filter((engine) => {
     const def = engine.definition as EngineDefinition;
-    return def.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-           def.description?.toLowerCase().includes(searchQuery.toLowerCase());
+    return (
+      def.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      def.description?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
   });
 
   const getVisibilityBadge = (visibility: string) => {
     switch (visibility) {
-      case 'public':
-        return <Badge leftSection={<Globe size={12} />} color="green" size="xs">Public</Badge>;
-      case 'shared':
-        return <Badge leftSection={<Share2 size={12} />} color="blue" size="xs">Shared</Badge>;
-      case 'pending_review':
-        return <Badge leftSection={<Send size={12} />} color="yellow" size="xs">Pending Review</Badge>;
+      case "public":
+        return (
+          <Badge leftSection={<Globe size={12} />} color="green" size="xs">
+            Public
+          </Badge>
+        );
+      case "shared":
+        return (
+          <Badge leftSection={<Share2 size={12} />} color="blue" size="xs">
+            Shared
+          </Badge>
+        );
+      case "pending_review":
+        return (
+          <Badge leftSection={<Send size={12} />} color="yellow" size="xs">
+            Pending Review
+          </Badge>
+        );
       default:
-        return <Badge leftSection={<Lock size={12} />} color="gray" size="xs">Private</Badge>;
+        return (
+          <Badge leftSection={<Lock size={12} />} color="gray" size="xs">
+            Private
+          </Badge>
+        );
     }
   };
 
@@ -157,14 +150,14 @@ export function MyEnginesModal({ opened, onClose, onLoadEngine }: MyEnginesModal
         {isLoading ? (
           <Stack align="center" py="xl">
             <Loader />
-            <Text size="sm" c="dimmed">Loading your engines...</Text>
+            <Text size="sm" c="dimmed">
+              Loading your engines...
+            </Text>
           </Stack>
         ) : filteredEngines.length === 0 ? (
           <Stack align="center" py="xl">
             <Cloud size={48} opacity={0.3} />
-            <Text c="dimmed">
-              {searchQuery ? 'No engines match your search' : 'No saved engines yet'}
-            </Text>
+            <Text c="dimmed">{searchQuery ? "No engines match your search" : "No saved engines yet"}</Text>
             <Text size="sm" c="dimmed">
               Create an engine in the editor and save it to the cloud.
             </Text>
@@ -193,12 +186,7 @@ export function MyEnginesModal({ opened, onClose, onLoadEngine }: MyEnginesModal
                     </Stack>
 
                     <Group gap="xs">
-                      <Button
-                        size="xs"
-                        variant="light"
-                        leftSection={<Edit2 size={14} />}
-                        onClick={() => handleLoad(engine)}
-                      >
+                      <Button size="xs" variant="light" leftSection={<Edit2 size={14} />} onClick={() => handleLoad(engine)}>
                         Edit
                       </Button>
 
@@ -210,13 +198,10 @@ export function MyEnginesModal({ opened, onClose, onLoadEngine }: MyEnginesModal
                         </Menu.Target>
 
                         <Menu.Dropdown>
-                          <Menu.Item
-                            leftSection={<Share2 size={14} />}
-                            onClick={() => handleShare(engine.id)}
-                          >
+                          <Menu.Item leftSection={<Share2 size={14} />} onClick={() => handleShare(engine.id)}>
                             Copy share link
                           </Menu.Item>
-                          
+
                           <Menu.Item
                             leftSection={<ExternalLink size={14} />}
                             component="a"
@@ -226,25 +211,18 @@ export function MyEnginesModal({ opened, onClose, onLoadEngine }: MyEnginesModal
                             Open in runner
                           </Menu.Item>
 
-                          {engine.visibility === 'private' && (
+                          {engine.visibility === "private" && (
                             <>
                               <Menu.Divider />
-                              <Menu.Item
-                                leftSection={<Send size={14} />}
-                                onClick={() => handleSubmitForReview(engine.id)}
-                              >
+                              <Menu.Item leftSection={<Send size={14} />} onClick={() => handleSubmitForReview(engine.id)}>
                                 Submit to The Garden
                               </Menu.Item>
                             </>
                           )}
 
                           <Menu.Divider />
-                          
-                          <Menu.Item
-                            leftSection={<Trash2 size={14} />}
-                            color="red"
-                            onClick={() => handleDelete(engine.id)}
-                          >
+
+                          <Menu.Item leftSection={<Trash2 size={14} />} color="red" onClick={() => handleDelete(engine.id)}>
                             Delete
                           </Menu.Item>
                         </Menu.Dropdown>
