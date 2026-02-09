@@ -167,8 +167,8 @@ export function AdminReview() {
 
   return (
     <PageLayout>
-      <Container size="lg" py="xl" className={classes.container}>
-        <Group justify="space-between" mb="xl">
+      <Container w="100%" fluid size="lg" py="xl" className={classes.container}>
+        <Group justify="space-between" mb="xl" w="100%">
           <Group gap="md">
             <Button component={Link} to="/" variant="subtle" leftSection={<ArrowLeft size={16} />}>
               Back
