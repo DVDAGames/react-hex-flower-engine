@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Menu, Avatar, Text, Group, UnstyledButton, ActionIcon, Tooltip } from "@mantine/core";
 import { Link } from "react-router-dom";
-import { User, LogOut, Shield, LogIn } from "lucide-react";
+import { useMantineColorScheme } from "@mantine/core";
+import { User, LogOut, Shield, LogIn, Sun, Moon, Computer } from "lucide-react";
 import { useAuth } from "@/contexts";
 import { LoginModal } from "./LoginModal";
 import { ProfileModal } from "./ProfileModal";
@@ -9,9 +10,14 @@ import { HexIcon } from "@/components/HexIcon";
 import classes from "./UserMenu.module.css";
 
 export function UserMenu() {
+  const { colorScheme, setColorScheme } = useMantineColorScheme();
   const { user, isAuthenticated, isLoading, signOut } = useAuth();
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
+
+  const toggleColorScheme = () => {
+    setColorScheme(colorScheme === "auto" ? "dark" : colorScheme === "dark" ? "light" : "dark");
+  };
 
   if (isLoading) {
     return (
@@ -75,6 +81,15 @@ export function UserMenu() {
               <Menu.Divider />
             </>
           )}
+
+          <Menu.Item
+            leftSection={
+              colorScheme === "auto" ? <Computer size={16} /> : colorScheme === "dark" ? <Sun size={16} /> : <Moon size={16} />
+            }
+            onClick={toggleColorScheme}
+          >
+            {colorScheme === "auto" ? "System color" : colorScheme === "dark" ? "Light mode" : "Dark mode"}
+          </Menu.Item>
 
           <Menu.Divider />
 

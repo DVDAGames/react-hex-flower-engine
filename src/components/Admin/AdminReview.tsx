@@ -16,9 +16,9 @@ import {
   Tabs,
   SegmentedControl,
 } from "@mantine/core";
-import { CheckCircle, XCircle, AlertTriangle, User, Calendar, ArrowLeft, Eye, Flower2, Clock, History } from "lucide-react";
+import { CheckCircle, XCircle, AlertTriangle, User, Calendar, ArrowLeft, Eye, Flower2, Clock, History, Globe, Trash2, EyeOff } from "lucide-react";
 import { useAuth } from "@/contexts";
-import { getPendingEngines, getReviewHistory, reviewEngine, type PendingEngine, type ReviewedEngine } from "@/lib/api";
+import { getPendingEngines, getReviewHistory, reviewEngine, getGalleryEngines, unpublishEngine, cascadeDeleteEngine, type PendingEngine, type ReviewedEngine, type Engine } from "@/lib/api";
 import { PageLayout } from "@/components/PageLayout";
 import type { EngineDefinition } from "@/types/engine";
 import classes from "./AdminReview.module.css";
@@ -37,11 +37,20 @@ export function AdminReview() {
   const [historyFilter, setHistoryFilter] = useState<"all" | "approved" | "rejected">("all");
   const [historyLoaded, setHistoryLoaded] = useState(false);
 
+  // Published state
+  const [publishedEngines, setPublishedEngines] = useState<Engine[]>([]);
+  const [publishedLoading, setPublishedLoading] = useState(false);
+
   // Shared state
   const [error, setError] = useState<string | null>(null);
   const [rejectingEngine, setRejectingEngine] = useState<PendingEngine | null>(null);
   const [rejectReason, setRejectReason] = useState("");
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+
+  // Cascade delete state
+  const [engineToDelete, setEngineToDelete] = useState<Engine | null>(null);
+  const [showCascadeConfirm, setShowCascadeConfirm] = useState(false);
+  const [cascadeConfirmation, setCascadeConfirmation] = useState("");
 
   const loadPendingEngines = useCallback(async () => {
     setPendingLoading(true);
@@ -74,6 +83,21 @@ export function AdminReview() {
     setHistoryLoaded(true);
   }, []);
 
+  const loadPublishedEngines = useCallback(async () => {
+    setPublishedLoading(true);
+    setError(null);
+
+    const { data, error: apiError } = await getGalleryEngines();
+
+    if (apiError) {
+      setError(apiError);
+    } else if (data) {
+      setPublishedEngines(data);
+    }
+
+    setPublishedLoading(false);
+  }, []);
+
   useEffect(() => {
     if (isAuthenticated && user?.isAdmin) {
       loadPendingEngines();
@@ -86,6 +110,13 @@ export function AdminReview() {
       loadHistoryEngines(historyFilter);
     }
   }, [activeTab, historyFilter, isAuthenticated, user?.isAdmin, loadHistoryEngines]);
+
+  // Load published engines when tab changes
+  useEffect(() => {
+    if (activeTab === "published" && isAuthenticated && user?.isAdmin) {
+      loadPublishedEngines();
+    }
+  }, [activeTab, isAuthenticated, user?.isAdmin, loadPublishedEngines]);
 
   const handleApprove = async (engineId: string) => {
     setActionLoading(engineId);
@@ -120,6 +151,58 @@ export function AdminReview() {
       if (historyLoaded) {
         loadHistoryEngines(historyFilter);
       }
+    }
+
+    setActionLoading(null);
+  };
+
+  const handleUnpublish = async (engineId: string) => {
+    if (!confirm("Are you sure you want to unpublish this engine? It will be removed from The Garden but users who saved it can still use it.")) {
+      return;
+    }
+
+    setActionLoading(engineId);
+    const { error: apiError } = await unpublishEngine(engineId);
+
+    if (apiError) {
+      setError(apiError);
+    } else {
+      setPublishedEngines((prev) => prev.filter((e) => e.id !== engineId));
+    }
+
+    setActionLoading(null);
+  };
+
+  const handleCascadeDeleteStart = (engine: Engine) => {
+    setEngineToDelete(engine);
+    setCascadeConfirmation("");
+  };
+
+  const handleCascadeDeleteConfirm = () => {
+    setShowCascadeConfirm(true);
+  };
+
+  const handleCascadeDeleteExecute = async () => {
+    if (!engineToDelete) return;
+
+    const def = engineToDelete.definition as any;
+    const engineName = def.name;
+
+    if (cascadeConfirmation !== engineName) {
+      setError("Engine name does not match. Please type the exact name to confirm.");
+      return;
+    }
+
+    setActionLoading(engineToDelete.id);
+    const { error: apiError } = await cascadeDeleteEngine(engineToDelete.id, cascadeConfirmation);
+
+    if (apiError) {
+      setError(apiError);
+    } else {
+      setPublishedEngines((prev) => prev.filter((e) => e.id !== engineToDelete.id));
+      setEngineToDelete(null);
+      setShowCascadeConfirm(false);
+      setCascadeConfirmation("");
     }
 
     setActionLoading(null);
@@ -200,6 +283,14 @@ export function AdminReview() {
               {pendingEngines.length > 0 && (
                 <Badge size="sm" color="yellow" ml="xs">
                   {pendingEngines.length}
+                </Badge>
+              )}
+            </Tabs.Tab>
+            <Tabs.Tab value="published" leftSection={<Globe size={16} />}>
+              Published
+              {publishedEngines.length > 0 && (
+                <Badge size="sm" color="green" ml="xs">
+                  {publishedEngines.length}
                 </Badge>
               )}
             </Tabs.Tab>
@@ -299,6 +390,105 @@ export function AdminReview() {
                             disabled={actionLoading !== null}
                           >
                             Reject
+                          </Button>
+                        </Stack>
+                      </Group>
+                    </Card>
+                  );
+                })}
+              </Stack>
+            )}
+          </Tabs.Panel>
+
+          <Tabs.Panel value="published">
+            {publishedLoading ? (
+              <Stack align="center" py="xl">
+                <Loader size="lg" />
+                <Text c="dimmed">Loading published engines...</Text>
+              </Stack>
+            ) : publishedEngines.length === 0 ? (
+              <Card withBorder p="xl">
+                <Stack align="center" gap="md">
+                  <Globe size={48} opacity={0.3} />
+                  <Text c="dimmed" size="lg">
+                    No published engines
+                  </Text>
+                </Stack>
+              </Card>
+            ) : (
+              <Stack gap="md">
+                {publishedEngines.map((engine) => {
+                  const def = engine.definition as any;
+                  const engineWithOwner = engine as Engine & { ownerName?: string };
+                  return (
+                    <Card key={engine.id} withBorder className={classes.engineCard}>
+                      <Group justify="space-between" align="flex-start" wrap="nowrap">
+                        <Stack gap="xs" style={{ flex: 1 }}>
+                          <Group gap="xs">
+                            <Text fw={700} size="lg">
+                              {def.name}
+                            </Text>
+                            <Badge color="green" size="sm">
+                              Published
+                            </Badge>
+                            {engine.isSystemDefault && (
+                              <Badge variant="light" color="blue" size="sm">
+                                System
+                              </Badge>
+                            )}
+                          </Group>
+
+                          {def.description && (
+                            <Text c="dimmed" lineClamp={2}>
+                              {def.description}
+                            </Text>
+                          )}
+
+                          <Group gap="lg" mt="xs">
+                            <Group gap={4}>
+                              <User size={14} opacity={0.6} />
+                              <Text size="sm" c="dimmed">
+                                {engineWithOwner.ownerName || "Unknown"}
+                              </Text>
+                            </Group>
+                            <Text size="sm" c="dimmed">
+                              {def.nodes?.length || 0} hexes • Roll: {def.roll}
+                            </Text>
+                            {engine.useCount > 0 && (
+                              <Text size="sm" c="dimmed">
+                                {engine.useCount} uses
+                              </Text>
+                            )}
+                            {(engine.forkCount || 0) > 0 && (
+                              <Text size="sm" c="dimmed">
+                                {engine.forkCount} forks
+                              </Text>
+                            )}
+                          </Group>
+                        </Stack>
+
+                        <Stack gap="xs">
+                          <Button
+                            color="orange"
+                            variant="light"
+                            leftSection={<EyeOff size={16} />}
+                            onClick={() => handleUnpublish(engine.id)}
+                            loading={actionLoading === engine.id}
+                            disabled={actionLoading !== null}
+                            size="sm"
+                          >
+                            Unpublish
+                          </Button>
+
+                          <Button
+                            color="red"
+                            variant="outline"
+                            leftSection={<Trash2 size={16} />}
+                            onClick={() => handleCascadeDeleteStart(engine)}
+                            disabled={actionLoading !== null}
+                            size="sm"
+                          >
+                            Emergency Delete
                           </Button>
                         </Stack>
                       </Group>
@@ -463,6 +653,112 @@ export function AdminReview() {
                 loading={actionLoading === rejectingEngine?.id}
               >
                 Reject Engine
+              </Button>
+            </Group>
+          </Stack>
+        </Modal>
+
+        {/* Cascade Delete - First Warning Modal */}
+        <Modal
+          opened={!!engineToDelete && !showCascadeConfirm}
+          onClose={() => {
+            setEngineToDelete(null);
+            setCascadeConfirmation("");
+          }}
+          title="Emergency Delete - Remove All Copies"
+          size="md"
+        >
+          <Stack gap="md">
+            <Alert color="red" icon={<AlertTriangle size={20} />}>
+              <Text fw={600} mb="xs">
+                Warning: This will delete the engine AND all user-created forks
+              </Text>
+              <Text size="sm">
+                {engineToDelete && `This engine has ${(engineToDelete as any).forkCount || 0} fork(s). All copies will be permanently deleted.`}
+              </Text>
+            </Alert>
+
+            <Text>
+              This action should only be used for inappropriate content or emergency situations.
+            </Text>
+
+            <Text size="sm" c="dimmed">
+              Engine: <strong>{engineToDelete ? (engineToDelete.definition as any).name : ""}</strong>
+            </Text>
+
+            <Group justify="flex-end" gap="sm">
+              <Button
+                variant="subtle"
+                onClick={() => {
+                  setEngineToDelete(null);
+                  setCascadeConfirmation("");
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                color="red"
+                leftSection={<Trash2 size={16} />}
+                onClick={handleCascadeDeleteConfirm}
+              >
+                Proceed to Confirmation
+              </Button>
+            </Group>
+          </Stack>
+        </Modal>
+
+        {/* Cascade Delete - Final Confirmation Modal */}
+        <Modal
+          opened={showCascadeConfirm && !!engineToDelete}
+          onClose={() => {
+            setShowCascadeConfirm(false);
+            setEngineToDelete(null);
+            setCascadeConfirmation("");
+          }}
+          title="Final Confirmation"
+          size="md"
+        >
+          <Stack gap="md">
+            <Text>
+              You are about to permanently delete{" "}
+              <strong>{engineToDelete ? (engineToDelete.definition as any).name : ""}</strong> and{" "}
+              {engineToDelete ? (engineToDelete as any).forkCount || 0 : 0} user fork(s).
+            </Text>
+
+            <Alert color="red" variant="filled">
+              <Text fw={600}>This cannot be undone!</Text>
+            </Alert>
+
+            <Text size="sm" c="dimmed">
+              Type the engine name exactly to confirm:
+            </Text>
+
+            <Textarea
+              placeholder={engineToDelete ? (engineToDelete.definition as any).name : ""}
+              value={cascadeConfirmation}
+              onChange={(e) => setCascadeConfirmation(e.currentTarget.value)}
+              rows={1}
+            />
+
+            <Group justify="flex-end" gap="sm">
+              <Button
+                variant="subtle"
+                onClick={() => {
+                  setShowCascadeConfirm(false);
+                  setEngineToDelete(null);
+                  setCascadeConfirmation("");
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                color="red"
+                leftSection={<Trash2 size={16} />}
+                onClick={handleCascadeDeleteExecute}
+                loading={actionLoading === engineToDelete?.id}
+                disabled={!engineToDelete || cascadeConfirmation !== (engineToDelete.definition as any).name}
+              >
+                Permanently Delete
               </Button>
             </Group>
           </Stack>

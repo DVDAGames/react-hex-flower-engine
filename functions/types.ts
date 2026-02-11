@@ -9,6 +9,9 @@ export interface Env {
   ADMIN_EMAILS: string;
   EMAIL_FROM?: string;
   ENVIRONMENT?: string;
+  MAILER_LITE_TOKEN?: string;
+  HEX_NEWSLETTER_ID?: string;
+  DVDA_NEWSLETTER_ID?: string;
 }
 
 export interface User {

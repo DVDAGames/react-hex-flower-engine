@@ -14,25 +14,33 @@ import {
   TextInput,
   SimpleGrid,
   Anchor,
+  Tooltip,
+  ActionIcon,
 } from "@mantine/core";
-import { Search, Play, Users, Flower2 } from "lucide-react";
+import { Search, Play, Users, Flower2, BookmarkPlus, Hexagon, Pencil } from "lucide-react";
 
 import { PageLayout } from "@/components/PageLayout";
-import { getGalleryEngines, type Engine } from "@/lib/api";
+import { getGalleryEngines, forkEngine, getMyEngines, type Engine } from "@/lib/api";
 import type { EngineDefinition } from "@/types/engine";
 import classes from "./Garden.module.css";
 import { HexIcon } from "../HexIcon";
+import { useAuth } from "@/contexts";
 
 interface GalleryEngine extends Engine {
   ownerName?: string;
+  ownerIcon?: string;
 }
 
 export function Garden() {
   const navigate = useNavigate();
+  const { isAuthenticated, user } = useAuth();
   const [engines, setEngines] = useState<GalleryEngine[]>([]);
+  const [myEngineIds, setMyEngineIds] = useState<Set<string>>(new Set());
+  const [forkedEngineIds, setForkedEngineIds] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [savingEngineId, setSavingEngineId] = useState<string | null>(null);
 
   useEffect(() => {
     const loadEngines = async () => {
@@ -45,11 +53,22 @@ export function Garden() {
         setEngines(data as GalleryEngine[]);
       }
 
+      // Load user's engines to check for duplicates/forks
+      if (isAuthenticated) {
+        const { data: myEngines } = await getMyEngines();
+        if (myEngines) {
+          const ids = new Set(myEngines.map((e) => e.id));
+          const forkedIds = new Set(myEngines.filter((e) => e.forkedFrom).map((e) => e.forkedFrom as string));
+          setMyEngineIds(ids);
+          setForkedEngineIds(forkedIds);
+        }
+      }
+
       setIsLoading(false);
     };
 
     loadEngines();
-  }, []);
+  }, [isAuthenticated]);
 
   const filteredEngines = engines.filter((engine) => {
     const def = engine.definition as EngineDefinition;
@@ -60,6 +79,33 @@ export function Garden() {
       (engine.ownerName?.toLowerCase().includes(query) ?? false)
     );
   });
+
+  const handleSaveEngine = async (engineId: string) => {
+    if (!isAuthenticated) {
+      setError("Please sign in to save engines to your collection");
+      return;
+    }
+
+    setSavingEngineId(engineId);
+    const { data, error: apiError } = await forkEngine(engineId);
+
+    if (apiError) {
+      setError(apiError);
+    } else if (data) {
+      // Update the forked engine IDs set
+      setForkedEngineIds((prev) => new Set([...prev, engineId]));
+      setMyEngineIds((prev) => new Set([...prev, data.id]));
+
+      // Clear any previous errors
+      setError(null);
+
+      // Could add a success notification here
+      const engineDef = engines.find((e) => e.id === engineId)?.definition as EngineDefinition;
+      alert(`"${engineDef?.name}" saved to your collection!`);
+    }
+
+    setSavingEngineId(null);
+  };
 
   return (
     <PageLayout>
@@ -114,20 +160,60 @@ export function Garden() {
             <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="lg">
               {filteredEngines.map((engine) => {
                 const def = engine.definition as EngineDefinition;
+                const isSystemEngine = engine.isSystemDefault;
+                const alreadySaved = myEngineIds.has(engine.id) || forkedEngineIds.has(engine.id);
+
                 return (
                   <Card key={engine.id} withBorder className={classes.engineCard}>
-                    <Stack gap="sm">
+                    <Stack gap="sm" h="100%">
                       <Group align="center">
-                        {def.icon && <HexIcon icon={def.icon} size={24} />}
-                        <Text fw={600} size="lg" lineClamp={1}>
-                          {def.name}
-                        </Text>
+                        {isSystemEngine ? (
+                          <Hexagon size={24} fill="currentColor" opacity={0.7} />
+                        ) : def.icon ? (
+                          <HexIcon icon={def.icon} size={24} />
+                        ) : null}
+                        <Tooltip label={def.name}>
+                          <Text fw={600} size="lg" lineClamp={1} maw="50%" truncate>
+                            {def.name}
+                          </Text>
+                        </Tooltip>
+                        {isSystemEngine && (
+                          <Badge variant="light" color="blue" size="xs">
+                            Official
+                          </Badge>
+                        )}
                         {engine.useCount > 0 && (
                           <Badge leftSection={<Users size={12} />} variant="light" color="violet">
                             {engine.useCount}
                           </Badge>
                         )}
+                        {isAuthenticated && ((user?.isAdmin && engine.isSystemDefault) || engine.ownerId === user?.id) ? (
+                          <ActionIcon
+                            variant="subtle"
+                            color="gray"
+                            onClick={() => navigate(`/editor/${engine.id}`)}
+                            aria-label="Edit engine"
+                            ml="auto"
+                          >
+                            <Pencil size={12} />
+                          </ActionIcon>
+                        ) : null}
                       </Group>
+
+                      {engine.ownerName && (
+                        <Group gap={4}>
+                          {isSystemEngine ? (
+                            <Hexagon size={12} opacity={0.5} />
+                          ) : engine?.ownerIcon ? (
+                            <HexIcon icon={engine.ownerIcon} size={12} />
+                          ) : (
+                            <HexIcon size={12} icon="hexagons7" />
+                          )}
+                          <Text size="xs" c="dimmed">
+                            {engine.ownerName}
+                          </Text>
+                        </Group>
+                      )}
 
                       {def.description && (
                         <Text size="sm" c="dimmed" lineClamp={3}>
@@ -141,20 +227,34 @@ export function Garden() {
                         </Badge>
                       </Group>
 
-                      {engine.ownerName && (
-                        <Text size="xs" c="dimmed">
-                          by {engine.ownerName}
-                        </Text>
-                      )}
-
                       <Group gap="xs" mt="auto">
+                        <Tooltip
+                          label={
+                            !isAuthenticated
+                              ? "Sign in to save engines"
+                              : alreadySaved
+                                ? "Already in your collection"
+                                : "Save to My Engines"
+                          }
+                        >
+                          <Button
+                            variant="outline"
+                            leftSection={<BookmarkPlus size={16} />}
+                            onClick={() => handleSaveEngine(engine.id)}
+                            disabled={!isAuthenticated || alreadySaved}
+                            loading={savingEngineId === engine.id}
+                            style={{ flex: 1 }}
+                          >
+                            Save
+                          </Button>
+                        </Tooltip>
                         <Button
                           variant="light"
                           leftSection={<Play size={16} />}
-                          fullWidth
                           onClick={() => navigate(`/?engine=${engine.id}`)}
+                          style={{ flex: 1 }}
                         >
-                          Run Engine
+                          Run
                         </Button>
                       </Group>
                     </Stack>

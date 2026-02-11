@@ -1,5 +1,19 @@
 import { useState, useEffect, useCallback } from "react";
-import { Modal, Stack, Text, Button, Group, Card, Badge, ActionIcon, Loader, Alert, TextInput, Menu } from "@mantine/core";
+import {
+  Modal,
+  Stack,
+  Text,
+  Button,
+  Group,
+  Card,
+  Badge,
+  ActionIcon,
+  Loader,
+  Alert,
+  TextInput,
+  Menu,
+  Tooltip,
+} from "@mantine/core";
 import {
   Trash2,
   Edit2,
@@ -14,6 +28,7 @@ import {
   Send,
   Hexagon,
   Play,
+  GitFork,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts";
@@ -28,7 +43,7 @@ interface MyEnginesModalProps {
 }
 
 export function MyEnginesModal({ opened, onClose, onLoadEngine }: MyEnginesModalProps) {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const [engines, setEngines] = useState<Engine[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -40,7 +55,7 @@ export function MyEnginesModal({ opened, onClose, onLoadEngine }: MyEnginesModal
     setIsLoading(true);
     setError(null);
 
-    const { data, error: apiError } = await getMyEngines();
+    const { data, error: apiError } = await getMyEngines(user?.isAdmin); // Admins can see system engines in their list
 
     if (apiError) {
       setError(apiError);
@@ -160,11 +175,11 @@ export function MyEnginesModal({ opened, onClose, onLoadEngine }: MyEnginesModal
             size="xs"
             leftSection={<Hexagon size={14} />}
             onClick={() => {
-              navigate("/?builtin=standard");
+              navigate("/?engine=sys-standard");
               onClose();
             }}
           >
-            View Standard Engine
+            Default Engine
           </Button>
         </Group>
 
@@ -205,18 +220,34 @@ export function MyEnginesModal({ opened, onClose, onLoadEngine }: MyEnginesModal
                   <Group justify="space-between" align="flex-start">
                     <Stack gap={4} style={{ flex: 1 }}>
                       <Group gap="xs">
-                        <Text fw={600}>{def.name}</Text>
+                        <Tooltip label={def.name}>
+                          <Text fw={600} truncate maw="50%">
+                            {def.name}
+                          </Text>
+                        </Tooltip>
                         {getVisibilityBadge(engine.visibility)}
+                        {engine.isSystemDefault && (
+                          <Badge variant="light" color="blue" size="xs">
+                            System
+                          </Badge>
+                        )}
                       </Group>
                       {def.description && (
                         <Text size="sm" c="dimmed" lineClamp={2}>
                           {def.description}
                         </Text>
                       )}
-                      <Text size="xs" c="dimmed">
-                        Updated {new Date(engine.updatedAt).toLocaleDateString()}
-                        {engine.useCount > 0 && ` • Used ${engine.useCount} times`}
-                      </Text>
+                      <Group gap="xs">
+                        {engine.forkedFrom && (
+                          <Badge leftSection={<GitFork size={12} />} variant="dot" color="gray" size="xs">
+                            Forked
+                          </Badge>
+                        )}
+                        <Text size="xs" c="dimmed">
+                          Updated {new Date(engine.updatedAt).toLocaleDateString()}
+                          {engine.useCount > 0 && ` • Used ${engine.useCount} times`}
+                        </Text>
+                      </Group>
                     </Stack>
 
                     <Group gap="xs">

@@ -1,11 +1,11 @@
 {
-  "name": "react-hex-flower-engine",
-  "version": "1.0.0",
+  "name": "project-hex",
+  "version": "2.1.0",
   "private": true,
   "license": "GPL-3.0-or-later",
   "type": "module",
   "homepage": "https://hex.dvdagames.com/",
-  "description": "Hex is a platform for creating and sharing procedural content generators built on the Hex Flower Engine framework. It allows users to create their own custom generators using a visual editor and share them with the community.",
+  "description": "Project Hex is a platform for creating and sharing procedural content generators built on the Hex Flower Engine framework. It allows users to create their own custom generators using a visual editor and share them with the community.",
   "scripts": {
     "build": "tsc && vite build",
     "db:migrate": "npx wrangler d1 migrations apply hex-flower-engine-db",

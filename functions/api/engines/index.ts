@@ -7,32 +7,50 @@ import { getAuthUser, generateId, json, errorResponse } from '../../utils';
 
 export const onRequestGet: PagesFunction<Env> = async (context) => {
   const { request, env } = context;
-  
+
   const session = await getAuthUser(request, env);
+
   if (!session) {
     return errorResponse('Unauthorized', 401);
   }
   
+  const url = new URL(request.url);
+  const includeSystem = url.searchParams.get('includeSystem') === 'true';
+
+  console.log(`Fetching engines for user ${session.userId}, includeSystem=${includeSystem}`); // Debug log
+
   const engines = await env.DB.prepare(`
     SELECT id, owner_id, definition, version, visibility, use_count, 
-           forked_from, created_at, updated_at, published_at
+           forked_from, created_at, updated_at, published_at, is_system_default
     FROM engines
-    WHERE owner_id = ?
+    WHERE owner_id = ?${includeSystem ? " OR is_system_default = 1" : ""}
     ORDER BY updated_at DESC
   `).bind(session.userId).all();
-  
-  return json(engines.results.map(e => ({
+
+  const mappedResults = engines.results.map(e => ({
     id: e.id,
     ownerId: e.owner_id,
     definition: JSON.parse(e.definition as string),
     version: e.version,
     visibility: e.visibility,
+    isSystemDefault: e.is_system_default === 1,
     useCount: e.use_count,
     forkedFrom: e.forked_from,
     createdAt: e.created_at,
     updatedAt: e.updated_at,
     publishedAt: e.published_at,
-  })));
+  }));
+
+  if (includeSystem) {
+    // Move system engines to the start of the list
+    mappedResults.sort((a, b) => {
+      if (a.isSystemDefault && !b.isSystemDefault) return -1;
+      if (!a.isSystemDefault && b.isSystemDefault) return 1;
+      return 0;
+    });
+  }
+
+  return json(mappedResults);
 };
 
 interface CreateEngineRequest {

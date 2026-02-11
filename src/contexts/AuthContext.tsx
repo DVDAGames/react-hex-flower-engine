@@ -11,6 +11,7 @@ interface AuthContextType {
     displayName?: string;
     avatarIcon?: string | null;
     defaultEngineId?: string | null;
+    defaultEditorEngineId?: string | null;
     acceptTerms?: boolean;
     hexNewsletterOptIn?: boolean;
     dvdaNewsletterOptIn?: boolean;
@@ -34,6 +35,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       const { data, error } = await getCurrentUser();
+
       if (data && !error) {
         setUser(data);
       } else {
@@ -80,6 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       displayName?: string;
       avatarIcon?: string | null;
       defaultEngineId?: string | null;
+      defaultEditorEngineId?: string | null;
       acceptTerms?: boolean;
       hexNewsletterOptIn?: boolean;
       dvdaNewsletterOptIn?: boolean;

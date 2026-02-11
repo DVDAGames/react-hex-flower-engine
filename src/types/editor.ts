@@ -219,7 +219,7 @@ export function createBlankEngine(name: string = 'New Engine'): DraftEngine {
     icon: 'hexagon',
     roll: '2d6',
     directions: { ...DEFAULT_2D6_DIRECTIONS },
-    start: 10,
+    start: 1,
     nodes,
     isDirty: false,
     lastModified: Date.now(),

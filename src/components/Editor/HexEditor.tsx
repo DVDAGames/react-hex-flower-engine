@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { AppShell, Group, ActionIcon, Tooltip, Badge, Divider, Text } from "@mantine/core";
 import {
   Undo2,
@@ -14,8 +14,10 @@ import {
   Cloud,
   FolderOpen,
 } from "lucide-react";
+
 import { useEditor } from "@/contexts/EditorContext";
 import { useAuth } from "@/contexts";
+import { getEngine } from "@/lib/api";
 import { EditorGrid } from "./EditorGrid";
 import { HexPropertyPanel } from "./HexPropertyPanel";
 import { EngineSettingsPanel } from "./EngineSettingsPanel";
@@ -26,15 +28,52 @@ import { Footer } from "@/components/Footer";
 import type { EngineDefinition } from "@/types/engine";
 import classes from "./HexEditor.module.css";
 
-export function HexEditor() {
+export function HexEditor({ engineId }: { engineId?: string }) {
   const { state, actions } = useEditor();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const { draft, mode, panels } = state;
 
   // Modal states
   const [myEnginesOpen, setMyEnginesOpen] = useState(false);
   const [saveModalOpen, setSaveModalOpen] = useState(false);
-  const [cloudEngineId, setCloudEngineId] = useState<string | null>(draft.sourceEngineId || null);
+  const [cloudEngineId, setCloudEngineId] = useState<string | null>(engineId || draft.sourceEngineId || null);
+  const [hasLoadedDefault, setHasLoadedDefault] = useState(false);
+
+  // Load default editor engine on mount if user has one set
+  useEffect(() => {
+    if (engineId && isAuthenticated && !hasLoadedDefault) {
+      setHasLoadedDefault(true);
+
+      getEngine(engineId).then(({ data, error }) => {
+        if (data && !error) {
+          const engineDef = data.definition as EngineDefinition;
+          actions.importEngine(engineDef, engineDef.name);
+
+          setCloudEngineId(engineId);
+        }
+      });
+    } else if (
+      // Only load if:
+      // 1. User is authenticated
+      // 2. User has a default editor engine set
+      // 3. No engine is currently loaded (draft is still the initial empty state)
+      // 4. We haven't already loaded the default
+      isAuthenticated &&
+      user?.defaultEditorEngineId &&
+      !hasLoadedDefault &&
+      !draft.sourceEngineId &&
+      draft.nodes.length === 19 // Check if it's still the default empty engine
+    ) {
+      setHasLoadedDefault(true);
+      getEngine(user.defaultEditorEngineId).then(({ data, error }) => {
+        if (data && !error) {
+          const engineDef = data.definition as EngineDefinition;
+          actions.importEngine(engineDef, engineDef.name);
+          setCloudEngineId(user.defaultEditorEngineId!);
+        }
+      });
+    }
+  }, [isAuthenticated, user?.defaultEditorEngineId, hasLoadedDefault, draft, actions]);
 
   const handleExport = useCallback(() => {
     const engine = actions.exportEngine();
@@ -86,7 +125,7 @@ export function HexEditor() {
       actions.importEngine(engine, engine.name);
       setCloudEngineId(engineId);
     },
-    [actions]
+    [actions],
   );
 
   const handleCloudSaveSuccess = useCallback(
@@ -94,7 +133,7 @@ export function HexEditor() {
       setCloudEngineId(engineId);
       actions.saveDraft(); // Also save locally and mark as clean
     },
-    [actions]
+    [actions],
   );
 
   return (

@@ -57,20 +57,21 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
   const engineId = params.id as string;
   
   const session = await getAuthUser(request, env);
+
   if (!session) {
     return errorResponse('Unauthorized', 401);
   }
-  
+
   // Check ownership
   const engine = await env.DB.prepare(`
-    SELECT id, owner_id, visibility FROM engines WHERE id = ?
+    SELECT id, owner_id, visibility, is_system_default FROM engines WHERE id = ?
   `).bind(engineId).first();
   
   if (!engine) {
     return errorResponse('Engine not found', 404);
   }
-  
-  if (engine.owner_id !== session.userId) {
+
+  if (engine.owner_id !== session.userId && (!session.isAdmin && !engine.is_system_default)) {
     return errorResponse('Access denied', 403);
   }
   
@@ -139,26 +140,35 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
 export const onRequestDelete: PagesFunction<Env> = async (context) => {
   const { request, env, params } = context;
   const engineId = params.id as string;
-  
+
   const session = await getAuthUser(request, env);
   if (!session) {
     return errorResponse('Unauthorized', 401);
   }
-  
-  // Check ownership
+
+  // Check ownership and system status
   const engine = await env.DB.prepare(`
-    SELECT owner_id FROM engines WHERE id = ?
+    SELECT owner_id, is_system_default FROM engines WHERE id = ?
   `).bind(engineId).first();
-  
+
   if (!engine) {
     return errorResponse('Engine not found', 404);
   }
-  
+
   if (engine.owner_id !== session.userId) {
     return errorResponse('Access denied', 403);
   }
-  
+
+  // Prevent deletion of system engines by regular users
+  // (Admins can edit system engines but deletion requires cascade delete endpoint)
+  if (engine.is_system_default) {
+    return errorResponse('System engines cannot be deleted. Contact an administrator if this engine needs to be removed.', 403);
+  }
+
+  // Delete the engine
+  // Note: Database has ON DELETE SET NULL for forked_from, so forks are preserved
+  // Cascading deletes: engine_versions, shared_links, engine_states
   await env.DB.prepare('DELETE FROM engines WHERE id = ?').bind(engineId).run();
-  
+
   return json({ success: true });
 };

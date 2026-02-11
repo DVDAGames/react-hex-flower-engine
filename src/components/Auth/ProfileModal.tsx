@@ -33,6 +33,7 @@ export function ProfileModal({ opened, onClose, ...modalProps }: ProfileModalPro
   const [displayName, setDisplayName] = useState("");
   const [selectedIcon, setSelectedIcon] = useState<string | null>(null);
   const [defaultEngineId, setDefaultEngineId] = useState<string | null>(null);
+  const [defaultEditorEngineId, setDefaultEditorEngineId] = useState<string | null>(null);
   const [acceptTerms, setAcceptTerms] = useState<boolean | undefined>(false);
   const [hexNewsletterOptIn, setHexNewsletterOptIn] = useState<boolean | undefined>(false);
   const [dvdaNewsletterOptIn, setDvdaNewsletterOptIn] = useState<boolean | undefined>(false);
@@ -50,10 +51,10 @@ export function ProfileModal({ opened, onClose, ...modalProps }: ProfileModalPro
   // Initialize form when modal opens
   useEffect(() => {
     if (opened && user) {
-      console.log("Initializing profile modal with user data:", user);
       setDisplayName(user.displayName || "");
       setSelectedIcon(user.avatarUrl || null);
       setDefaultEngineId(user.defaultEngineId || null);
+      setDefaultEditorEngineId(user.defaultEditorEngineId || null);
       setAcceptTerms(user.acceptTerms);
       setHexNewsletterOptIn(user.hexNewsletterOptIn);
       setDvdaNewsletterOptIn(user.dvdaNewsletterOptIn);
@@ -64,7 +65,7 @@ export function ProfileModal({ opened, onClose, ...modalProps }: ProfileModalPro
       // Load user's engines
       setEnginesLoading(true);
 
-      getMyEngines().then(({ data, error: apiError }) => {
+      getMyEngines(true).then(({ data, error: apiError }) => {
         if (data && !apiError) {
           setEngines(data);
         }
@@ -83,6 +84,7 @@ export function ProfileModal({ opened, onClose, ...modalProps }: ProfileModalPro
       displayName: displayName.trim(),
       avatarIcon: selectedIcon,
       defaultEngineId: defaultEngineId,
+      defaultEditorEngineId: defaultEditorEngineId,
       acceptTerms: acceptTerms,
       hexNewsletterOptIn: hexNewsletterOptIn,
       dvdaNewsletterOptIn: dvdaNewsletterOptIn,
@@ -213,6 +215,37 @@ export function ProfileModal({ opened, onClose, ...modalProps }: ProfileModalPro
                 data={engineOptions}
                 value={defaultEngineId}
                 onChange={setDefaultEngineId}
+                clearable
+                searchable
+              />
+            )}
+          </Stack>
+
+          {/* Default Editor Engine */}
+          <Stack gap="xs">
+            <Text size="sm" fw={500}>
+              Default Editor Engine
+            </Text>
+            <Text size="xs" c="dimmed">
+              This engine will load automatically when you open the editor (optional)
+            </Text>
+            {enginesLoading ? (
+              <Group gap="xs">
+                <Loader size="xs" />
+                <Text size="sm" c="dimmed">
+                  Loading your engines...
+                </Text>
+              </Group>
+            ) : engines.length === 0 ? (
+              <Text size="sm" c="dimmed">
+                No saved engines. Create one in the Editor to set as default.
+              </Text>
+            ) : (
+              <Select
+                placeholder="No default (start fresh)"
+                data={engineOptions}
+                value={defaultEditorEngineId}
+                onChange={setDefaultEditorEngineId}
                 clearable
                 searchable
               />

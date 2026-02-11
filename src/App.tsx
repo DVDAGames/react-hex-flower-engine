@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Routes, Route, useSearchParams } from "react-router-dom";
+import { Routes, Route, useSearchParams, useNavigate, useParams } from "react-router-dom";
 import { Container, Title, Text, Stack, Paper, Badge, List, Transition, Loader } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 
@@ -169,35 +169,6 @@ function HexFlowerRunner() {
     const currentActiveHex = activeHexRef.current;
     if (currentActiveHex === null) return;
 
-    const handleRoll = () => {
-      switch (roll.type) {
-        case ACTIONS.RANDOM:
-          setActiveHex(roll.total);
-          break;
-
-        case ACTIONS.RUN:
-        default: {
-          const direction = currentEngine.directions[roll.total];
-          const currentNode = currentEngine.nodes.find(({ id }) => id === currentActiveHex);
-
-          // If direction is 'stay', don't move
-          if (direction === "stay") {
-            break;
-          }
-
-          if (direction && currentNode) {
-            const newNodeId = currentNode.map[direction];
-            if (newNodeId) {
-              setActiveHex(newNodeId);
-            }
-          }
-          break;
-        }
-      }
-    };
-
-    handleRoll();
-
     // Clear roll display after delay
     const timeout = setTimeout(() => {
       setRoll(null);
@@ -266,19 +237,31 @@ function HexFlowerRunner() {
       case ACTIONS.RANDOM:
         setActiveHex(rollTotal);
         break;
+
       case ACTIONS.RUN:
         const direction = currentEngine?.directions[rollTotal];
+
+        // If direction is 'stay', don't move
+        if (direction === "stay") {
+          break;
+        }
+
         const currentNode = currentEngine?.nodes.find(({ id }) => id === activeHex);
+
         if (direction && currentNode) {
           const newNodeId = currentNode.map[direction];
+
           if (newNodeId) {
             setActiveHex(newNodeId);
           }
         }
+
         break;
+
       default:
         break;
     }
+
     saveStateToDatabase();
   };
 
@@ -360,14 +343,46 @@ function HexFlowerRunner() {
 }
 
 function EditorPage() {
+  const { engineId } = useParams();
+
   return (
     <EditorProvider>
-      <HexEditor />
+      <HexEditor engineId={engineId} />
     </EditorProvider>
   );
 }
 
+// Route guard component that redirects to profile setup if terms not accepted
+function RequireTerms({ children }: { children: React.ReactNode }) {
+  const { user, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isAuthenticated && !user?.acceptTerms) {
+      navigate("/profile-setup", { replace: true });
+    }
+  }, [isAuthenticated, user?.acceptTerms, navigate]);
+
+  if (isAuthenticated && !user?.acceptTerms) {
+    return null;
+  }
+
+  return <>{children}</>;
+}
+
 export function UserProfileTerms() {
+  const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
+  const navigate = useNavigate();
+
+  // When user accepts terms, redirect to home
+  useEffect(() => {
+    console.log("user?.acceptTerms:", user?.acceptTerms, "isAuthenticated:", isAuthenticated, "isAuthLoading:", isAuthLoading);
+
+    if ((isAuthenticated && user?.acceptTerms) || (!isAuthenticated && !isAuthLoading)) {
+      navigate("/", { replace: true });
+    }
+  }, [isAuthenticated, user?.acceptTerms, isAuthLoading, navigate]);
+
   return (
     <Container size="sm" py="xl">
       <Stack align="center" gap="md">
@@ -378,14 +393,16 @@ export function UserProfileTerms() {
 }
 
 export function App() {
-  const { user, isAuthenticated } = useAuth();
+  const { isLoading: isAuthLoading } = useAuth();
 
-  if (isAuthenticated && !user?.acceptTerms) {
+  if (isAuthLoading) {
     return (
-      <Routes>
-        <Route path="/terms" element={<TermsOfService />} />
-        <Route path="*" element={<UserProfileTerms />} />
-      </Routes>
+      <Container size="lg" py="xl">
+        <Stack align="center" gap="md">
+          <Loader size="lg" />
+          <Text c="dimmed">Loading...</Text>
+        </Stack>
+      </Container>
     );
   }
 
@@ -393,16 +410,59 @@ export function App() {
     <>
       <Header />
       <Routes>
-        <Route path="/" element={<HexFlowerRunner />} />
+        <Route
+          path="/"
+          element={
+            <RequireTerms>
+              <HexFlowerRunner />
+            </RequireTerms>
+          }
+        />
         <Route path="/auth/verify" element={<AuthVerify />} />
-        <Route path="/editor" element={<EditorPage />} />
-        <Route path="/editor/:engineId" element={<EditorPage />} />
-        <Route path="/gallery" element={<Garden />} />
+        <Route
+          path="/editor"
+          element={
+            <RequireTerms>
+              <EditorPage />
+            </RequireTerms>
+          }
+        />
+        <Route
+          path="/editor/:engineId"
+          element={
+            <RequireTerms>
+              <EditorPage />
+            </RequireTerms>
+          }
+        />
+        <Route
+          path="/gallery"
+          element={
+            <RequireTerms>
+              <Garden />
+            </RequireTerms>
+          }
+        />
         <Route path="/s/:token" element={<SharedEngine />} />
         <Route path="/shared/:token" element={<SharedEngine />} />
-        <Route path="/admin/review" element={<AdminReview />} />
-        <Route path="/admin/review/:engineId" element={<AdminPreview />} />
+        <Route
+          path="/admin/review"
+          element={
+            <RequireTerms>
+              <AdminReview />
+            </RequireTerms>
+          }
+        />
+        <Route
+          path="/admin/review/:engineId"
+          element={
+            <RequireTerms>
+              <AdminPreview />
+            </RequireTerms>
+          }
+        />
         <Route path="/terms" element={<TermsOfService />} />
+        <Route path="/profile-setup" element={<UserProfileTerms />} />
       </Routes>
     </>
   );

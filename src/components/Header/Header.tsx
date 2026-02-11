@@ -1,15 +1,14 @@
 import { useState } from "react";
 import { Group, Text, Anchor, ActionIcon, Tooltip } from "@mantine/core";
 import { Link, useNavigate } from "react-router-dom";
-import { useMantineColorScheme } from "@mantine/core";
-import { Hexagon, Sun, Moon, Flower2 } from "lucide-react";
+import { Hexagon, Icon } from "lucide-react";
+import { hexagons7 } from "@lucide/lab";
 import { UserMenu } from "@/components/Auth";
 import { useAuth } from "@/contexts";
 import { MyEnginesModal } from "@/components/Editor/MyEnginesModal";
 import classes from "./Header.module.css";
 
 export function Header() {
-  const { colorScheme, setColorScheme } = useMantineColorScheme();
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
@@ -25,10 +24,6 @@ export function Header() {
     setMyEnginesOpen(false);
   };
 
-  const toggleColorScheme = () => {
-    setColorScheme(colorScheme === "dark" ? "light" : "dark");
-  };
-
   return (
     <header className={classes.header}>
       {/* Left side - Logo and Navigation */}
@@ -36,7 +31,7 @@ export function Header() {
         <Anchor component={Link} to="/" className={classes.logo} underline="never">
           <Hexagon size={24} />
           <Text fw={600} size="lg">
-            Hex
+            Project Hex
           </Text>
         </Anchor>
 
@@ -59,7 +54,7 @@ export function Header() {
           <>
             <Tooltip label="My Engines">
               <ActionIcon variant="subtle" size="lg" aria-label="My Engines" onClick={() => setMyEnginesOpen(true)}>
-                <Flower2 size={18} />
+                <Icon iconNode={hexagons7} size={18} />
               </ActionIcon>
             </Tooltip>
             <MyEnginesModal
@@ -69,12 +64,6 @@ export function Header() {
             />
           </>
         )}
-
-        <Tooltip label={colorScheme === "dark" ? "Light mode" : "Dark mode"}>
-          <ActionIcon variant="subtle" size="lg" onClick={toggleColorScheme} aria-label="Toggle color scheme">
-            {colorScheme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-          </ActionIcon>
-        </Tooltip>
         <UserMenu />
       </Group>
     </header>

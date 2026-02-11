@@ -30,18 +30,18 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
     return errorResponse('Unauthorized', 401);
   }
   
-  let body: { displayName?: string; avatarIcon?: string | null; defaultEngineId?: string | null; acceptTerms?: boolean; hexNewsletterOptIn?: boolean; dvdaNewsletterOptIn?: boolean };
+  let body: { displayName?: string; avatarIcon?: string | null; defaultEngineId?: string | null; defaultEditorEngineId?: string | null; acceptTerms?: boolean; hexNewsletterOptIn?: boolean; dvdaNewsletterOptIn?: boolean };
 
   try {
     body = await request.json();
   } catch {
     return errorResponse('Invalid JSON body', 400);
   }
-  
-  const { displayName, avatarIcon, defaultEngineId, acceptTerms, hexNewsletterOptIn, dvdaNewsletterOptIn } = body;
+
+  const { displayName, avatarIcon, defaultEngineId, defaultEditorEngineId, acceptTerms, hexNewsletterOptIn, dvdaNewsletterOptIn } = body;
 
   const existingUser = await env.DB.prepare(`
-    SELECT id, email, display_name, avatar_url, is_admin, default_engine_id, accept_terms, hex_newsletter_opt_in, dvda_newsletter_opt_in
+    SELECT id, email, display_name, avatar_url, is_admin, default_engine_id, default_editor_engine_id, accept_terms, hex_newsletter_opt_in, dvda_newsletter_opt_in
     FROM profiles
     WHERE id = ?
   `).bind(session.userId).first();
@@ -78,11 +78,23 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
   if (defaultEngineId !== undefined && defaultEngineId !== null) {
     // Check that the engine exists and belongs to the user
     const engine = await env.DB.prepare(`
-      SELECT id FROM engines WHERE id = ? AND owner_id = ?
+      SELECT id FROM engines WHERE id = ? AND (owner_id = ? OR is_system_default = 1)
     `).bind(defaultEngineId, session.userId).first();
-    
+
     if (!engine) {
       return errorResponse('Engine not found or not owned by user', 400);
+    }
+  }
+
+  // Validate default editor engine if provided
+  if (defaultEditorEngineId !== undefined && defaultEditorEngineId !== null) {
+    // Check that the engine exists and belongs to the user
+    const engine = await env.DB.prepare(`
+      SELECT id FROM engines WHERE id = ? AND (owner_id = ? OR is_system_default = 1)
+    `).bind(defaultEditorEngineId, session.userId).first();
+
+    if (!engine) {
+      return errorResponse('Editor engine not found or not owned by user', 400);
     }
   }
   
@@ -104,7 +116,12 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
     updates.push('default_engine_id = ?');
     values.push(defaultEngineId);
   }
- 
+
+  if (defaultEditorEngineId !== undefined) {
+    updates.push('default_editor_engine_id = ?');
+    values.push(defaultEditorEngineId);
+  }
+
   if (acceptTerms !== undefined) {
     updates.push('accept_terms = ?');
     values.push(acceptTerms ? '1' : '0');
@@ -135,7 +152,7 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
   
   // Return updated user
   const user = await env.DB.prepare(`
-    SELECT id, email, display_name, avatar_url, is_admin, default_engine_id, accept_terms, hex_newsletter_opt_in, dvda_newsletter_opt_in
+    SELECT id, email, display_name, avatar_url, is_admin, default_engine_id, default_editor_engine_id, accept_terms, hex_newsletter_opt_in, dvda_newsletter_opt_in
     FROM profiles
     WHERE id = ?
   `).bind(session.userId).first();
@@ -144,24 +161,22 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
     return errorResponse('User not found', 404);
   }
 
-  if (!!existingUser.hex_newsletter_opt_in !== !!hexNewsletterOptIn) {
-    try {
-      await subscribeToNewsletter(user?.email || "", env.HEX_NEWSLETTER_ID || "", hexNewsletterOptIn ? 1 : 0, env);
-    } catch (error) {
-      console.error("Failed to update Hex newsletter subscription:", error);
+  if (typeof user.email === "string" && user.email) {
+    if (!!existingUser.hex_newsletter_opt_in !== !!hexNewsletterOptIn) {
+      try {
+        await subscribeToNewsletter(user.email, env.HEX_NEWSLETTER_ID!, !!hexNewsletterOptIn, env);
+      } catch (error) {
+        console.error("Failed to update Hex newsletter subscription:", error);
+      }
     }
-  }
 
-  if (!!existingUser.dvda_newsletter_opt_in !== !!dvdaNewsletterOptIn) {
-    try {
-      await subscribeToNewsletter(user?.email || "", env.DVDA_NEWSLETTER_ID || "", dvdaNewsletterOptIn ? 1 : 0, env);
-    } catch (error) {
-      console.error("Failed to update DVDA newsletter subscription:", error);
+    if (!!existingUser.dvda_newsletter_opt_in !== !!dvdaNewsletterOptIn) {
+      try {
+        await subscribeToNewsletter(user.email, env.DVDA_NEWSLETTER_ID!, !!dvdaNewsletterOptIn, env);
+      } catch (error) {
+        console.error("Failed to update DVDA newsletter subscription:", error);
+      }
     }
-  }
-
-  if (!existingUser.accept_terms && acceptTerms !== true) {
-    return errorResponse('You must accept the terms to use the service', 400);
   }
   
   return json({
@@ -171,6 +186,7 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
     avatarUrl: user.avatar_url,
     isAdmin: user.is_admin === 1,
     defaultEngineId: user.default_engine_id,
+    defaultEditorEngineId: user.default_editor_engine_id,
     acceptTerms: user.accept_terms === 1,
     hexNewsletterOptIn: user.hex_newsletter_opt_in === 1,
     dvdaNewsletterOptIn: user.dvda_newsletter_opt_in === 1,

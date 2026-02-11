@@ -41,7 +41,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
     
     // Find or create user
     let user = await env.DB.prepare(`
-      SELECT id, email, display_name, avatar_url, is_admin, created_at, updated_at
+      SELECT id, email, display_name, avatar_url, is_admin, created_at, updated_at, default_engine_id, default_editor_engine_id, accept_terms, hex_newsletter_opt_in, dvda_newsletter_opt_in
       FROM profiles
       WHERE email = ?
     `).bind(authToken.email).first<{
@@ -52,6 +52,11 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
       is_admin: number;
       created_at: string;
       updated_at: string;
+      default_engine_id: string | null;
+      default_editor_engine_id: string | null;
+      accept_terms: number;
+      hex_newsletter_opt_in: number;
+      dvda_newsletter_opt_in: number;
     }>();
     
     const isAdmin = isAdminEmail(authToken.email, env);
@@ -74,6 +79,11 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
         is_admin: isAdmin ? 1 : 0,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
+        default_engine_id: null,
+        default_editor_engine_id: null,
+        accept_terms: 0,
+        hex_newsletter_opt_in: 0,
+        dvda_newsletter_opt_in: 0,
       };
     } else if (isAdmin && !user.is_admin) {
       // Update admin status if needed
@@ -111,6 +121,13 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
         displayName: user.display_name,
         avatarUrl: user.avatar_url,
         isAdmin: user.is_admin === 1,
+        defaultEngineId: user.default_engine_id,
+        defaultEditorEngineId: user.default_editor_engine_id,
+        createdAt: user.created_at,
+        updatedAt: user.updated_at,
+        acceptTerms: user.accept_terms,
+        hexNewsletterOptIn: user.hex_newsletter_opt_in,
+        dvdaNewsletterOptIn: user.dvda_newsletter_opt_in,
       },
       accessToken,
       refreshToken,

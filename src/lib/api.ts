@@ -122,6 +122,7 @@ export interface AuthUser {
   avatarUrl: string | null;
   isAdmin: boolean;
   defaultEngineId: string | null;
+  defaultEditorEngineId?: string | null;
   createdAt: string;
   updatedAt: string;
   acceptTerms: boolean;
@@ -177,10 +178,11 @@ export async function getCurrentUser(): Promise<ApiResponse<AuthUser>> {
 /**
  * Update user profile
  */
-export async function updateProfile(data: { 
-  displayName?: string; 
+export async function updateProfile(data: {
+  displayName?: string;
   avatarIcon?: string | null;
   defaultEngineId?: string | null;
+  defaultEditorEngineId?: string | null;
   acceptTerms?: boolean;
   hexNewsletterOptIn?: boolean;
   dvdaNewsletterOptIn?: boolean;
@@ -211,6 +213,9 @@ export interface Engine {
   version: string;
   visibility: 'private' | 'shared' | 'pending_review' | 'public';
   useCount: number;
+  isSystemDefault?: boolean;
+  forkCount?: number;
+  forkedFrom?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -218,8 +223,8 @@ export interface Engine {
 /**
  * Get user's engines
  */
-export async function getMyEngines(): Promise<ApiResponse<Engine[]>> {
-  return apiRequest<Engine[]>('/engines');
+export async function getMyEngines(includeSystem = false): Promise<ApiResponse<Engine[]>> {
+  return apiRequest<Engine[]>('/engines?includeSystem=' + includeSystem);
 }
 
 /**
@@ -264,6 +269,15 @@ export async function deleteEngine(id: string): Promise<ApiResponse<void>> {
  */
 export async function getGalleryEngines(): Promise<ApiResponse<Engine[]>> {
   return apiRequest<Engine[]>('/gallery');
+}
+
+/**
+ * Fork (copy) an engine to your own collection
+ */
+export async function forkEngine(engineId: string): Promise<ApiResponse<Engine>> {
+  return apiRequest<Engine>(`/engines/${engineId}/fork`, {
+    method: 'POST',
+  });
 }
 
 // ============================================
@@ -390,6 +404,29 @@ export async function reviewEngine(
   return apiRequest<{ success: boolean; message: string; visibility: string }>('/admin/review', {
     method: 'POST',
     body: JSON.stringify({ engineId, action, reason }),
+  });
+}
+
+/**
+ * Unpublish an engine (admin only)
+ */
+export async function unpublishEngine(engineId: string): Promise<ApiResponse<Engine>> {
+  return apiRequest<Engine>('/admin/unpublish', {
+    method: 'POST',
+    body: JSON.stringify({ engineId }),
+  });
+}
+
+/**
+ * Emergency cascade delete of engine and all forks (admin only)
+ */
+export async function cascadeDeleteEngine(
+  engineId: string,
+  confirmation: string
+): Promise<ApiResponse<{ success: boolean; deletedCount: number; engineName: string }>> {
+  return apiRequest<{ success: boolean; deletedCount: number; engineName: string }>('/admin/cascade-delete', {
+    method: 'DELETE',
+    body: JSON.stringify({ engineId, confirmation }),
   });
 }
 

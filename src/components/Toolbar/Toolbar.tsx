@@ -22,7 +22,7 @@ interface RollResult {
 interface ToolbarProps {
   currentEngine: EngineDefinition;
   setActiveHex: (hex: number) => void;
-  setRoll: (roll: RollResult | null) => void;
+  setRoll?: (roll: RollResult | null) => void;
   onAction: (action: ActionType, rollTotal: number) => void; // New prop for handling actions
 }
 
@@ -33,7 +33,7 @@ export function Toolbar({ currentEngine, setActiveHex, setRoll, onAction }: Tool
     try {
       const roller = new Roller(currentEngine.roll);
       const total = getTotalAsNumber(roller.result?.total);
-      setRoll({ type: ACTIONS.RUN, total });
+      setRoll?.({ type: ACTIONS.RUN, total });
       onAction(ACTIONS.RUN, total); // Notify parent about the action
     } catch (error) {
       console.error("Roll failed:", error);
@@ -44,7 +44,7 @@ export function Toolbar({ currentEngine, setActiveHex, setRoll, onAction }: Tool
     try {
       const roller = new Roller(RANDOM_HEX_ROLL);
       const total = getTotalAsNumber(roller.result?.total);
-      setRoll({ type: ACTIONS.RANDOM, total });
+      setRoll?.({ type: ACTIONS.RANDOM, total });
       onAction(ACTIONS.RANDOM, total); // Notify parent about the action
     } catch (error) {
       console.error("Random roll failed:", error);
@@ -53,7 +53,7 @@ export function Toolbar({ currentEngine, setActiveHex, setRoll, onAction }: Tool
 
   const restartEngine = () => {
     setActiveHex(currentEngine.start);
-    setRoll(null);
+    setRoll?.(null);
     onAction(ACTIONS.RANDOM, currentEngine.start); // Notify parent about the action
   };
 
