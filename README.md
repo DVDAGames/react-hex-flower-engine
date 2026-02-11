@@ -1,6 +1,6 @@
 # Project Hex
 
-![Project Hex Demo Video](./public/project-hex.gif)
+![Project Hex Demo Video](./project-hex.gif)
 
 Project Hex is an application for managing
 [Hex Flower Engines](https://goblinshenchman.wordpress.com/2018/10/25/2d6-hex-power-flower/)
