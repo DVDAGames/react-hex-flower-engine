@@ -11,6 +11,9 @@ interface AuthContextType {
     displayName?: string;
     avatarIcon?: string | null;
     defaultEngineId?: string | null;
+    acceptTerms?: boolean;
+    hexNewsletterOptIn?: boolean;
+    dvdaNewsletterOptIn?: boolean;
   }) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
 }
@@ -77,6 +80,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       displayName?: string;
       avatarIcon?: string | null;
       defaultEngineId?: string | null;
+      acceptTerms?: boolean;
+      hexNewsletterOptIn?: boolean;
+      dvdaNewsletterOptIn?: boolean;
     }): Promise<{ error: string | null }> => {
       const { data: updatedUser, error } = await updateProfile(data);
 
@@ -90,7 +96,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       return { error: null };
     },
-    []
+    [],
   );
 
   return (

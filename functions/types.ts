@@ -19,6 +19,8 @@ export interface User {
   isAdmin: boolean;
   createdAt: string;
   updatedAt: string;
+  acceptTerms: boolean;
+  hexNewsletterOptIn: boolean;
 }
 
 export interface Session {

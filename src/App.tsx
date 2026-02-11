@@ -3,12 +3,13 @@ import { Routes, Route, useSearchParams } from "react-router-dom";
 import { Container, Title, Text, Stack, Paper, Badge, List, Transition, Loader } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 
+import { TermsOfService } from "@/components/TermsOfService";
 import { Header } from "@/components/Header";
 import { PageLayout } from "@/components/PageLayout";
 import { Grid } from "@/components/Grid";
 import { Toolbar } from "@/components/Toolbar";
 import { HexEditor } from "@/components/Editor";
-import { AuthVerify } from "@/components/Auth";
+import { AuthVerify, ProfileModal } from "@/components/Auth";
 import { Garden } from "@/components/Garden";
 import { SharedEngine } from "@/components/SharedEngine";
 import { AdminReview, AdminPreview } from "@/components/Admin";
@@ -242,7 +243,7 @@ function HexFlowerRunner() {
 
       return null;
     },
-    [engineId]
+    [engineId],
   );
 
   // Save engine state to the database
@@ -366,7 +367,28 @@ function EditorPage() {
   );
 }
 
+export function UserProfileTerms() {
+  return (
+    <Container size="sm" py="xl">
+      <Stack align="center" gap="md">
+        <ProfileModal title="Create Your Account" opened={true} onClose={() => {}} centered withCloseButton={false} />
+      </Stack>
+    </Container>
+  );
+}
+
 export function App() {
+  const { user, isAuthenticated } = useAuth();
+
+  if (isAuthenticated && !user?.acceptTerms) {
+    return (
+      <Routes>
+        <Route path="/terms" element={<TermsOfService />} />
+        <Route path="*" element={<UserProfileTerms />} />
+      </Routes>
+    );
+  }
+
   return (
     <>
       <Header />
@@ -380,6 +402,7 @@ export function App() {
         <Route path="/shared/:token" element={<SharedEngine />} />
         <Route path="/admin/review" element={<AdminReview />} />
         <Route path="/admin/review/:engineId" element={<AdminPreview />} />
+        <Route path="/terms" element={<TermsOfService />} />
       </Routes>
     </>
   );

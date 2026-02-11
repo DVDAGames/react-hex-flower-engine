@@ -2,8 +2,10 @@
   "name": "react-hex-flower-engine",
   "version": "1.0.0",
   "private": true,
+  "license": "GPL-3.0-or-later",
   "type": "module",
-  "homepage": "https://dvdagames.github.io/react-hex-flower-engine",
+  "homepage": "https://hex.dvdagames.com/",
+  "description": "Hex is a platform for creating and sharing procedural content generators built on the Hex Flower Engine framework. It allows users to create their own custom generators using a visual editor and share them with the community.",
   "scripts": {
     "build": "tsc && vite build",
     "db:migrate": "npx wrangler d1 migrations apply hex-flower-engine-db",
@@ -19,6 +21,7 @@
   "dependencies": {
     "@dvdagames/js-die-roller": "^3.1.0",
     "@lucide/lab": "^0.1.2",
+    "@mailerlite/mailerlite-nodejs": "^1.5.0",
     "@mantine/core": "^7.15.0",
     "@mantine/form": "^7.15.0",
     "@mantine/hooks": "^7.15.0",
@@ -44,7 +47,7 @@
     "typescript": "^5.7.2",
     "vite": "^6.0.3",
     "vite-plugin-pwa": "^0.21.1",
-    "wrangler": "^3.99.0"
+    "wrangler": "^4.64.0"
   },
   "engines": {
     "node": ">=24.0.0"

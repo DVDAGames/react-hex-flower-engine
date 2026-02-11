@@ -12,6 +12,8 @@ import {
   Select,
   Loader,
   Badge,
+  Checkbox,
+  Switch,
 } from "@mantine/core";
 import { User } from "lucide-react";
 import { useAuth } from "@/contexts";
@@ -21,16 +23,19 @@ import { IconPickerModal } from "@/components/Editor/IconPickerModal";
 import type { EngineDefinition } from "@/types/engine";
 import classes from "./ProfileModal.module.css";
 
-interface ProfileModalProps {
+interface ProfileModalProps extends React.ComponentPropsWithoutRef<typeof Modal> {
   opened: boolean;
   onClose: () => void;
 }
 
-export function ProfileModal({ opened, onClose }: ProfileModalProps) {
+export function ProfileModal({ opened, onClose, ...modalProps }: ProfileModalProps) {
   const { user, updateUser } = useAuth();
   const [displayName, setDisplayName] = useState("");
   const [selectedIcon, setSelectedIcon] = useState<string | null>(null);
   const [defaultEngineId, setDefaultEngineId] = useState<string | null>(null);
+  const [acceptTerms, setAcceptTerms] = useState<boolean | undefined>(false);
+  const [hexNewsletterOptIn, setHexNewsletterOptIn] = useState<boolean | undefined>(false);
+  const [dvdaNewsletterOptIn, setDvdaNewsletterOptIn] = useState<boolean | undefined>(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -45,18 +50,25 @@ export function ProfileModal({ opened, onClose }: ProfileModalProps) {
   // Initialize form when modal opens
   useEffect(() => {
     if (opened && user) {
+      console.log("Initializing profile modal with user data:", user);
       setDisplayName(user.displayName || "");
       setSelectedIcon(user.avatarUrl || null);
       setDefaultEngineId(user.defaultEngineId || null);
+      setAcceptTerms(user.acceptTerms);
+      setHexNewsletterOptIn(user.hexNewsletterOptIn);
+      setDvdaNewsletterOptIn(user.dvdaNewsletterOptIn);
+
       setError(null);
       setSuccess(false);
 
       // Load user's engines
       setEnginesLoading(true);
+
       getMyEngines().then(({ data, error: apiError }) => {
         if (data && !apiError) {
           setEngines(data);
         }
+
         setEnginesLoading(false);
       });
     }
@@ -71,9 +83,13 @@ export function ProfileModal({ opened, onClose }: ProfileModalProps) {
       displayName: displayName.trim(),
       avatarIcon: selectedIcon,
       defaultEngineId: defaultEngineId,
+      acceptTerms: acceptTerms,
+      hexNewsletterOptIn: hexNewsletterOptIn,
+      dvdaNewsletterOptIn: dvdaNewsletterOptIn,
     });
 
     if (updateError) {
+      console.log(updateError);
       setError(updateError);
     } else {
       setSuccess(true);
@@ -101,7 +117,7 @@ export function ProfileModal({ opened, onClose }: ProfileModalProps) {
 
   return (
     <>
-      <Modal opened={opened} onClose={onClose} title="Edit Profile" size="md">
+      <Modal mt="md" opened={opened} onClose={onClose} title="Edit Profile" size="md" {...modalProps}>
         <Stack gap="lg">
           {error && (
             <Alert color="red" variant="light">
@@ -203,11 +219,44 @@ export function ProfileModal({ opened, onClose }: ProfileModalProps) {
             )}
           </Stack>
 
+          <Stack gap="xs">
+            <Switch
+              label="Subscribe to Hex newsletter"
+              checked={hexNewsletterOptIn}
+              onChange={(e) => setHexNewsletterOptIn(e.currentTarget.checked)}
+            />
+            <Switch
+              label="Subscribe to DVDA Games newsletter"
+              checked={dvdaNewsletterOptIn}
+              onChange={(e) => setDvdaNewsletterOptIn(e.currentTarget.checked)}
+            />
+            <Text size="xs" c="dimmed">
+              You can opt-out at any time.
+            </Text>
+          </Stack>
+
+          {!user?.acceptTerms ? (
+            <Checkbox
+              label={
+                <>
+                  I accept the{" "}
+                  <a href="/terms" target="_blank" rel="noopener noreferrer">
+                    terms of service
+                  </a>
+                </>
+              }
+              checked={acceptTerms}
+              onChange={(e) => setAcceptTerms(e.currentTarget.checked)}
+            />
+          ) : null}
+
           {/* Actions */}
           <Group justify="flex-end" gap="sm">
-            <Button variant="subtle" onClick={onClose} disabled={isLoading}>
-              Cancel
-            </Button>
+            {modalProps.withCloseButton ? (
+              <Button variant="subtle" onClick={onClose} disabled={isLoading}>
+                Cancel
+              </Button>
+            ) : null}
             <Button onClick={handleSave} loading={isLoading}>
               Save Changes
             </Button>

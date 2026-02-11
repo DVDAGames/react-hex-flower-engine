@@ -6,6 +6,8 @@ Hex is an application for managing
 [Hex Flower Engines](https://goblinshenchman.wordpress.com/2018/10/25/2d6-hex-power-flower/)
 for any tabletop game in the browser.
 
+**Disclaimer**: The [Hex Flower Engine](https://goblinshenchman.wordpress.com/hex-power-flower/) implementation that Hex uses was orignally described by [Goblin's Henchman](https://goblinshenchman.wordpress.com). Dead Villager Dead Adventurer Games and the Hex project take no credit for the Hex Flower Engine system and are not affiliated with Goblin's Henchman, but we are grateful for the work they put into designing the system and sharing it with the world. Consider supporting Goblin's Henchman's work by purchasing their products on DriveThruRPG: [https://www.drivethrurpg.com/en/publisher/9524/Goblin039s-Henchmanaffiliate_id%3D774882](https://www.drivethrurpg.com/en/publisher/9524/Goblin039s-Henchmanaffiliate_id%3D774882).
+
 ## Create and Share Hex Flower Engines
 
 In the Hex application, you can create your own Hex Flower Engines, share them with your players, and even publish them to the Garden, where other users can find them and use them in their own games.

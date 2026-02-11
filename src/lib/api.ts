@@ -122,6 +122,11 @@ export interface AuthUser {
   avatarUrl: string | null;
   isAdmin: boolean;
   defaultEngineId: string | null;
+  createdAt: string;
+  updatedAt: string;
+  acceptTerms: boolean;
+  hexNewsletterOptIn: boolean;
+  dvdaNewsletterOptIn: boolean;
 }
 
 export interface LoginResponse {
@@ -176,7 +181,11 @@ export async function updateProfile(data: {
   displayName?: string; 
   avatarIcon?: string | null;
   defaultEngineId?: string | null;
+  acceptTerms?: boolean;
+  hexNewsletterOptIn?: boolean;
+  dvdaNewsletterOptIn?: boolean;
 }): Promise<ApiResponse<AuthUser>> {
+  console.log("Updating profile with data:", data);
   return apiRequest<AuthUser>('/auth/profile', {
     method: 'PATCH',
     body: JSON.stringify(data),
