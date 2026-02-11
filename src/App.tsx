@@ -436,7 +436,7 @@ export function App() {
           }
         />
         <Route
-          path="/gallery"
+          path="/garden"
           element={
             <RequireTerms>
               <Garden />
