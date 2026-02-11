@@ -2,6 +2,10 @@
 -- This script creates the system user and inserts the three default engines
 -- It uses INSERT OR IGNORE to be idempotent (safe to run multiple times)
 
+-- Enable foreign keys and start transaction
+PRAGMA defer_foreign_keys=ON;
+PRAGMA foreign_keys=OFF;
+
 -- Create system user (if not exists)
 INSERT OR IGNORE INTO profiles (
   id,
@@ -93,3 +97,6 @@ INSERT OR IGNORE INTO engines (
   datetime('now'),
   datetime('now')
 );
+
+PRAGMA foreign_keys=ON;
+PRAGMA defer_foreign_keys=OFF;

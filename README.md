@@ -1,4 +1,4 @@
-# Hex v2
+# Project Hex
 
 ![Hex v2](./public/hex-v2.png)
 

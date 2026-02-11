@@ -22,7 +22,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
   return json(engines.results.map(e => ({
     id: e.id,
     ownerId: e.owner_id,
-    ownerName: e.is_system_default ? 'Hex Project' : e.owner_name,
+    ownerName: e.is_system_default ? 'Project Hex' : e.owner_name,
     ownerIcon: e.owner_icon,
     definition: JSON.parse(e.definition as string),
     version: e.version,
