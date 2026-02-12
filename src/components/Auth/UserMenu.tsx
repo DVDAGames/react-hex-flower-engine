@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Menu, Avatar, Text, Group, UnstyledButton, ActionIcon, Tooltip } from "@mantine/core";
 import { Link } from "react-router-dom";
 import { useMantineColorScheme } from "@mantine/core";
-import { User, LogOut, Shield, LogIn, Sun, Moon, Computer } from "lucide-react";
+import { User, LogOut, Shield, LogIn, Sun, Moon, Computer, BookA, Book } from "lucide-react";
 import { useAuth } from "@/contexts";
 import { LoginModal } from "./LoginModal";
 import { ProfileModal } from "./ProfileModal";
@@ -30,6 +30,19 @@ export function UserMenu() {
   if (!isAuthenticated) {
     return (
       <>
+        <Tooltip label="Hex Flower Cookbook">
+          <ActionIcon
+            variant="subtle"
+            size="lg"
+            component="a"
+            href="https://www.drivethrurpg.com/en/product/295083/hex-flower-cookbook-an-overview-and-some-thoughts-on-hex-flower-game-engines-by-goblin-s-henchman?affiliate_id=774882"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Hex Flower Cookbook"
+          >
+            <Book size={18} />
+          </ActionIcon>
+        </Tooltip>
         <Tooltip label="Sign in">
           <ActionIcon variant="subtle" size="lg" onClick={() => setLoginModalOpen(true)} aria-label="Sign in">
             <LogIn size={18} />
@@ -89,6 +102,16 @@ export function UserMenu() {
             onClick={toggleColorScheme}
           >
             {colorScheme === "auto" ? "System color" : colorScheme === "dark" ? "Light mode" : "Dark mode"}
+          </Menu.Item>
+
+          <Menu.Divider />
+
+          <Menu.Item
+            leftSection={<Book size={16} />}
+            component="a"
+            href="https://www.drivethrurpg.com/en/product/295083/hex-flower-cookbook-an-overview-and-some-thoughts-on-hex-flower-game-engines-by-goblin-s-henchman?affiliate_id=774882"
+          >
+            Hex Flower Cookbook
           </Menu.Item>
 
           <Menu.Divider />

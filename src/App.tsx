@@ -21,6 +21,7 @@ import { getEngine, saveEngineState, retrieveEngineState } from "@/lib/api";
 import { setCurrentEngineId, getEngineState, setEngineState, setupSyncListeners, isOnline } from "@/services";
 
 import classes from "./App.module.css";
+import { About } from "./components/About";
 
 interface RollResult {
   type: ActionType;
@@ -463,6 +464,7 @@ export function App() {
         />
         <Route path="/terms" element={<TermsOfService />} />
         <Route path="/profile-setup" element={<UserProfileTerms />} />
+        <Route path="/about" element={<About />} />
       </Routes>
     </>
   );

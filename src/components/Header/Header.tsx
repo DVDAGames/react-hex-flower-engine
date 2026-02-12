@@ -43,7 +43,9 @@ export function Header() {
             <Anchor component={Link} to="/garden" className={classes.navLink} underline="never">
               Garden
             </Anchor>
-            {/* Standard engine is available from My Engines modal */}
+            <Anchor component={Link} to="/about" className={classes.navLink} underline="never">
+              About
+            </Anchor>
           </Group>
         </nav>
       </Group>

@@ -18,6 +18,7 @@
   align-items: center;
   gap: var(--mantine-spacing-xs);
   color: var(--mantine-color-text);
+  background-color: transparent;
   transition: opacity 150ms ease;
 }
 
@@ -29,7 +30,6 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  color: var(--mantine-color-dimmed);
   padding: var(--mantine-spacing-xs) var(--mantine-spacing-sm);
   border-radius: var(--mantine-radius-sm);
   transition:
