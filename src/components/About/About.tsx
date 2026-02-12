@@ -1,5 +1,4 @@
 import { Container, Image, Text, Title } from "@mantine/core";
-import { Footer } from "../Footer";
 import { PageLayout } from "../PageLayout";
 
 export function About() {

@@ -46,6 +46,7 @@ export function UserManagement() {
               <Table.Th>Display Name</Table.Th>
               <Table.Th>Email</Table.Th>
               <Table.Th>Role</Table.Th>
+              <Table.Th>Joined</Table.Th>
               <Table.Th>Accepted Terms</Table.Th>
             </Table.Tr>
           </Table.Thead>
@@ -54,15 +55,16 @@ export function UserManagement() {
               <Table.Tr key={u.id}>
                 <Table.Td>
                   <Group>
-                    {u.avatar_url ? <HexIcon icon={u.avatar_url} size={24} /> : <User size={24} />}
-                    {u.display_name || "N/A"}
+                    {u.avatarUrl ? <HexIcon icon={u.avatarUrl} size={24} /> : <User size={24} />}
+                    {u.displayName || "N/A"}
                   </Group>
                 </Table.Td>
                 <Table.Td>{u.email}</Table.Td>
                 <Table.Td>
-                  <Group>{u.is_admin ? <ShieldCheck size={24} /> : <User size={24} />}</Group>
+                  <Group>{u.isAdmin ? <ShieldCheck size={24} /> : <User size={24} />}</Group>
                 </Table.Td>
-                <Table.Td>{u?.accept_terms ? <Check /> : <></>}</Table.Td>
+                <Table.Td>{u.createdAt}</Table.Td>
+                <Table.Td>{u?.acceptTerms ? <Check /> : <></>}</Table.Td>
               </Table.Tr>
             ))}
           </Table.Tbody>

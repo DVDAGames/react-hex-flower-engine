@@ -40,7 +40,28 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
       ORDER BY created_at DESC
     `).all();
 
-    return json({ users: users.results });
+    return json({
+      users: users.results.map(
+        (
+          {
+            id, 
+            email,
+            avatar_url: avatarUrl,
+            display_name: displayName,
+            is_admin: isAdmin,
+            created_at: createdAt,
+            accept_terms: acceptTerms 
+          }) => ({
+            id,
+            email,
+            avatarUrl,
+            displayName,
+            isAdmin,
+            createdAt,
+            acceptTerms
+          })
+      ) 
+    });
   } catch (error) {
     console.error('Error fetching users:', error);
     return errorResponse('Internal Server Error', 500);
