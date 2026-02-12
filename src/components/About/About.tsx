@@ -1,11 +1,10 @@
-import { Container, Image, Text, Title } from "@mantine/core";
+import { Container, Text, Title } from "@mantine/core";
 import { PageLayout } from "../PageLayout";
 
 export function About() {
   return (
     <PageLayout>
       <Container size="md" py="xl" mt="2xl">
-        <Image src="/public/project-hex-dm.jpg" alt="Project Hex Dungeon Master" width="100%" height="auto" />
         <Title order={1}>About Project Hex</Title>
         <Text size="lg" mt="md">
           Project Hex is a tool for creating and sharing{" "}
