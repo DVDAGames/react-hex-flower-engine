@@ -176,6 +176,17 @@ export async function getCurrentUser(): Promise<ApiResponse<AuthUser>> {
 }
 
 /**
+ * Check if display name is available
+ */
+export async function checkDisplayNameAvailability(
+  displayName: string
+): Promise<ApiResponse<{ available: boolean; message: string }>> {
+  return apiRequest<{ available: boolean; message: string }>(
+    `/auth/check-display-name?name=${encodeURIComponent(displayName)}`
+  );
+}
+
+/**
  * Update user profile
  */
 export async function updateProfile(data: {
@@ -187,7 +198,6 @@ export async function updateProfile(data: {
   hexNewsletterOptIn?: boolean;
   dvdaNewsletterOptIn?: boolean;
 }): Promise<ApiResponse<AuthUser>> {
-  console.log("Updating profile with data:", data);
   return apiRequest<AuthUser>('/auth/profile', {
     method: 'PATCH',
     body: JSON.stringify(data),
@@ -428,6 +438,10 @@ export async function cascadeDeleteEngine(
     method: 'DELETE',
     body: JSON.stringify({ engineId, confirmation }),
   });
+}
+
+export async function getAllUsers(): Promise<ApiResponse<{ users: Omit<AuthUser, 'dvda_newsletter_opt_in' | 'hex_newsletter_opt_in' | 'default_engine_id' | 'default_editor_engine_id'>[] }>> {
+  return apiRequest<{ users: Omit<AuthUser, 'dvda_newsletter_opt_in' | 'hex_newsletter_opt_in' | 'default_engine_id' | 'default_editor_engine_id'>[] }>('/admin/users');
 }
 
 // ============================================

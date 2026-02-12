@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Menu, Avatar, Text, Group, UnstyledButton, ActionIcon, Tooltip } from "@mantine/core";
 import { Link } from "react-router-dom";
 import { useMantineColorScheme } from "@mantine/core";
-import { User, LogOut, Shield, LogIn, Sun, Moon, Computer, BookA, Book } from "lucide-react";
+import { User, LogOut, Shield, LogIn, Sun, Moon, Computer, Book, UserPen } from "lucide-react";
 import { useAuth } from "@/contexts";
 import { LoginModal } from "./LoginModal";
 import { ProfileModal } from "./ProfileModal";
@@ -91,6 +91,9 @@ export function UserMenu() {
               <Menu.Item leftSection={<Shield size={16} />} component={Link} to="/admin/review">
                 Review submissions
               </Menu.Item>
+              <Menu.Item leftSection={<UserPen size={16} />} component={Link} to="/admin/users">
+                User management
+              </Menu.Item>
               <Menu.Divider />
             </>
           )}
@@ -110,8 +113,10 @@ export function UserMenu() {
             leftSection={<Book size={16} />}
             component="a"
             href="https://www.drivethrurpg.com/en/product/295083/hex-flower-cookbook-an-overview-and-some-thoughts-on-hex-flower-game-engines-by-goblin-s-henchman?affiliate_id=774882"
+            target="_blank"
+            rel="noopener noreferrer"
           >
-            Hex Flower Cookbook
+            Hex Flowers
           </Menu.Item>
 
           <Menu.Divider />

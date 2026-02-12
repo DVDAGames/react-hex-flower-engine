@@ -62,6 +62,19 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
     if (displayName.length > 50) {
       return errorResponse('Display name must be 50 characters or less', 400);
     }
+
+    // Check for uniqueness (case-insensitive)
+    if (displayName.trim()) {
+      const existingUser = await env.DB.prepare(`
+        SELECT id FROM profiles
+        WHERE display_name = ? COLLATE NOCASE
+        AND id != ?
+      `).bind(displayName.trim(), session.userId).first();
+
+      if (existingUser) {
+        return errorResponse('This display name is already taken', 400);
+      }
+    }
   }
   
   // Validate avatar icon - now accepts any string (Lucide icon name)

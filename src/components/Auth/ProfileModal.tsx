@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Modal,
   Stack,
@@ -15,12 +15,13 @@ import {
   Checkbox,
   Switch,
 } from "@mantine/core";
-import { User } from "lucide-react";
+import { User, Check, X } from "lucide-react";
 import { useAuth } from "@/contexts";
-import { getMyEngines, type Engine } from "@/lib/api";
+import { getMyEngines, checkDisplayNameAvailability, type Engine } from "@/lib/api";
 import { HexIcon } from "@/components/HexIcon";
 import { IconPickerModal } from "@/components/Editor/IconPickerModal";
 import type { EngineDefinition } from "@/types/engine";
+import { useDebouncedCallback } from "@mantine/hooks";
 import classes from "./ProfileModal.module.css";
 
 interface ProfileModalProps extends React.ComponentPropsWithoutRef<typeof Modal> {
@@ -41,12 +42,53 @@ export function ProfileModal({ opened, onClose, ...modalProps }: ProfileModalPro
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
+  // Display name availability checking
+  const [displayNameChecking, setDisplayNameChecking] = useState(false);
+  const [displayNameAvailable, setDisplayNameAvailable] = useState<boolean | null>(null);
+  const [displayNameMessage, setDisplayNameMessage] = useState<string>("");
+
   // Icon picker modal
   const [iconPickerOpen, setIconPickerOpen] = useState(false);
 
   // User's engines for default engine selection
   const [engines, setEngines] = useState<Engine[]>([]);
   const [enginesLoading, setEnginesLoading] = useState(false);
+
+  // Debounced display name availability check
+  const checkDisplayName = useDebouncedCallback(async (name: string) => {
+    if (!name || name.trim().length === 0) {
+      setDisplayNameAvailable(null);
+      setDisplayNameMessage("");
+      return;
+    }
+
+    // Don't check if it's the same as current display name
+    if (name.trim() === user?.displayName) {
+      setDisplayNameAvailable(true);
+      setDisplayNameMessage("");
+      return;
+    }
+
+    setDisplayNameChecking(true);
+    const { data, error } = await checkDisplayNameAvailability(name.trim());
+    setDisplayNameChecking(false);
+
+    if (error) {
+      setDisplayNameAvailable(null);
+      setDisplayNameMessage("Could not check availability");
+    } else if (data) {
+      setDisplayNameAvailable(data.available);
+      setDisplayNameMessage(data.message);
+    }
+  }, 500);
+
+  // Handle display name change
+  const handleDisplayNameChange = useCallback((value: string) => {
+    setDisplayName(value);
+    setDisplayNameAvailable(null);
+    setDisplayNameMessage("");
+    checkDisplayName(value);
+  }, [checkDisplayName]);
 
   // Initialize form when modal opens
   useEffect(() => {
@@ -62,6 +104,11 @@ export function ProfileModal({ opened, onClose, ...modalProps }: ProfileModalPro
       setError(null);
       setSuccess(false);
 
+      // Reset display name validation
+      setDisplayNameAvailable(null);
+      setDisplayNameMessage("");
+      setDisplayNameChecking(false);
+
       // Load user's engines
       setEnginesLoading(true);
 
@@ -76,6 +123,12 @@ export function ProfileModal({ opened, onClose, ...modalProps }: ProfileModalPro
   }, [opened, user]);
 
   const handleSave = async () => {
+    // Check if display name is available before saving
+    if (displayNameAvailable === false) {
+      setError("Please choose a different display name");
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
     setSuccess(false);
@@ -91,7 +144,6 @@ export function ProfileModal({ opened, onClose, ...modalProps }: ProfileModalPro
     });
 
     if (updateError) {
-      console.log(updateError);
       setError(updateError);
     } else {
       setSuccess(true);
@@ -158,11 +210,21 @@ export function ProfileModal({ opened, onClose, ...modalProps }: ProfileModalPro
           {/* Display Name */}
           <TextInput
             label="Display Name"
-            description="This is how you'll appear to others"
+            description="This is how you'll appear to others (must be unique)"
             placeholder={user?.email?.split("@")[0] || "Enter a display name"}
             value={displayName}
-            onChange={(e) => setDisplayName(e.currentTarget.value)}
+            onChange={(e) => handleDisplayNameChange(e.currentTarget.value)}
             maxLength={50}
+            rightSection={
+              displayNameChecking ? (
+                <Loader size="xs" />
+              ) : displayNameAvailable === true && displayName.trim() !== user?.displayName ? (
+                <Check size={16} color="var(--mantine-color-green-6)" />
+              ) : displayNameAvailable === false ? (
+                <X size={16} color="var(--mantine-color-red-6)" />
+              ) : null
+            }
+            error={displayNameAvailable === false ? displayNameMessage : undefined}
           />
 
           {/* Avatar Icon */}
@@ -290,7 +352,11 @@ export function ProfileModal({ opened, onClose, ...modalProps }: ProfileModalPro
                 Cancel
               </Button>
             ) : null}
-            <Button onClick={handleSave} loading={isLoading}>
+            <Button
+              onClick={handleSave}
+              loading={isLoading}
+              disabled={displayNameAvailable === false || displayNameChecking}
+            >
               Save Changes
             </Button>
           </Group>

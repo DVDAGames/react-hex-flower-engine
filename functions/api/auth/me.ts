@@ -23,8 +23,6 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
     return errorResponse('User not found', 404);
   }
 
-  console.log("Fetched user profile:", user);
-
   return json({
     id: user.id,
     email: user.email,

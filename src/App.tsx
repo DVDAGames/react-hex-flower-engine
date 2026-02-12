@@ -22,6 +22,7 @@ import { setCurrentEngineId, getEngineState, setEngineState, setupSyncListeners,
 
 import classes from "./App.module.css";
 import { About } from "./components/About";
+import { UserManagement } from "./components/UserManagement";
 
 interface RollResult {
   type: ActionType;
@@ -371,14 +372,57 @@ function RequireTerms({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+// Route guard component that requires admin access
+function RequireAdmin({ children }: { children: React.ReactNode }) {
+  const { user, isAuthenticated, isLoading } = useAuth();
+  const navigate = useNavigate();
+  const notificationShownRef = useRef(false);
+
+  useEffect(() => {
+    // Wait for auth to finish loading
+    if (isLoading) return;
+
+    // Only show notification and redirect once
+    if (notificationShownRef.current) return;
+
+    // Redirect non-authenticated users to home
+    if (!isAuthenticated) {
+      notificationShownRef.current = true;
+      notifications.show({
+        title: "Access Denied",
+        message: "You must be logged in to access this page",
+        color: "red",
+      });
+      navigate("/", { replace: true });
+      return;
+    }
+
+    // Redirect non-admin users to home
+    if (!user?.isAdmin) {
+      notificationShownRef.current = true;
+      notifications.show({
+        title: "Access Denied",
+        message: "You must be an admin to access this page",
+        color: "red",
+      });
+      navigate("/", { replace: true });
+    }
+  }, [isAuthenticated, user?.isAdmin, isLoading, navigate]);
+
+  // Show nothing while loading or if not authorized
+  if (isLoading || !isAuthenticated || !user?.isAdmin) {
+    return null;
+  }
+
+  return <>{children}</>;
+}
+
 export function UserProfileTerms() {
   const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const navigate = useNavigate();
 
   // When user accepts terms, redirect to home
   useEffect(() => {
-    console.log("user?.acceptTerms:", user?.acceptTerms, "isAuthenticated:", isAuthenticated, "isAuthLoading:", isAuthLoading);
-
     if ((isAuthenticated && user?.acceptTerms) || (!isAuthenticated && !isAuthLoading)) {
       navigate("/", { replace: true });
     }
@@ -450,7 +494,9 @@ export function App() {
           path="/admin/review"
           element={
             <RequireTerms>
-              <AdminReview />
+              <RequireAdmin>
+                <AdminReview />
+              </RequireAdmin>
             </RequireTerms>
           }
         />
@@ -458,7 +504,19 @@ export function App() {
           path="/admin/review/:engineId"
           element={
             <RequireTerms>
-              <AdminPreview />
+              <RequireAdmin>
+                <AdminPreview />
+              </RequireAdmin>
+            </RequireTerms>
+          }
+        />
+        <Route
+          path="/admin/users"
+          element={
+            <RequireTerms>
+              <RequireAdmin>
+                <UserManagement />
+              </RequireAdmin>
             </RequireTerms>
           }
         />

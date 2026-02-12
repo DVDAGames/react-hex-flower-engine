@@ -17,8 +17,6 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
   const url = new URL(request.url);
   const includeSystem = url.searchParams.get('includeSystem') === 'true';
 
-  console.log(`Fetching engines for user ${session.userId}, includeSystem=${includeSystem}`); // Debug log
-
   const engines = await env.DB.prepare(`
     SELECT id, owner_id, definition, version, visibility, use_count, 
            forked_from, created_at, updated_at, published_at, is_system_default
