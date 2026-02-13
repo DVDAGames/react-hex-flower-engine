@@ -1,5 +1,5 @@
 import { useCallback, useState, useEffect } from "react";
-import { AppShell, Group, ActionIcon, Tooltip, Badge, Divider, Text, Tabs, Stack, Paper, Box } from "@mantine/core";
+import { AppShell, Group, ActionIcon, Tooltip, Badge, Divider, Text, Tabs, Stack, Paper } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import {
   Undo2,
@@ -8,7 +8,6 @@ import {
   Download,
   Upload,
   FilePlus,
-  PanelLeft,
   Play,
   Eye,
   Cloud,
