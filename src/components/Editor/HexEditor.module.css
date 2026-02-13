@@ -7,6 +7,13 @@
   top: 56px !important; /* Position below global navbar */
   background: var(--mantine-color-body);
   border-bottom: 1px solid var(--mantine-color-default-border);
+  height: auto;
+}
+
+@media (min-width: 769px) {
+  .header {
+    height: var(--app-shell-header-height);
+  }
 }
 
 .panel {

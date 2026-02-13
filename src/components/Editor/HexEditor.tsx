@@ -171,118 +171,182 @@ export function HexEditor({ engineId }: { engineId?: string }) {
       padding="md"
     >
       <AppShell.Header className={classes.header}>
-        <Group h="100%" px="md" justify="space-between">
-          {/* Left: File operations */}
-          <Group gap="xs">
-            <Tooltip label="New Engine">
-              <ActionIcon variant="subtle" onClick={handleNew}>
-                <FilePlus size={18} />
-              </ActionIcon>
-            </Tooltip>
-            <Tooltip label="My Engines">
-              <ActionIcon variant="subtle" onClick={() => setMyEnginesOpen(true)}>
-                <FolderOpen size={18} />
-              </ActionIcon>
-            </Tooltip>
-            <Tooltip label="Import JSON">
-              <ActionIcon variant="subtle" onClick={handleImport}>
-                <Upload size={18} />
-              </ActionIcon>
-            </Tooltip>
-            <Tooltip label="Export JSON">
-              <ActionIcon variant="subtle" onClick={handleExport}>
-                <Download size={18} />
-              </ActionIcon>
-            </Tooltip>
+        {isMobile ? (
+          // Mobile layout: Stack with two rows
+          <Stack gap="xs" px="md" py="xs">
+            {/* Row 1: File operations */}
+            <Group gap="xs" wrap="nowrap" style={{ overflowX: "auto" }}>
+              <Tooltip label="New Engine">
+                <ActionIcon variant="subtle" onClick={handleNew}>
+                  <FilePlus size={18} />
+                </ActionIcon>
+              </Tooltip>
+              <Tooltip label="My Engines">
+                <ActionIcon variant="subtle" onClick={() => setMyEnginesOpen(true)}>
+                  <FolderOpen size={18} />
+                </ActionIcon>
+              </Tooltip>
+              <Tooltip label="Import JSON">
+                <ActionIcon variant="subtle" onClick={handleImport}>
+                  <Upload size={18} />
+                </ActionIcon>
+              </Tooltip>
+              <Tooltip label="Export JSON">
+                <ActionIcon variant="subtle" onClick={handleExport}>
+                  <Download size={18} />
+                </ActionIcon>
+              </Tooltip>
 
-            <Divider orientation="vertical" mx="xs" />
+              <Divider orientation="vertical" mx="xs" />
 
-            <Tooltip label="Save Draft (Local)">
-              <ActionIcon
-                variant={draft.isDirty ? "filled" : "subtle"}
-                color={draft.isDirty ? "blue" : undefined}
-                onClick={handleSave}
-              >
-                <Save size={18} />
-              </ActionIcon>
-            </Tooltip>
-            <Tooltip label={isAuthenticated ? "Save to Cloud" : "Sign in to save to cloud"}>
-              <ActionIcon
-                variant={cloudEngineId ? "subtle" : "light"}
-                color="violet"
-                onClick={() => setSaveModalOpen(true)}
-                disabled={!isAuthenticated}
-              >
-                <Cloud size={18} />
-              </ActionIcon>
-            </Tooltip>
+              <Tooltip label="Save Draft (Local)">
+                <ActionIcon
+                  variant={draft.isDirty ? "filled" : "subtle"}
+                  color={draft.isDirty ? "blue" : undefined}
+                  onClick={handleSave}
+                >
+                  <Save size={18} />
+                </ActionIcon>
+              </Tooltip>
+              <Tooltip label={isAuthenticated ? "Save to Cloud" : "Sign in to save to cloud"}>
+                <ActionIcon
+                  variant={cloudEngineId ? "subtle" : "light"}
+                  color="violet"
+                  onClick={() => setSaveModalOpen(true)}
+                  disabled={!isAuthenticated}
+                >
+                  <Cloud size={18} />
+                </ActionIcon>
+              </Tooltip>
 
-            <Divider orientation="vertical" mx="xs" />
+              <Divider orientation="vertical" mx="xs" />
 
-            <Tooltip label="Undo">
-              <ActionIcon variant="subtle" onClick={actions.undo} disabled={!actions.canUndo()}>
-                <Undo2 size={18} />
-              </ActionIcon>
-            </Tooltip>
-            <Tooltip label="Redo">
-              <ActionIcon variant="subtle" onClick={actions.redo} disabled={!actions.canRedo()}>
-                <Redo2 size={18} />
-              </ActionIcon>
-            </Tooltip>
+              <Tooltip label="Undo">
+                <ActionIcon variant="subtle" onClick={actions.undo} disabled={!actions.canUndo()}>
+                  <Undo2 size={18} />
+                </ActionIcon>
+              </Tooltip>
+              <Tooltip label="Redo">
+                <ActionIcon variant="subtle" onClick={actions.redo} disabled={!actions.canRedo()}>
+                  <Redo2 size={18} />
+                </ActionIcon>
+              </Tooltip>
+            </Group>
+
+            {/* Row 2: Engine name and mode toggle */}
+            <Group gap="xs" justify="space-between">
+              <Group gap="xs">
+                <Text fw={600} size="lg">
+                  {draft.name}
+                </Text>
+                {draft.isDirty && (
+                  <Badge size="xs" color="yellow">
+                    Unsaved
+                  </Badge>
+                )}
+              </Group>
+
+              <Tooltip label={mode === "preview" ? "Edit Mode" : "Preview Mode"}>
+                <ActionIcon
+                  variant={mode === "preview" ? "filled" : "subtle"}
+                  color={mode === "preview" ? "green" : undefined}
+                  onClick={() => actions.setMode(mode === "preview" ? "select" : "preview")}
+                >
+                  {mode === "preview" ? <Eye size={18} /> : <Play size={18} />}
+                </ActionIcon>
+              </Tooltip>
+            </Group>
+          </Stack>
+        ) : (
+          // Desktop layout: Single row with space-between
+          <Group h="100%" px="md" justify="space-between">
+            {/* Left: File operations */}
+            <Group gap="xs">
+              <Tooltip label="New Engine">
+                <ActionIcon variant="subtle" onClick={handleNew}>
+                  <FilePlus size={18} />
+                </ActionIcon>
+              </Tooltip>
+              <Tooltip label="My Engines">
+                <ActionIcon variant="subtle" onClick={() => setMyEnginesOpen(true)}>
+                  <FolderOpen size={18} />
+                </ActionIcon>
+              </Tooltip>
+              <Tooltip label="Import JSON">
+                <ActionIcon variant="subtle" onClick={handleImport}>
+                  <Upload size={18} />
+                </ActionIcon>
+              </Tooltip>
+              <Tooltip label="Export JSON">
+                <ActionIcon variant="subtle" onClick={handleExport}>
+                  <Download size={18} />
+                </ActionIcon>
+              </Tooltip>
+
+              <Divider orientation="vertical" mx="xs" />
+
+              <Tooltip label="Save Draft (Local)">
+                <ActionIcon
+                  variant={draft.isDirty ? "filled" : "subtle"}
+                  color={draft.isDirty ? "blue" : undefined}
+                  onClick={handleSave}
+                >
+                  <Save size={18} />
+                </ActionIcon>
+              </Tooltip>
+              <Tooltip label={isAuthenticated ? "Save to Cloud" : "Sign in to save to cloud"}>
+                <ActionIcon
+                  variant={cloudEngineId ? "subtle" : "light"}
+                  color="violet"
+                  onClick={() => setSaveModalOpen(true)}
+                  disabled={!isAuthenticated}
+                >
+                  <Cloud size={18} />
+                </ActionIcon>
+              </Tooltip>
+
+              <Divider orientation="vertical" mx="xs" />
+
+              <Tooltip label="Undo">
+                <ActionIcon variant="subtle" onClick={actions.undo} disabled={!actions.canUndo()}>
+                  <Undo2 size={18} />
+                </ActionIcon>
+              </Tooltip>
+              <Tooltip label="Redo">
+                <ActionIcon variant="subtle" onClick={actions.redo} disabled={!actions.canRedo()}>
+                  <Redo2 size={18} />
+                </ActionIcon>
+              </Tooltip>
+            </Group>
+
+            {/* Center: Engine name */}
+            <Group gap="xs">
+              <Text fw={600} size="lg">
+                {draft.name}
+              </Text>
+              {draft.isDirty && (
+                <Badge size="xs" color="yellow">
+                  Unsaved
+                </Badge>
+              )}
+            </Group>
+
+            {/* Right: Mode toggle */}
+            <Group gap="xs">
+              <Divider orientation="vertical" mx="xs" />
+
+              <Tooltip label={mode === "preview" ? "Edit Mode" : "Preview Mode"}>
+                <ActionIcon
+                  variant={mode === "preview" ? "filled" : "subtle"}
+                  color={mode === "preview" ? "green" : undefined}
+                  onClick={() => actions.setMode(mode === "preview" ? "select" : "preview")}
+                >
+                  {mode === "preview" ? <Eye size={18} /> : <Play size={18} />}
+                </ActionIcon>
+              </Tooltip>
+            </Group>
           </Group>
-
-          {/* Center: Engine name */}
-          <Group gap="xs">
-            <Text fw={600} size="lg">
-              {draft.name}
-            </Text>
-            {draft.isDirty && (
-              <Badge size="xs" color="yellow">
-                Unsaved
-              </Badge>
-            )}
-          </Group>
-
-          {/* Right: Tools and panels */}
-          <Group gap="xs">
-            {/* Tool selection */}
-            <Divider orientation="vertical" mx="xs" />
-
-            {/* Mode toggle */}
-            <Tooltip label={mode === "preview" ? "Edit Mode" : "Preview Mode"}>
-              <ActionIcon
-                variant={mode === "preview" ? "filled" : "subtle"}
-                color={mode === "preview" ? "green" : undefined}
-                onClick={() => actions.setMode(mode === "preview" ? "select" : "preview")}
-              >
-                {mode === "preview" ? <Eye size={18} /> : <Play size={18} />}
-              </ActionIcon>
-            </Tooltip>
-
-            <Divider orientation="vertical" mx="xs" />
-
-            {/* Sidebar toggle */}
-            <Tooltip label="Toggle Sidebar">
-              <ActionIcon
-                variant={sidebarOpen ? "filled" : "subtle"}
-                onClick={() => {
-                  // Toggle sidebar - ensure both panels are in sync
-                  if (sidebarOpen) {
-                    // Close both panels
-                    if (panels.hexProperties) actions.togglePanel("hexProperties");
-                    if (panels.engineSettings) actions.togglePanel("engineSettings");
-                  } else {
-                    // Open the engineSettings panel (default)
-                    if (!panels.engineSettings) actions.togglePanel("engineSettings");
-                    if (!panels.hexProperties) actions.togglePanel("hexProperties");
-                  }
-                }}
-              >
-                <PanelLeft size={18} />
-              </ActionIcon>
-            </Tooltip>
-          </Group>
-        </Group>
+        )}
       </AppShell.Header>
 
       {/* Desktop: Sidebar as aside */}

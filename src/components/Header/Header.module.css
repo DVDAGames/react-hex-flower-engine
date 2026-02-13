@@ -41,3 +41,61 @@
   background: var(--mantine-color-default-hover);
   color: var(--mantine-color-text);
 }
+
+/* Desktop navigation - hidden on mobile */
+.desktopNav {
+  display: none;
+}
+
+@media (min-width: 769px) {
+  .desktopNav {
+    display: block;
+  }
+}
+
+/* Desktop actions - hidden on mobile */
+.desktopActions {
+  display: none;
+}
+
+@media (min-width: 769px) {
+  .desktopActions {
+    display: flex;
+  }
+}
+
+/* Burger menu - shown on mobile only */
+.burger {
+  display: block;
+}
+
+@media (min-width: 769px) {
+  .burger {
+    display: none;
+  }
+}
+
+/* Drawer styles */
+.drawerHeader {
+  border-bottom: 1px solid var(--mantine-color-default-border);
+}
+
+.drawerLink {
+  display: block;
+  padding: var(--mantine-spacing-md);
+  border-radius: var(--mantine-radius-sm);
+  color: var(--mantine-color-text);
+  font-size: var(--mantine-font-size-md);
+  font-weight: 500;
+  transition: background 150ms ease;
+}
+
+.drawerLink:hover {
+  background: var(--mantine-color-default-hover);
+}
+
+.drawerUserMenu {
+  padding-top: var(--mantine-spacing-md);
+  margin-top: var(--mantine-spacing-md);
+  border-top: 1px solid var(--mantine-color-default-border);
+}
