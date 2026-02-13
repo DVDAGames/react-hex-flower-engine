@@ -17,21 +17,21 @@ export function EngineSettingsPanel() {
     (value: string) => {
       actions.updateEngine({ name: value });
     },
-    [actions]
+    [actions],
   );
 
   const handleDescriptionChange = useCallback(
     (value: string) => {
       actions.updateEngine({ description: value });
     },
-    [actions]
+    [actions],
   );
 
   const handleIconChange = useCallback(
     (value: string | null) => {
       actions.updateEngine({ icon: value || undefined });
     },
-    [actions]
+    [actions],
   );
 
   const handleRollChange = useCallback(
@@ -40,7 +40,7 @@ export function EngineSettingsPanel() {
         actions.updateEngine({ roll: value });
       }
     },
-    [actions]
+    [actions],
   );
 
   const handleDirectionChange = useCallback(
@@ -50,7 +50,7 @@ export function EngineSettingsPanel() {
         actions.updateDirections(newDirections);
       }
     },
-    [actions, draft.directions]
+    [actions, draft.directions],
   );
 
   // Get the range of possible roll values based on the dice expression
@@ -81,7 +81,7 @@ export function EngineSettingsPanel() {
   const validationErrors = actions.validate();
 
   return (
-    <ScrollArea h="calc(100vh - 120px)" offsetScrollbars>
+    <ScrollArea h="calc(100% - 56px)" w="100%" px="md" pb="lg">
       <Stack gap="md">
         <Text size="lg" fw={600}>
           Engine Settings

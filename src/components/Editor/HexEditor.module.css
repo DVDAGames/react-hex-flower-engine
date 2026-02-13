@@ -1,5 +1,6 @@
 .editorShell {
   margin-top: 56px; /* Account for global header */
+  height: 100%;
 }
 
 .header {
@@ -11,7 +12,6 @@
 .panel {
   top: 116px !important; /* Position below global navbar (56px) + editor header (60px) */
   background: var(--mantine-color-body);
-  overflow-y: auto;
 }
 
 .main {

@@ -2,9 +2,9 @@ import { Container, Group, Text } from "@mantine/core";
 
 import classes from "./Footer.module.css";
 
-export function Footer() {
+export function Footer(props: React.ComponentPropsWithoutRef<"footer">) {
   return (
-    <Container fluid className={classes.footer} pt="md">
+    <Container fluid className={classes.footer} pt="md" {...props}>
       <Group justify="end" pb="md" gap="0">
         <Text size="xs" ta="center" c="dimmed" style={{ borderRight: "1px solid #666" }} pr="xs" mr="xs">
           v2.1.0

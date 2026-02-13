@@ -86,7 +86,6 @@ export interface EditorState {
   panels: {
     hexProperties: boolean;
     engineSettings: boolean;
-    directionEditor: boolean;
   };
 }
 
@@ -253,8 +252,7 @@ export function createInitialEditorState(engine?: EngineDefinition): EditorState
     isValid: true,
     panels: {
       hexProperties: true,
-      engineSettings: false,
-      directionEditor: false,
+      engineSettings: true,
     },
   };
 }

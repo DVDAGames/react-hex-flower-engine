@@ -36,7 +36,7 @@ export function HexPropertyPanel() {
         actions.updateHex(selectedHexId, { label: value });
       }
     },
-    [selectedHexId, actions]
+    [selectedHexId, actions],
   );
 
   const handleDescriptionChange = useCallback(
@@ -45,7 +45,7 @@ export function HexPropertyPanel() {
         actions.updateHex(selectedHexId, { description: value });
       }
     },
-    [selectedHexId, actions]
+    [selectedHexId, actions],
   );
 
   const handleColorChange = useCallback(
@@ -54,7 +54,7 @@ export function HexPropertyPanel() {
         actions.updateHexStyle(selectedHexId, { backgroundColor: value });
       }
     },
-    [selectedHexId, actions]
+    [selectedHexId, actions],
   );
 
   const handleTextColorChange = useCallback(
@@ -63,7 +63,7 @@ export function HexPropertyPanel() {
         actions.updateHexStyle(selectedHexId, { textColor: value });
       }
     },
-    [selectedHexId, actions]
+    [selectedHexId, actions],
   );
 
   const handleIconChange = useCallback(
@@ -72,7 +72,7 @@ export function HexPropertyPanel() {
         actions.updateHexStyle(selectedHexId, { icon: value || undefined });
       }
     },
-    [selectedHexId, actions]
+    [selectedHexId, actions],
   );
 
   const handleDirectionChange = useCallback(
@@ -81,7 +81,7 @@ export function HexPropertyPanel() {
         actions.updateHexMap(selectedHexId, direction, parseInt(targetId, 10));
       }
     },
-    [selectedHexId, actions]
+    [selectedHexId, actions],
   );
 
   const handleAddModifier = useCallback(() => {
@@ -96,7 +96,7 @@ export function HexPropertyPanel() {
         actions.removeModifier(selectedHexId, index);
       }
     },
-    [selectedHexId, actions]
+    [selectedHexId, actions],
   );
 
   const handleModifierChange = useCallback(
@@ -105,7 +105,7 @@ export function HexPropertyPanel() {
         actions.updateModifier(selectedHexId, index, { key, value });
       }
     },
-    [selectedHexId, actions]
+    [selectedHexId, actions],
   );
 
   const handleSetStart = useCallback(() => {
@@ -140,7 +140,7 @@ export function HexPropertyPanel() {
   const isStartHex = selectedHex.id === draft.start;
 
   return (
-    <ScrollArea h="calc(100vh - 120px)" offsetScrollbars>
+    <ScrollArea h="calc(100% - 56px)" w="100%" px="md" pb="lg">
       <Stack gap="md">
         <Group justify="space-between">
           <Text size="lg" fw={600}>

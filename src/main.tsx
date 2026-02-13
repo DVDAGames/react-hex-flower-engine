@@ -10,6 +10,8 @@ import { BrowserRouter } from "react-router-dom";
 import { AuthProvider, AccessModeProvider } from "@/contexts";
 import App from "./App";
 
+import "./main.css";
+
 const theme = createTheme({
   primaryColor: "violet",
   fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
@@ -40,5 +42,5 @@ root.render(
         </AuthProvider>
       </BrowserRouter>
     </MantineProvider>
-  </StrictMode>
+  </StrictMode>,
 );

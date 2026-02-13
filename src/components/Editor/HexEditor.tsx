@@ -1,5 +1,6 @@
 import { useCallback, useState, useEffect } from "react";
-import { AppShell, Group, ActionIcon, Tooltip, Badge, Divider, Text } from "@mantine/core";
+import { AppShell, Group, ActionIcon, Tooltip, Badge, Divider, Text, Tabs, Stack, Paper, Box } from "@mantine/core";
+import { useMediaQuery } from "@mantine/hooks";
 import {
   Undo2,
   Redo2,
@@ -8,11 +9,12 @@ import {
   Upload,
   FilePlus,
   PanelLeft,
-  PanelRight,
   Play,
   Eye,
   Cloud,
   FolderOpen,
+  Settings,
+  Hexagon,
 } from "lucide-react";
 
 import { useEditor } from "@/contexts/EditorContext";
@@ -23,7 +25,6 @@ import { HexPropertyPanel } from "./HexPropertyPanel";
 import { EngineSettingsPanel } from "./EngineSettingsPanel";
 import { MyEnginesModal } from "./MyEnginesModal";
 import { SaveEngineModal } from "./SaveEngineModal";
-import { Footer } from "@/components/Footer";
 
 import type { EngineDefinition } from "@/types/engine";
 import classes from "./HexEditor.module.css";
@@ -31,13 +32,16 @@ import classes from "./HexEditor.module.css";
 export function HexEditor({ engineId }: { engineId?: string }) {
   const { state, actions } = useEditor();
   const { isAuthenticated, user } = useAuth();
-  const { draft, mode, panels } = state;
+  const { draft, mode, panels, selectedHexId } = state;
 
   // Modal states
   const [myEnginesOpen, setMyEnginesOpen] = useState(false);
   const [saveModalOpen, setSaveModalOpen] = useState(false);
   const [cloudEngineId, setCloudEngineId] = useState<string | null>(engineId || draft.sourceEngineId || null);
   const [hasLoadedDefault, setHasLoadedDefault] = useState(false);
+
+  // Sidebar tab state
+  const [activeTab, setActiveTab] = useState<string | null>("engine");
 
   // Load default editor engine on mount if user has one set
   useEffect(() => {
@@ -74,6 +78,15 @@ export function HexEditor({ engineId }: { engineId?: string }) {
       });
     }
   }, [isAuthenticated, user?.defaultEditorEngineId, hasLoadedDefault, draft, actions]);
+
+  // Switch to hex tab when a hex is selected, switch to engine tab when deselected
+  useEffect(() => {
+    if (selectedHexId !== null) {
+      setActiveTab("hex");
+    } else {
+      setActiveTab("engine");
+    }
+  }, [selectedHexId]);
 
   const handleExport = useCallback(() => {
     const engine = actions.exportEngine();
@@ -136,20 +149,25 @@ export function HexEditor({ engineId }: { engineId?: string }) {
     [actions],
   );
 
+  // Sidebar is open if either panel was open (for backwards compatibility)
+  const sidebarOpen = panels.hexProperties || panels.engineSettings;
+
+  // Detect small viewports (mobile/tablet)
+  const isMobile = useMediaQuery("(max-width: 768px)");
+
   return (
     <AppShell
       className={classes.editorShell}
       header={{ height: 60 }}
-      navbar={{
-        width: panels.hexProperties ? 320 : 0,
-        breakpoint: "sm",
-        collapsed: { mobile: !panels.hexProperties, desktop: !panels.hexProperties },
-      }}
-      aside={{
-        width: panels.engineSettings ? 320 : 0,
-        breakpoint: "sm",
-        collapsed: { mobile: !panels.engineSettings, desktop: !panels.engineSettings },
-      }}
+      aside={
+        isMobile
+          ? undefined // Don't use aside on mobile
+          : {
+              width: sidebarOpen ? 360 : 0,
+              breakpoint: "sm",
+              collapsed: { mobile: !sidebarOpen, desktop: !sidebarOpen },
+            }
+      }
       padding="md"
     >
       <AppShell.Header className={classes.header}>
@@ -243,42 +261,85 @@ export function HexEditor({ engineId }: { engineId?: string }) {
 
             <Divider orientation="vertical" mx="xs" />
 
-            {/* Panel toggles */}
-            <Tooltip label="Hex Properties">
+            {/* Sidebar toggle */}
+            <Tooltip label="Toggle Sidebar">
               <ActionIcon
-                variant={panels.hexProperties ? "filled" : "subtle"}
-                onClick={() => actions.togglePanel("hexProperties")}
+                variant={sidebarOpen ? "filled" : "subtle"}
+                onClick={() => {
+                  // Toggle sidebar - ensure both panels are in sync
+                  if (sidebarOpen) {
+                    // Close both panels
+                    if (panels.hexProperties) actions.togglePanel("hexProperties");
+                    if (panels.engineSettings) actions.togglePanel("engineSettings");
+                  } else {
+                    // Open the engineSettings panel (default)
+                    if (!panels.engineSettings) actions.togglePanel("engineSettings");
+                    if (!panels.hexProperties) actions.togglePanel("hexProperties");
+                  }
+                }}
               >
                 <PanelLeft size={18} />
-              </ActionIcon>
-            </Tooltip>
-            <Tooltip label="Engine Settings">
-              <ActionIcon
-                variant={panels.engineSettings ? "filled" : "subtle"}
-                onClick={() => actions.togglePanel("engineSettings")}
-              >
-                <PanelRight size={18} />
               </ActionIcon>
             </Tooltip>
           </Group>
         </Group>
       </AppShell.Header>
 
-      {panels.hexProperties && (
-        <AppShell.Navbar p="md" className={classes.panel}>
-          <HexPropertyPanel />
-        </AppShell.Navbar>
-      )}
+      {/* Desktop: Sidebar as aside */}
+      {!isMobile && sidebarOpen && (
+        <AppShell.Aside className={classes.panel}>
+          <Tabs
+            value={activeTab}
+            onChange={setActiveTab}
+            orientation="horizontal"
+            style={{ display: "flex", flexDirection: "column", height: "100%" }}
+          >
+            <Tabs.List px="md" pt="md">
+              <Tabs.Tab value="engine" leftSection={<Settings size={16} />}>
+                Engine
+              </Tabs.Tab>
+              <Tabs.Tab value="hex" disabled={selectedHexId === null} leftSection={<Hexagon size={16} />}>
+                Hex
+              </Tabs.Tab>
+            </Tabs.List>
 
-      {panels.engineSettings && (
-        <AppShell.Aside p="md" className={classes.panel}>
-          <EngineSettingsPanel />
+            <Tabs.Panel value="hex" pt="md" style={{ flex: 1, overflowY: "auto" }}>
+              <HexPropertyPanel />
+            </Tabs.Panel>
+
+            <Tabs.Panel value="engine" pt="md" style={{ flex: 1, overflowY: "auto" }}>
+              <EngineSettingsPanel />
+            </Tabs.Panel>
+          </Tabs>
         </AppShell.Aside>
       )}
 
       <AppShell.Main className={classes.main}>
         <EditorGrid />
-        <Footer />
+
+        {/* Mobile: Sidebar below grid */}
+        {isMobile && sidebarOpen && (
+          <Paper shadow="sm" p="md" mt="md" w="100%" maw={800} style={{ borderRadius: 8 }}>
+            <Tabs value={activeTab} onChange={setActiveTab} orientation="horizontal">
+              <Tabs.List>
+                <Tabs.Tab value="engine" leftSection={<Settings size={16} />}>
+                  Engine
+                </Tabs.Tab>
+                <Tabs.Tab value="hex" disabled={selectedHexId === null} leftSection={<Hexagon size={16} />}>
+                  Hex
+                </Tabs.Tab>
+              </Tabs.List>
+
+              <Tabs.Panel value="hex" pt="md">
+                <HexPropertyPanel />
+              </Tabs.Panel>
+
+              <Tabs.Panel value="engine" pt="md">
+                <EngineSettingsPanel />
+              </Tabs.Panel>
+            </Tabs>
+          </Paper>
+        )}
       </AppShell.Main>
 
       {/* Modals */}
