@@ -291,8 +291,19 @@ function HexFlowerRunner() {
         )}
       </Transition>
 
-      <Container size="lg" className={classes.container}>
-        <Stack gap="md" align="center">
+      <div className={classes.runnerLayout}>
+        {/* Toolbar — above grid on mobile (order:1), sticky right sidebar on desktop */}
+        <div className={classes.toolbarWrapper}>
+          <Toolbar
+            currentEngine={currentEngine}
+            setActiveHex={setActiveHex}
+            setRoll={setRoll}
+            onAction={handleToolbarAction}
+            title={isBasicEngine ? "Hex Flower Engine" : currentEngine.name}
+          />
+        </div>
+
+        <Container size="lg" className={classes.mainContent}>
           <Title order={1} className={classes.heading}>
             {isBasicEngine ? "Hex Flower Engine" : currentEngine.name}
           </Title>
@@ -303,43 +314,39 @@ function HexFlowerRunner() {
             </Badge>
           )}
 
-          <Grid engine={currentEngine} activeHex={activeHex ?? currentEngine.start} setActiveHex={setActiveHex} />
+          <div className={classes.contentLayout}>
+            <Grid engine={currentEngine} activeHex={activeHex ?? currentEngine.start} setActiveHex={setActiveHex} />
 
-          {/* Status display */}
-          {activeHexInfo?.label && (
-            <Paper p="md" radius="md" className={classes.status}>
-              <Title order={2} size="h4">
-                {activeHexInfo.label}
-              </Title>
+            {/* Status display */}
+            {activeHexInfo?.label && (
+              <Paper p="md" radius="md" className={classes.status}>
+                <Title order={2} size="h4">
+                  {activeHexInfo.label}
+                </Title>
 
-              {activeHexInfo.description && (
-                <Text size="sm" c="dimmed" mt="xs">
-                  {activeHexInfo.description}
-                </Text>
-              )}
+                {activeHexInfo.description && (
+                  <Text size="sm" c="dimmed" mt="xs">
+                    {activeHexInfo.description}
+                  </Text>
+                )}
 
-              {activeHexInfo.modifiers && activeHexInfo.modifiers.length > 0 && (
-                <List size="sm" mt="sm">
-                  {activeHexInfo.modifiers.map((mod) => (
-                    <List.Item key={mod.key}>
-                      <Text component="span" fw={600}>
-                        {mod.key}:
-                      </Text>{" "}
-                      {mod.value}
-                    </List.Item>
-                  ))}
-                </List>
-              )}
-            </Paper>
-          )}
-        </Stack>
-        <Toolbar
-          currentEngine={currentEngine}
-          setActiveHex={setActiveHex}
-          setRoll={setRoll}
-          onAction={handleToolbarAction} // Pass the new handler
-        />
-      </Container>
+                {activeHexInfo.modifiers && activeHexInfo.modifiers.length > 0 && (
+                  <List size="sm" mt="sm">
+                    {activeHexInfo.modifiers.map((mod) => (
+                      <List.Item key={mod.key}>
+                        <Text component="span" fw={600}>
+                          {mod.key}:
+                        </Text>{" "}
+                        {mod.value}
+                      </List.Item>
+                    ))}
+                  </List>
+                )}
+              </Paper>
+            )}
+          </div>
+        </Container>
+      </div>
     </PageLayout>
   );
 }

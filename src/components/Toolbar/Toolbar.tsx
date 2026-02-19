@@ -23,10 +23,11 @@ interface ToolbarProps {
   currentEngine: EngineDefinition;
   setActiveHex: (hex: number) => void;
   setRoll?: (roll: RollResult | null) => void;
-  onAction: (action: ActionType, rollTotal: number) => void; // New prop for handling actions
+  onAction: (action: ActionType, rollTotal: number) => void;
+  title?: string;
 }
 
-export function Toolbar({ currentEngine, setActiveHex, setRoll, onAction }: ToolbarProps) {
+export function Toolbar({ currentEngine, setActiveHex, setRoll, onAction, title }: ToolbarProps) {
   const { mode } = useAccessMode();
 
   const runEngine = () => {
@@ -59,27 +60,25 @@ export function Toolbar({ currentEngine, setActiveHex, setRoll, onAction }: Tool
 
   return (
     <nav className={classes.toolbar}>
-      <Group gap="sm" wrap="wrap" justify="center">
-        {/* Engine Controls - Always available */}
-        <Group gap="xs">
-          <Tooltip label={`Roll ${currentEngine.roll}`}>
-            <Button onClick={runEngine} leftSection={<Dices size={18} />} variant="filled">
-              Run Engine
-            </Button>
-          </Tooltip>
+      {title && <span className={classes.title}>{title}</span>}
+      <Group gap="xs" className={classes.buttonGroup} wrap="wrap" justify="center">
+        <Tooltip label={`Roll ${currentEngine.roll}`}>
+          <Button onClick={runEngine} leftSection={<Dices size={18} />} variant="filled">
+            Run Engine
+          </Button>
+        </Tooltip>
 
-          <Tooltip label="Jump to random hex (1d19)">
-            <Button onClick={randomHex} leftSection={<Shuffle size={18} />} variant="light">
-              Random
-            </Button>
-          </Tooltip>
+        <Tooltip label="Jump to random hex (1d19)">
+          <Button onClick={randomHex} leftSection={<Shuffle size={18} />} variant="light">
+            Random
+          </Button>
+        </Tooltip>
 
-          <Tooltip label="Return to starting position">
-            <ActionIcon onClick={restartEngine} variant="subtle" size="lg" aria-label="Restart engine">
-              <RotateCcw size={18} />
-            </ActionIcon>
-          </Tooltip>
-        </Group>
+        <Tooltip label="Return to starting position">
+          <ActionIcon onClick={restartEngine} variant="subtle" size="lg" aria-label="Restart engine">
+            <RotateCcw size={18} />
+          </ActionIcon>
+        </Tooltip>
       </Group>
 
       {/* Readonly indicator */}

@@ -1,3 +1,41 @@
+/* Toolbar always on top, content below */
+.runnerLayout {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  width: 100%;
+}
+
+.toolbarWrapper {
+  width: 100%;
+  border-bottom: 1px solid var(--mantine-color-default-border);
+}
+
+.mainContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--mantine-spacing-xl);
+}
+
+.contentLayout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: var(--mantine-spacing-md);
+}
+
+@media (min-width: 1024px) {
+  .contentLayout {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 4rem;
+  }
+}
+
 .container {
   display: flex;
   flex-direction: column;
@@ -9,6 +47,13 @@
 .heading {
   text-align: center;
   margin-bottom: var(--mantine-spacing-md);
+}
+
+/* Title moves into the toolbar on desktop */
+@media (min-width: 768px) {
+  .heading {
+    display: none;
+  }
 }
 
 .rollDisplay {
@@ -27,6 +72,15 @@
   text-align: center;
   max-width: 400px;
   width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .status {
+    text-align: left;
+    max-width: 300px;
+    min-width: 220px;
+    font-size: 1rem;
+  }
 }
 
 /* Visually hidden utility */

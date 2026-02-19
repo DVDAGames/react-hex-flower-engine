@@ -106,9 +106,12 @@ export function EditorGrid() {
   return (
     <Box className={classes.container}>
       {mode === "preview" && (
-        <Text size="sm" c="dimmed" ta="center" mb="md">
-          Preview Mode - Click hexes to simulate navigation
-        </Text>
+        <>
+          <Toolbar currentEngine={draft} onAction={handleToolbarAction} setActiveHex={(hexId) => hexMap.get(hexId)} />
+          <Text size="sm" c="dimmed" ta="center" mt="sm" mb="md">
+            Preview Mode - Click hexes to simulate navigation
+          </Text>
+        </>
       )}
       <div className={classes.grid}>
         {HEX_ROWS.map((row, rowIndex) => (
@@ -131,38 +134,33 @@ export function EditorGrid() {
           </div>
         ))}
       </div>
-      {mode === "preview" ? (
+      {mode === "preview" && selectedHex?.label && (
         <Stack mt="md" align="center">
-          {selectedHex?.label && (
-            <Paper p="md" radius="md" className={classes.status}>
-              <Title order={2} size="h4">
-                {selectedHex.label}
-              </Title>
+          <Paper p="md" radius="md" className={classes.status}>
+            <Title order={2} size="h4">
+              {selectedHex.label}
+            </Title>
 
-              {selectedHex.description && (
-                <Text size="sm" c="dimmed" mt="xs">
-                  {selectedHex.description}
-                </Text>
-              )}
+            {selectedHex.description && (
+              <Text size="sm" c="dimmed" mt="xs">
+                {selectedHex.description}
+              </Text>
+            )}
 
-              {selectedHex.modifiers && selectedHex.modifiers.length > 0 && (
-                <List size="sm" mt="sm">
-                  {selectedHex.modifiers.map((mod) => (
-                    <List.Item key={mod.key}>
-                      <Text component="span" fw={600}>
-                        {mod.key}:
-                      </Text>{" "}
-                      {mod.value}
-                    </List.Item>
-                  ))}
-                </List>
-              )}
-            </Paper>
-          )}
-          <Toolbar currentEngine={draft} onAction={handleToolbarAction} setActiveHex={(hexId) => hexMap.get(hexId)} />
+            {selectedHex.modifiers && selectedHex.modifiers.length > 0 && (
+              <List size="sm" mt="sm">
+                {selectedHex.modifiers.map((mod) => (
+                  <List.Item key={mod.key}>
+                    <Text component="span" fw={600}>
+                      {mod.key}:
+                    </Text>{" "}
+                    {mod.value}
+                  </List.Item>
+                ))}
+              </List>
+            )}
+          </Paper>
         </Stack>
-      ) : (
-        <></>
       )}
     </Box>
   );

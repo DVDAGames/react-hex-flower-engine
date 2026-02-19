@@ -6,6 +6,11 @@
   gap: var(--mantine-spacing-sm);
 }
 
+/* Title is hidden on mobile — it stays in the page heading */
+.title {
+  display: none;
+}
+
 .readonlyBadge {
   font-size: 0.875rem;
   color: var(--mantine-color-dimmed);
@@ -13,3 +18,25 @@
   align-items: center;
   gap: var(--mantine-spacing-xs);
 }
+
+/* Desktop: title left, buttons right */
+@media (min-width: 768px) {
+  .toolbar {
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    padding: var(--mantine-spacing-sm) var(--mantine-spacing-md);
+  }
+
+  .title {
+    display: block;
+    font-weight: 600;
+    font-size: var(--mantine-font-size-lg);
+  }
+
+  /* Push buttons to the right only when a title is present */
+  .toolbar:has(.title) .buttonGroup {
+    margin-left: auto;
+  }
+}
+
